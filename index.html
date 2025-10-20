@@ -1123,94 +1123,115 @@
 
       .premium-bottom-nav {
         position: fixed;
-        bottom: 28px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: min(520px, 92vw);
-        background: rgba(248, 250, 255, 0.75);
-        backdrop-filter: blur(24px) saturate(140%);
-        border-radius: 999px;
-        border: 1px solid rgba(255, 255, 255, 0.6);
-        box-shadow: 0 28px 60px -28px rgba(15, 23, 42, 0.6);
-        padding: 0.55rem;
-        display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-        gap: 0.45rem;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 0.6rem clamp(1.25rem, 6vw, 2.4rem) calc(0.6rem + env(safe-area-inset-bottom));
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(18px);
+        border-top: 1px solid rgba(148, 163, 184, 0.25);
+        box-shadow: 0 -18px 38px -24px rgba(15, 23, 42, 0.45);
         z-index: 60;
       }
 
       .premium-bottom-nav button {
         border: none;
         background: transparent;
-        color: #1f2a54;
+        color: #64748b;
         font-weight: 600;
-        display: grid;
-        justify-items: center;
-        gap: 0.4rem;
-        border-radius: 26px;
-        padding: 0.6rem 0.75rem;
-        font-size: 0.78rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.35rem;
+        border-radius: 18px;
+        padding: 0.35rem 0.45rem;
+        font-size: 0.75rem;
         cursor: pointer;
-        transition: background var(--transition), transform var(--transition), color var(--transition);
+        transition: color var(--transition), transform var(--transition);
       }
 
       .premium-bottom-nav button .nav-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 18px;
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.4), rgba(203, 213, 225, 0.15));
-        border: 1px solid rgba(255, 255, 255, 0.55);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 14px 32px -18px rgba(15, 23, 42, 0.45);
-        display: grid;
-        place-items: center;
-        transition: transform var(--transition), background var(--transition), border var(--transition);
-        color: var(--primary-600);
-      }
-
-      .premium-bottom-nav button .nav-icon i {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
         font-size: 1.2rem;
-        filter: drop-shadow(0 12px 18px rgba(76, 81, 255, 0.25));
+        color: inherit;
+        transition: inherit;
       }
 
       .premium-bottom-nav button .nav-label {
-        font-size: 0.72rem;
-        letter-spacing: 0.02em;
+        font-size: 0.74rem;
+        letter-spacing: 0.01em;
       }
 
-      .premium-bottom-nav button.active,
-      .premium-bottom-nav button:hover {
-        background: linear-gradient(135deg, rgba(76, 81, 255, 0.2), rgba(59, 130, 246, 0.16));
-        color: var(--primary-700);
-        transform: translateY(-2px);
+      .premium-bottom-nav button.active {
+        color: var(--primary-600);
       }
 
       .premium-bottom-nav button.active .nav-icon,
       .premium-bottom-nav button:hover .nav-icon {
-        background: linear-gradient(135deg, rgba(76, 81, 255, 0.86), rgba(37, 99, 235, 0.68));
-        border-color: rgba(255, 255, 255, 0.75);
+        color: var(--primary-600);
+      }
+
+      .premium-bottom-nav button.nav-item--highlight {
+        position: relative;
+        padding: 0.35rem 0.65rem 0.95rem;
+        margin-top: -32px;
+      }
+
+      .premium-bottom-nav button.nav-item--highlight .nav-icon {
+        width: 62px;
+        height: 62px;
+        border-radius: 999px;
+        background: linear-gradient(145deg, var(--primary-600), var(--primary-500));
         color: white;
+        font-size: 1.35rem;
+        box-shadow: 0 18px 40px -20px rgba(59, 130, 246, 0.7);
+        transform: translateY(-12px);
+        transition: background var(--transition), transform var(--transition), color var(--transition);
+      }
+
+      .premium-bottom-nav button.nav-item--highlight .nav-label {
+        font-size: 0.78rem;
+        font-weight: 600;
+      }
+
+      .premium-bottom-nav button.nav-item--highlight:hover .nav-icon,
+      .premium-bottom-nav button.nav-item--highlight.active .nav-icon {
+        background: linear-gradient(145deg, var(--primary-700), var(--primary-600));
+        transform: translateY(-16px);
       }
 
       @media (max-width: 640px) {
         .premium-bottom-nav {
-          bottom: 16px;
-          padding: 0.45rem;
-          width: min(460px, 94vw);
-          grid-template-columns: repeat(5, minmax(0, 1fr));
+          padding: 0.55rem clamp(0.8rem, 5vw, 1.4rem) calc(0.55rem + env(safe-area-inset-bottom));
         }
 
         .premium-bottom-nav button {
-          font-size: 0.72rem;
-          padding: 0.5rem 0.6rem;
+          font-size: 0.7rem;
+          gap: 0.25rem;
         }
 
         .premium-bottom-nav button .nav-icon {
-          width: 42px;
-          height: 42px;
+          width: 28px;
+          height: 28px;
+          font-size: 1.1rem;
         }
 
-        .premium-bottom-nav button .nav-label {
-          font-size: 0.64rem;
+        .premium-bottom-nav button.nav-item--highlight {
+          margin-top: -28px;
+          padding: 0.3rem 0.55rem 0.85rem;
+        }
+
+        .premium-bottom-nav button.nav-item--highlight .nav-icon {
+          width: 56px;
+          height: 56px;
+          font-size: 1.25rem;
         }
 
         .section-header {
@@ -1719,24 +1740,24 @@
     </main>
 
     <nav class="premium-bottom-nav" aria-label="Navegación principal de Cambalaches">
-      <button type="button" data-target="feed-section" data-nav="primary" class="active">
-        <span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-compass"></i></span>
+      <button type="button" data-target="feed-section" data-nav="primary" class="nav-item active">
+        <span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
         <span class="nav-label">Explorar</span>
       </button>
-      <button type="button" data-target="my-items" data-nav="primary">
+      <button type="button" data-target="my-items" data-nav="primary" class="nav-item">
         <span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-layer-group"></i></span>
         <span class="nav-label">Mis artículos</span>
       </button>
-      <button type="button" data-target="active-exchanges" data-nav="primary">
-        <span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-arrows-rotate"></i></span>
+      <button type="button" data-target="active-exchanges" data-nav="primary" class="nav-item nav-item--highlight">
+        <span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-right-left"></i></span>
         <span class="nav-label">Canjes</span>
       </button>
-      <button type="button" data-target="reputation" data-nav="primary">
+      <button type="button" data-target="reputation" data-nav="primary" class="nav-item">
         <span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-gem"></i></span>
         <span class="nav-label">Reputación</span>
       </button>
-      <button type="button" data-target="support" data-nav="primary">
-        <span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></span>
+      <button type="button" data-target="support" data-nav="primary" class="nav-item">
+        <span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-bars"></i></span>
         <span class="nav-label">Soporte</span>
       </button>
     </nav>
