@@ -1135,7 +1135,7 @@
 
       .premium-bottom-nav__card {
         display: flex;
-        align-items: center;
+        align-items: flex-end;
         justify-content: space-between;
         gap: 0.4rem;
         width: min(640px, 100%);
@@ -1162,6 +1162,9 @@
         border-radius: 18px;
         padding: 0.55rem 0.35rem;
         font-size: 0.75rem;
+        text-align: center;
+        white-space: nowrap;
+        line-height: 1.1;
         cursor: pointer;
         transition: color var(--transition), background var(--transition), transform var(--transition);
       }
@@ -1180,6 +1183,7 @@
       .premium-bottom-nav button .nav-label {
         font-size: 0.74rem;
         letter-spacing: 0.01em;
+        display: block;
       }
 
       .premium-bottom-nav button:hover,
@@ -1197,10 +1201,9 @@
 
       .premium-bottom-nav button.nav-item--highlight {
         flex: 0 0 auto;
-        padding: 0;
+        padding: 0.55rem 0.35rem;
         background: none;
         color: var(--primary-700);
-        transform: translateY(-28%);
         z-index: 2;
         gap: 0.45rem;
       }
@@ -1261,7 +1264,6 @@
         }
 
         .premium-bottom-nav button.nav-item--highlight {
-          transform: translateY(-35%);
           gap: 0.35rem;
         }
 
