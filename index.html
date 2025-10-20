@@ -38,7 +38,7 @@
         --radius-md: 16px;
         --radius-sm: 12px;
         --transition: 240ms cubic-bezier(0.23, 1, 0.32, 1);
-        --header-height: 96px;
+        --header-height: 220px;
       }
 
       *,
@@ -83,20 +83,62 @@
         right: 0;
         z-index: 40;
         width: 100%;
-        backdrop-filter: blur(22px);
-        background: rgba(245, 247, 255, 0.95);
-        border-bottom: 1px solid rgba(79, 70, 229, 0.08);
-        box-shadow: 0 18px 40px -32px rgba(15, 23, 42, 0.35);
+        background: linear-gradient(135deg, #ffd60a, #ffe169 55%, #fff5a5);
+        border-bottom: 1px solid rgba(15, 15, 15, 0.08);
+        box-shadow: 0 22px 48px -30px rgba(0, 0, 0, 0.45);
+        color: #111827;
       }
 
-      .topbar {
+      .header-shell {
         width: min(1280px, 94vw);
         margin: 0 auto;
-        padding: 1.1rem 0;
+        display: grid;
+        gap: 1rem;
+        padding: 1.25rem 0 1.6rem;
+      }
+
+      .header-top {
+        display: grid;
+        gap: 1rem;
+        align-items: center;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        grid-template-areas: "brand search actions";
+      }
+
+      .header-top .brand {
+        grid-area: brand;
+      }
+
+      .header-top .header-search {
+        grid-area: search;
+      }
+
+      .header-top .header-actions {
+        grid-area: actions;
+      }
+
+      .header-bottom {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        gap: 2rem;
+      }
+
+      .quick-nav {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        width: 100%;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 0.25rem;
+        scrollbar-width: none;
+      }
+
+      .quick-nav::-webkit-scrollbar {
+        display: none;
+      }
+
+      .quick-nav button {
+        flex: 0 0 auto;
       }
 
       .brand {
@@ -112,23 +154,26 @@
         border-radius: 16px;
         display: grid;
         place-items: center;
-        background: linear-gradient(135deg, #4c51ff, #8a5dff);
-        color: #fff;
+        background: linear-gradient(135deg, #111, #2f2f2f);
+        color: #ffd60a;
         font-weight: 700;
         letter-spacing: 0.02em;
-        box-shadow: 0 20px 45px rgba(76, 81, 255, 0.35);
+        box-shadow: 0 16px 40px -18px rgba(0, 0, 0, 0.6);
       }
 
       .brand h1 {
         margin: 0;
         font-size: clamp(1.5rem, 2.6vw, 2.3rem);
         letter-spacing: -0.03em;
+        color: #0b0f19;
       }
 
       nav {
         display: flex;
         align-items: center;
         gap: 0.65rem;
+        flex: 1 1 auto;
+        flex-wrap: wrap;
       }
 
       nav button {
@@ -137,22 +182,88 @@
         background: transparent;
         padding: 0.65rem 1.1rem;
         font-weight: 600;
-        color: #1f2a54;
+        color: rgba(17, 17, 17, 0.88);
         cursor: pointer;
-        transition: background var(--transition), color var(--transition), transform var(--transition);
+        transition: background var(--transition), color var(--transition), transform var(--transition), box-shadow var(--transition);
       }
 
       nav button:hover,
       nav button:focus-visible {
-        background: rgba(76, 81, 255, 0.12);
-        color: var(--primary-700);
+        background: rgba(17, 17, 17, 0.1);
+        color: #050505;
+        box-shadow: 0 10px 24px -18px rgba(0, 0, 0, 0.45);
         transform: translateY(-1px);
+      }
+
+      nav button.active {
+        background: #111;
+        color: #ffd60a;
+        box-shadow: 0 16px 30px -18px rgba(0, 0, 0, 0.5);
       }
 
       .header-actions {
         display: flex;
         gap: 0.75rem;
         align-items: center;
+        flex-shrink: 0;
+        justify-content: flex-end;
+      }
+
+      .header-search {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.6rem 0.9rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.85);
+        box-shadow: 0 18px 38px -26px rgba(0, 0, 0, 0.4);
+        flex: 1 1 320px;
+        max-width: 520px;
+        transition: box-shadow var(--transition), transform var(--transition);
+      }
+
+      .header-search:focus-within {
+        box-shadow: 0 24px 48px -22px rgba(0, 0, 0, 0.48);
+        transform: translateY(-1px);
+      }
+
+      .header-search i {
+        color: #111;
+        font-size: 1rem;
+      }
+
+      .header-search input {
+        border: none;
+        background: transparent;
+        flex: 1;
+        font-size: 0.95rem;
+        font-family: inherit;
+        color: #111;
+      }
+
+      .header-search input::placeholder {
+        color: rgba(17, 17, 17, 0.55);
+      }
+
+      .header-search input:focus {
+        outline: none;
+      }
+
+      .header-search button {
+        border: none;
+        background: #111;
+        color: #ffd60a;
+        border-radius: 999px;
+        padding: 0.55rem 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform var(--transition), box-shadow var(--transition);
+      }
+
+      .header-search button:hover,
+      .header-search button:focus-visible {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 30px -20px rgba(0, 0, 0, 0.55);
       }
 
       .btn {
@@ -165,23 +276,24 @@
       }
 
       .btn-primary {
-        background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
-        color: white;
-        box-shadow: 0 18px 30px -20px rgba(76, 81, 255, 0.55);
+        background: #111;
+        color: #ffd60a;
+        box-shadow: 0 18px 30px -16px rgba(0, 0, 0, 0.55);
       }
 
       .btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 24px 40px -20px rgba(76, 81, 255, 0.55);
+        box-shadow: 0 26px 46px -20px rgba(0, 0, 0, 0.6);
       }
 
       .btn-outline {
-        background: rgba(76, 81, 255, 0.08);
-        color: var(--primary-700);
+        background: rgba(17, 17, 17, 0.08);
+        color: #111;
+        border: 1px solid rgba(17, 17, 17, 0.18);
       }
 
       .btn-outline:hover {
-        background: rgba(76, 81, 255, 0.18);
+        background: rgba(17, 17, 17, 0.18);
         transform: translateY(-2px);
       }
 
@@ -194,63 +306,111 @@
         box-shadow: 0 12px 24px rgba(15, 23, 42, 0.25);
       }
 
+      .admin-banner {
+        width: 100%;
+        margin: 0;
+        background: linear-gradient(180deg, rgba(255, 214, 10, 0.55), rgba(255, 214, 10, 0));
+        padding-top: 0.6rem;
+      }
+
+      .banner-controls {
+        width: min(1280px, 94vw);
+        margin: 0 auto 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.2rem;
+        flex-wrap: wrap;
+      }
+
+      .banner-controls h2 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #111;
+      }
+
+      .banner-controls p {
+        margin: 0.2rem 0 0;
+        color: rgba(17, 17, 17, 0.6);
+        font-size: 0.9rem;
+      }
+
+      .banner-upload {
+        position: relative;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(17, 17, 17, 0.08);
+        color: #111;
+        font-weight: 600;
+        padding: 0.65rem 1.4rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        cursor: pointer;
+        transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+      }
+
+      .banner-upload:hover {
+        transform: translateY(-2px);
+        background: rgba(17, 17, 17, 0.16);
+        box-shadow: 0 16px 32px -20px rgba(0, 0, 0, 0.4);
+      }
+
+      .banner-upload input {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+      }
+
+      .banner-slider {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        min-height: clamp(220px, 32vw, 380px);
+        border-radius: 0;
+      }
+
+      .banner-slide {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        transform: scale(1.01);
+        transition: opacity 0.8s ease, transform 0.8s ease;
+      }
+
+      .banner-slide.active {
+        opacity: 1;
+        transform: scale(1);
+        z-index: 1;
+      }
+
+      .banner-slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .banner-empty-state {
+        width: 100%;
+        min-height: clamp(220px, 32vw, 380px);
+        display: grid;
+        place-items: center;
+        background: repeating-linear-gradient(135deg, rgba(17, 17, 17, 0.04) 0px, rgba(17, 17, 17, 0.04) 14px, rgba(17, 17, 17, 0.1) 14px, rgba(17, 17, 17, 0.1) 28px);
+        color: rgba(17, 17, 17, 0.6);
+        text-align: center;
+        padding: 2rem 1rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+      }
+
       main {
         width: min(1280px, 94vw);
         margin: 0 auto 5rem;
         display: grid;
         gap: 3rem;
-      }
-
-      .hero {
-        background: var(--surface);
-        margin-top: 2.8rem;
-        border-radius: var(--radius-xl);
-        padding: clamp(2.2rem, 3vw, 3.4rem);
-        box-shadow: var(--shadow-lg);
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 360px);
-        gap: clamp(2rem, 4vw, 4.2rem);
-        align-items: center;
-      }
-
-      .hero h2 {
-        margin: 0 0 1.2rem;
-        font-size: clamp(2.1rem, 4vw, 2.9rem);
-        letter-spacing: -0.03em;
-      }
-
-      .hero p {
-        margin: 0 0 1.8rem;
-        max-width: 620px;
-        color: var(--muted);
-        line-height: 1.6;
-      }
-
-      .hero-stats {
-        display: grid;
-        gap: 1rem;
-      }
-
-      .hero-stat {
-        background: var(--surface-strong);
-        border-radius: var(--radius-lg);
-        padding: 1.1rem 1.4rem;
-        border: 1px solid var(--border);
-        display: flex;
-        align-items: center;
-        gap: 1.1rem;
-        box-shadow: var(--shadow-sm);
-      }
-
-      .hero-stat i {
-        width: 46px;
-        height: 46px;
-        border-radius: 14px;
-        display: grid;
-        place-items: center;
-        background: rgba(76, 81, 255, 0.12);
-        color: var(--primary-600);
-        font-size: 1.2rem;
       }
 
       .dashboard-grid {
@@ -261,35 +421,46 @@
       }
 
       @media (max-width: 1024px) {
-        .hero {
-          grid-template-columns: 1fr;
-        }
-        .dashboard-grid {
-          grid-template-columns: 1fr;
-        }
-        nav {
-          display: none;
-        }
-      }
-
-      @media (max-width: 900px) {
         :root {
-          --header-height: 124px;
+          --header-height: 236px;
         }
-        .topbar {
-          flex-wrap: wrap;
-          justify-content: center;
-          gap: 0.9rem;
+        .header-top {
+          grid-template-columns: auto minmax(0, 1fr);
+          grid-template-areas:
+            "brand search"
+            "actions actions";
         }
         .header-actions {
-          width: 100%;
-          justify-content: center;
+          justify-content: flex-end;
           flex-wrap: wrap;
           gap: 0.6rem;
         }
         .header-actions .btn,
         .header-actions #open-auth {
-          flex: 1 1 180px;
+          flex: 0 1 200px;
+        }
+        .dashboard-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 900px) {
+        :root {
+          --header-height: 252px;
+        }
+        .header-actions {
+          width: 100%;
+          justify-content: center;
+        }
+        .header-bottom {
+          justify-content: center;
+        }
+        .quick-nav {
+          justify-content: center;
+        }
+        .banner-controls {
+          flex-direction: column;
+          align-items: flex-start;
         }
         .profile-panel {
           position: static;
@@ -301,30 +472,32 @@
 
       @media (max-width: 640px) {
         :root {
-          --header-height: 148px;
-        }
-        .topbar {
-          gap: 0.75rem;
-        }
-        .brand {
-          width: 100%;
-          justify-content: center;
+          --header-height: 288px;
         }
         .header-actions {
-          flex-direction: column;
+          flex-wrap: wrap;
+          gap: 0.5rem;
         }
         .header-actions .btn,
         .header-actions #open-auth {
-          flex: 1 1 auto;
+          flex: 1 1 160px;
+        }
+        .banner-controls {
+          align-items: center;
+          text-align: center;
+        }
+        .banner-controls > div {
           width: 100%;
         }
-        .hero {
-          padding: clamp(1.8rem, 5vw, 2.4rem);
-          margin-top: 0.6rem;
+        .banner-upload {
+          width: 100%;
+          justify-content: center;
         }
-        main {
-          width: min(100%, 94vw);
-          gap: 2.4rem;
+        .dashboard-grid {
+          gap: 2rem;
+        }
+        .panel {
+          padding: 1.4rem;
         }
       }
 
@@ -1128,79 +1301,68 @@
   </head>
   <body>
     <header>
-      <div class="topbar">
-        <div class="brand">
-          <div class="brand-mark">CB</div>
-          <div>
-            <h1>Cambalaches</h1>
-            <span style="color: var(--muted); font-size: 0.85rem; font-weight: 500"
-              >Marketplace premium de canjes en COP</span
-            >
+      <div class="header-shell">
+        <div class="header-top">
+          <div class="brand">
+            <div class="brand-mark">CB</div>
+            <div>
+              <h1>Cambalaches</h1>
+              <span style="color: rgba(17, 17, 17, 0.65); font-size: 0.85rem; font-weight: 500"
+                >Marketplace premium de canjes en COP</span
+              >
+            </div>
+          </div>
+          <form class="header-search" id="header-search" role="search">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <input
+              type="search"
+              id="header-search-input"
+              placeholder="Buscar artículos destacados..."
+              aria-label="Buscar artículos"
+            />
+            <button type="submit">Buscar</button>
+          </form>
+          <div class="header-actions">
+            <button class="btn btn-outline" id="open-auth">Ingresar</button>
+            <button class="btn btn-primary" id="quick-publish">Publicar producto</button>
+            <div class="avatar-thumb hidden" id="nav-avatar"></div>
           </div>
         </div>
-        <nav>
-          <button data-target="feed-section">Explorar</button>
-          <button data-target="publish-anchor">Publicar</button>
-          <button data-target="my-items">Mis artículos</button>
-          <button data-target="active-exchanges">Canjes activos</button>
-          <button data-target="history">Historial</button>
-          <button data-target="reputation">Reputación</button>
-        </nav>
-        <div class="header-actions">
-          <button class="btn btn-outline" id="open-auth">Ingresar</button>
-          <button class="btn btn-primary" id="quick-publish">Publicar producto</button>
-          <div class="avatar-thumb hidden" id="nav-avatar"></div>
+        <div class="header-bottom">
+          <nav class="quick-nav">
+            <button data-target="feed-section" data-nav="primary">Explorar</button>
+            <button data-target="publish-anchor" data-nav="primary">Publicar</button>
+            <button data-target="my-items" data-nav="primary">Mis artículos</button>
+            <button data-target="active-exchanges" data-nav="primary">Canjes activos</button>
+            <button data-target="history" data-nav="primary">Historial</button>
+            <button data-target="reputation" data-nav="primary">Reputación</button>
+          </nav>
         </div>
       </div>
     </header>
 
-    <main>
-      <section class="hero" id="publish-anchor">
+    <section class="admin-banner">
+      <div class="banner-controls">
         <div>
-          <h2>Intercambia valor con seguridad y claridad financiera</h2>
-          <p>
-            Conecta con personas verificadas, negocia con múltiples productos y mantén la
-            diferencia en pesos colombianos controlada en todo momento. Administra tus canjes,
-            conversaciones y reputación desde un solo lugar.
-          </p>
-          <div style="display: flex; gap: 1rem; flex-wrap: wrap">
-            <button class="btn btn-primary" id="cta-register">Crear mi cuenta verificada</button>
-            <button class="btn btn-outline" data-target="feed-section">Explorar artículos</button>
-          </div>
+          <h2>Banners publicitarios a toda pantalla</h2>
+          <p>Sube campañas de alto impacto y alterna múltiples piezas automáticamente.</p>
         </div>
-        <div class="hero-stats">
-          <div class="hero-stat">
-            <i class="fa-solid fa-shield-check"></i>
-            <div>
-              <strong>Verificación integral</strong>
-              <p style="margin: 0; color: var(--muted); font-size: 0.92rem">
-                Validamos identidad, correo y teléfono para cada usuario antes de publicar.
-              </p>
-            </div>
-          </div>
-          <div class="hero-stat">
-            <i class="fa-solid fa-scale-unbalanced"></i>
-            <div>
-              <strong>Diferencias calculadas en COP</strong>
-              <p style="margin: 0; color: var(--muted); font-size: 0.92rem">
-                Visualiza la diferencia exacta en pesos y agrega compensaciones instantáneamente.
-              </p>
-            </div>
-          </div>
-          <div class="hero-stat">
-            <i class="fa-solid fa-comments"></i>
-            <div>
-              <strong>Negocia y acuerda entregas</strong>
-              <p style="margin: 0; color: var(--muted); font-size: 0.92rem">
-                Chat seguro, contraofertas, reseñas y reportes listos para proteger tus canjes.
-              </p>
-            </div>
-          </div>
+        <label class="banner-upload">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          Agregar banners
+          <input type="file" id="banner-upload" accept="image/*" multiple />
+        </label>
+      </div>
+      <div class="banner-slider" id="banner-slider">
+        <div class="banner-empty-state" id="banner-empty-state">
+          Sube un banner publicitario para activar este carrusel premium.
         </div>
-      </section>
+      </div>
+    </section>
 
+    <main>
       <div class="dashboard-grid">
-        <aside class="profile-panel">
+        <aside class="profile-panel" id="publish-anchor">
           <div class="panel profile-card" id="profile-card">
             <div class="profile-main">
               <div class="avatar-large" id="profile-avatar"></div>
@@ -1668,7 +1830,11 @@
         reviews: [],
         reports: 0,
         modals: {},
+        bannerImages: [],
       };
+
+      let bannerInterval = null;
+      let bannerCurrentIndex = 0;
 
       const sampleUsers = [
         {
@@ -1766,6 +1932,12 @@
         },
       ];
 
+      const defaultBanners = [
+        "https://images.unsplash.com/photo-1527689368864-3a821dbccc34?auto=format&fit=crop&w=1600&q=80",
+        "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80",
+        "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1600&q=80",
+      ];
+
       const sampleIncomingOffer = () => ({
         id: generateId("offer"),
         product: null,
@@ -1781,6 +1953,7 @@
       });
 
       state.products = [...sampleProducts];
+      state.bannerImages = [...defaultBanners];
 
       const toastEl = $("#toast");
       let toastTimeout = null;
@@ -1792,6 +1965,54 @@
         toastEl.classList.add("show");
         clearTimeout(toastTimeout);
         toastTimeout = setTimeout(() => toastEl.classList.remove("show"), 3800);
+      }
+
+      function stopBannerRotation() {
+        if (bannerInterval) {
+          clearInterval(bannerInterval);
+          bannerInterval = null;
+        }
+      }
+
+      function startBannerRotation() {
+        const slides = $$("#banner-slider .banner-slide");
+        stopBannerRotation();
+        if (!slides.length) return;
+        bannerCurrentIndex = 0;
+        slides[bannerCurrentIndex].classList.add("active");
+        if (slides.length === 1) return;
+        bannerInterval = setInterval(() => {
+          slides[bannerCurrentIndex].classList.remove("active");
+          bannerCurrentIndex = (bannerCurrentIndex + 1) % slides.length;
+          slides[bannerCurrentIndex].classList.add("active");
+        }, 6000);
+      }
+
+      function renderBannerSlider() {
+        const slider = $("#banner-slider");
+        if (!slider) return;
+        stopBannerRotation();
+        slider.innerHTML = "";
+
+        if (!state.bannerImages.length) {
+          const empty = document.createElement("div");
+          empty.className = "banner-empty-state";
+          empty.textContent = "Sube un banner publicitario para activar este carrusel premium.";
+          slider.appendChild(empty);
+          return;
+        }
+
+        state.bannerImages.forEach((src, index) => {
+          const slide = document.createElement("div");
+          slide.className = "banner-slide";
+          const img = document.createElement("img");
+          img.src = src;
+          img.alt = `Banner publicitario ${index + 1}`;
+          slide.appendChild(img);
+          slider.appendChild(slide);
+        });
+
+        startBannerRotation();
       }
 
       function openModal(id) {
@@ -1833,6 +2054,39 @@
           reader.onerror = () => reject(new Error("Error al leer archivo"));
           reader.readAsDataURL(file);
         });
+      }
+
+      async function handleBannerUpload(event) {
+        const input = event.target;
+        const files = Array.from(input.files || []);
+        if (!files.length) return;
+
+        const imageFiles = files.filter((file) => file.type.startsWith("image"));
+        if (!imageFiles.length) {
+          showToast("Selecciona archivos de imagen para el banner.", "danger");
+          input.value = "";
+          return;
+        }
+
+        try {
+          const results = await Promise.all(imageFiles.map((file) => readFile(file)));
+          const validImages = results.filter(Boolean);
+          if (validImages.length) {
+            state.bannerImages.push(...validImages);
+            renderBannerSlider();
+            showToast(
+              `${validImages.length} banner${validImages.length > 1 ? "s" : ""} cargado${
+                validImages.length > 1 ? "s" : ""
+              }.`,
+              "success"
+            );
+          }
+        } catch (error) {
+          console.error(error);
+          showToast("No pudimos cargar los banners. Intenta nuevamente.", "danger");
+        } finally {
+          input.value = "";
+        }
       }
 
       function ensureAuthenticated(callback) {
@@ -2691,6 +2945,7 @@
       function updateUI() {
         updateProfileCard();
         updateAuthButton();
+        renderBannerSlider();
         renderFeed();
         renderMyItems();
         renderOffers();
@@ -2736,7 +2991,10 @@
         registerNavigation();
         updateUI();
 
-        $("#cta-register").addEventListener("click", () => openModal("auth-modal"));
+        const ctaRegister = $("#cta-register");
+        if (ctaRegister) {
+          ctaRegister.addEventListener("click", () => openModal("auth-modal"));
+        }
         $("#profile-publish").addEventListener("click", () => ensureAuthenticated(() => openModal("publish-modal")));
         $("#quick-publish").addEventListener("click", () => ensureAuthenticated(() => openModal("publish-modal")));
         $("#feed-publish").addEventListener("click", () => ensureAuthenticated(() => openModal("publish-modal")));
@@ -2746,6 +3004,36 @@
         $("#auth-form").addEventListener("submit", handleAuth);
         $("#publish-form").addEventListener("submit", handlePublish);
         $("#product-images").addEventListener("change", updatePreview);
+
+        const bannerUploadInput = $("#banner-upload");
+        if (bannerUploadInput) {
+          bannerUploadInput.addEventListener("change", handleBannerUpload);
+        }
+
+        const headerSearchForm = $("#header-search");
+        const headerSearchInput = $("#header-search-input");
+        const feedKeywordInput = $("#filter-keyword");
+
+        if (headerSearchForm) {
+          headerSearchForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            if (headerSearchInput && feedKeywordInput) {
+              feedKeywordInput.value = headerSearchInput.value;
+              renderFeed();
+              const feedSection = document.getElementById("feed-section");
+              if (feedSection) {
+                feedSection.scrollIntoView({ behavior: "smooth", block: "start" });
+              }
+            }
+          });
+        }
+
+        if (headerSearchInput && feedKeywordInput) {
+          headerSearchInput.addEventListener("input", (event) => {
+            feedKeywordInput.value = event.target.value;
+            renderFeed();
+          });
+        }
 
         $$("[data-close]").forEach((btn) =>
           btn.addEventListener("click", (event) => closeModal(event.currentTarget.getAttribute("data-close")))
