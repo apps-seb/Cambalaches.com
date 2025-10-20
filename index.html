@@ -93,23 +93,32 @@
         width: min(1280px, 100%);
         margin: 0 auto;
         display: grid;
+        grid-template-columns: minmax(0, 1fr);
         gap: 1rem;
         padding: 1.25rem clamp(1rem, 4vw, 2rem) 1.6rem;
       }
 
       .header-top {
         display: grid;
-        gap: 1rem;
+        gap: 1.25rem;
         align-items: center;
         grid-template-columns: auto minmax(0, 1fr) auto;
         grid-template-areas: "brand search actions";
+      }
+
+      .header-search-area {
+        grid-area: search;
+        display: flex;
+        align-items: center;
+        gap: 0.9rem;
+        min-width: 0;
       }
 
       .header-top .brand {
         grid-area: brand;
       }
 
-      .header-top .header-search {
+      .header-top .header-search-area {
         grid-area: search;
       }
 
@@ -212,25 +221,21 @@
       .header-search {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
-        padding: 0.6rem 0.9rem;
+        gap: 0.8rem;
+        padding: 0.65rem 1.1rem;
         border-radius: 999px;
-        background: rgba(255, 255, 255, 0.85);
-        box-shadow: 0 18px 38px -26px rgba(0, 0, 0, 0.4);
-        flex: 1 1 320px;
+        background: #fff;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        box-shadow: 0 22px 48px -28px rgba(15, 23, 42, 0.45);
+        flex: 1 1 0%;
         min-width: 0;
         max-width: 520px;
-        transition: box-shadow var(--transition), transform var(--transition);
-      }
-
-      .header-search:focus-within {
-        box-shadow: 0 24px 48px -22px rgba(0, 0, 0, 0.48);
-        transform: translateY(-1px);
+        transition: box-shadow var(--transition), transform var(--transition), border-color var(--transition);
       }
 
       .header-search i {
-        color: #111;
-        font-size: 1rem;
+        color: rgba(15, 23, 42, 0.45);
+        font-size: 1.05rem;
       }
 
       .header-search input {
@@ -240,32 +245,50 @@
         min-width: 0;
         font-size: 0.95rem;
         font-family: inherit;
-        color: #111;
+        color: #1f2937;
       }
 
       .header-search input::placeholder {
-        color: rgba(17, 17, 17, 0.55);
+        color: rgba(15, 23, 42, 0.45);
       }
 
       .header-search input:focus {
         outline: none;
       }
 
-      .header-search button {
-        border: none;
-        background: #111;
-        color: #ffd60a;
-        border-radius: 999px;
-        padding: 0.55rem 1.1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: transform var(--transition), box-shadow var(--transition);
+      .header-search:focus-within {
+        box-shadow: 0 24px 48px -22px rgba(15, 23, 42, 0.48);
+        transform: translateY(-1px);
+        border-color: rgba(76, 81, 255, 0.4);
       }
 
-      .header-search button:hover,
-      .header-search button:focus-visible {
+      .header-notification {
+        border: none;
+        background: rgba(255, 255, 255, 0.9);
+        color: rgba(15, 23, 42, 0.68);
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.15rem;
+        cursor: pointer;
+        box-shadow: 0 18px 34px -26px rgba(15, 23, 42, 0.45);
+        transition: transform var(--transition), box-shadow var(--transition), color var(--transition), background var(--transition);
+      }
+
+      .header-notification:hover,
+      .header-notification:focus-visible {
         transform: translateY(-2px);
-        box-shadow: 0 16px 30px -20px rgba(0, 0, 0, 0.55);
+        box-shadow: 0 22px 42px -26px rgba(15, 23, 42, 0.55);
+        color: rgba(15, 23, 42, 0.85);
+        background: #fff;
+        outline: none;
+      }
+
+      .header-notification:focus-visible {
+        box-shadow: 0 0 0 3px rgba(76, 81, 255, 0.2), 0 22px 42px -26px rgba(15, 23, 42, 0.55);
       }
 
       .btn {
@@ -434,6 +457,9 @@
             "brand search"
             "actions actions";
         }
+        .header-search-area {
+          width: 100%;
+        }
         .header-actions {
           justify-content: flex-end;
           flex-wrap: wrap;
@@ -485,17 +511,16 @@
           flex-wrap: wrap;
           gap: 0.5rem;
         }
+        .header-search-area {
+          width: 100%;
+        }
         .header-actions .btn,
         .header-actions #open-auth {
           flex: 1 1 160px;
         }
         .header-search {
-          padding: 0.55rem 0.75rem;
-          gap: 0.6rem;
-        }
-        .header-search button {
-          padding: 0.48rem 0.9rem;
-          font-size: 0.85rem;
+          padding: 0.6rem 0.9rem;
+          max-width: none;
         }
         .banner-controls {
           align-items: center;
@@ -518,7 +543,7 @@
 
       @media (max-width: 480px) {
         :root {
-          --header-height: 168px;
+          --header-height: 156px;
         }
         header {
           box-shadow: 0 12px 28px -18px rgba(0, 0, 0, 0.4);
@@ -528,13 +553,11 @@
           gap: 0.6rem;
         }
         .header-top {
-          grid-template-columns: 1fr;
-          grid-template-areas:
-            "brand"
-            "search";
-          justify-items: center;
-          gap: 0.55rem;
-          align-items: center;
+          display: flex;
+          flex-direction: column;
+          align-items: stretch;
+          width: 100%;
+          gap: 0.75rem;
         }
         .brand {
           gap: 0.4rem;
@@ -545,29 +568,42 @@
           height: 40px;
           border-radius: 12px;
         }
-        .brand > div {
+        .brand > div:last-child {
           display: none;
         }
         .header-actions {
           display: none;
         }
-        .header-search {
-          padding: 0.3rem 0.45rem;
-          gap: 0.3rem;
-          max-width: none;
+        .header-search-area {
           width: 100%;
-          box-shadow: 0 12px 26px -20px rgba(0, 0, 0, 0.45);
-          background: #ffe600;
-          justify-self: stretch;
+          gap: 0.65rem;
+        }
+        .header-search {
+          padding: 0.68rem 1rem;
+          gap: 0.65rem;
+          max-width: none;
+          flex: 1 1 0%;
+          min-width: 0;
+          box-shadow: 0 18px 38px -24px rgba(15, 23, 42, 0.48);
         }
         .header-search i {
-          font-size: 0.78rem;
+          font-size: 1rem;
         }
         .header-search input {
-          font-size: 0.76rem;
+          font-size: 0.92rem;
         }
-        .header-search button {
-          display: none;
+        .header-notification {
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          box-shadow: 0 18px 36px -24px rgba(15, 23, 42, 0.5);
+          background: #fff;
+          border: 1px solid rgba(15, 23, 42, 0.08);
+          font-size: 1.2rem;
+        }
+        .header-notification:hover,
+        .header-notification:focus-visible {
+          background: #fff;
         }
         .header-bottom {
           padding-top: 0.2rem;
@@ -1404,16 +1440,20 @@
               >
             </div>
           </div>
-          <form class="header-search" id="header-search" role="search">
-            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-            <input
-              type="search"
-              id="header-search-input"
-              placeholder="Buscar artículos destacados..."
-              aria-label="Buscar artículos"
-            />
-            <button type="submit">Buscar</button>
-          </form>
+          <div class="header-search-area">
+            <form class="header-search" id="header-search" role="search">
+              <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+              <input
+                type="search"
+                id="header-search-input"
+                placeholder="Buscar en Cambalaches"
+                aria-label="Buscar artículos"
+              />
+            </form>
+            <button class="header-notification" type="button" aria-label="Ver notificaciones">
+              <i class="fa-regular fa-bell" aria-hidden="true"></i>
+            </button>
+          </div>
           <div class="header-actions">
             <button class="btn btn-outline" id="open-auth">Ingresar</button>
             <button class="btn btn-primary" id="quick-publish">Publicar producto</button>
