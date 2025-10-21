@@ -1493,66 +1493,173 @@
       }
 
       dialog {
-        border: none;
-        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-        padding: 0;
-        width: min(720px, 96vw);
-        background: rgba(250, 252, 255, 0.96);
-        box-shadow: 0 48px 80px -40px rgba(15, 23, 42, 0.55);
-        position: fixed;
-        left: 50%;
-        bottom: 0;
-        transform: translate(-50%, 110%);
-        transition: transform 320ms cubic-bezier(0.23, 1, 0.32, 1);
+        width: 100vw;
+        max-width: 100vw;
+        height: 100vh;
         margin: 0;
-        max-height: 90vh;
+        border: none;
+        padding: 0;
+        background: transparent;
+        display: grid;
+        place-items: center;
+        position: fixed;
+        inset: 0;
+        opacity: 0;
+        transform: translateY(24px) scale(0.98);
+        transition: opacity 280ms ease, transform 320ms cubic-bezier(0.23, 1, 0.32, 1);
+        pointer-events: none;
       }
 
       dialog[open] {
-        transform: translate(-50%, 0);
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
       }
 
       dialog[data-closing] {
-        transform: translate(-50%, 110%);
+        opacity: 0;
+        transform: translateY(24px) scale(0.98);
       }
 
       dialog::backdrop {
-        background: rgba(15, 23, 42, 0.45);
-        backdrop-filter: blur(12px);
+        background: rgba(9, 16, 36, 0.68);
+        backdrop-filter: blur(18px) saturate(145%);
       }
 
-      .modal-body {
-        padding: clamp(2rem, 4vw, 2.8rem);
-        display: grid;
-        gap: 1.5rem;
-        max-height: min(80vh, 640px);
-        overflow-y: auto;
+      .modal-surface {
+        width: min(1080px, 94vw);
+        height: min(900px, 92vh);
+        background: var(--surface-strong);
+        border-radius: clamp(18px, 3vw, 34px);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        position: relative;
+        backdrop-filter: saturate(140%) blur(12px);
       }
 
-      .modal-header {
+      @media (max-width: 960px) {
+        .modal-surface {
+          width: 100vw;
+          height: 100vh;
+          border-radius: 0;
+        }
+      }
+
+      .modal-toolbar {
+        padding: clamp(1.2rem, 3vw, 1.8rem) clamp(1.5rem, 4vw, 2.4rem);
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 1rem;
+        background: linear-gradient(135deg, rgba(76, 81, 255, 0.12), rgba(0, 184, 148, 0.08));
+        border-bottom: 1px solid rgba(15, 23, 42, 0.06);
       }
 
-      .modal-header h3 {
+      .modal-title-block {
+        display: grid;
+        gap: 0.35rem;
+      }
+
+      .modal-eyebrow {
+        font-size: 0.76rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: rgba(15, 23, 42, 0.54);
+        font-weight: 700;
         margin: 0;
-        font-size: 1.4rem;
+      }
+
+      .modal-title {
+        font-size: clamp(1.35rem, 2.4vw, 1.7rem);
+        margin: 0;
+        font-weight: 700;
+        color: var(--muted-dark);
+      }
+
+      .modal-body {
+        flex: 1;
+        padding: clamp(1.4rem, 3.5vw, 2.4rem) clamp(1.4rem, 4vw, 2.8rem) clamp(1.8rem, 4vw, 2.6rem);
+        overflow-y: auto;
+        display: grid;
+        gap: clamp(1.6rem, 3vw, 2.4rem);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(246, 248, 255, 0.9) 45%, rgba(255, 255, 255, 0.95) 100%);
       }
 
       .modal-close {
         border: none;
-        background: rgba(15, 23, 42, 0.06);
-        border-radius: 999px;
-        width: 36px;
-        height: 36px;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 18px;
+        width: 46px;
+        height: 46px;
         cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--muted-dark);
+        font-size: 1.1rem;
+        box-shadow: 0 10px 30px -14px rgba(15, 23, 42, 0.45);
+        transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+      }
+
+      .modal-close:hover {
+        background: rgba(255, 255, 255, 0.9);
+        transform: translateY(-1px);
+      }
+
+      .modal-section {
+        border-radius: var(--radius-lg);
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        box-shadow: var(--shadow-sm);
+        padding: clamp(1.2rem, 3vw, 1.8rem);
+        display: grid;
+        gap: clamp(1rem, 2.5vw, 1.5rem);
+      }
+
+      .modal-section-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+
+      .modal-section-title {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--muted-dark);
+      }
+
+      .modal-section-subtitle {
+        margin: 0.15rem 0 0;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .modal-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.35rem 0.85rem;
+        background: rgba(76, 81, 255, 0.12);
+        color: var(--primary-700);
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
       }
 
       .form-grid {
         display: grid;
-        gap: 1.1rem;
+        gap: clamp(1rem, 2.4vw, 1.5rem);
+      }
+
+      .form-grid.two-column {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       }
 
       .form-row {
@@ -1560,29 +1667,138 @@
         gap: 0.6rem;
       }
 
-      .form-row.inline {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      .field {
+        display: grid;
+        gap: 0.45rem;
+      }
+
+      .field > span {
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: rgba(15, 23, 42, 0.62);
+      }
+
+      .field small {
+        color: var(--muted);
+        font-size: 0.78rem;
+      }
+
+      .checkbox-field {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        font-size: 0.9rem;
+        color: var(--muted-dark);
+      }
+
+      .checkbox-field input[type="checkbox"] {
+        margin-top: 0.2rem;
+        width: 18px;
+        height: 18px;
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
         gap: 0.85rem;
+        flex-wrap: wrap;
+        margin-top: auto;
+        padding-top: 0.35rem;
+      }
+
+      .modal-actions .btn {
+        min-width: 160px;
       }
 
       .image-preview-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 0.75rem;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 1rem;
       }
 
       .image-preview {
-        border-radius: var(--radius-md);
+        border-radius: var(--radius-lg);
         overflow: hidden;
-        border: 1px solid rgba(148, 163, 184, 0.3);
+        border: 1px solid rgba(148, 163, 184, 0.28);
         aspect-ratio: 1;
         position: relative;
+        background: rgba(248, 250, 255, 0.9);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
       }
 
       .image-preview img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+      }
+
+      .media-upload {
+        display: grid;
+        gap: clamp(1rem, 3vw, 1.6rem);
+      }
+
+      .media-dropzone {
+        border-radius: var(--radius-lg);
+        border: 1.6px dashed rgba(76, 81, 255, 0.35);
+        background: linear-gradient(145deg, rgba(76, 81, 255, 0.12), rgba(0, 184, 148, 0.1));
+        padding: clamp(1.6rem, 4vw, 2.6rem);
+        text-align: center;
+        display: grid;
+        gap: 0.65rem;
+        justify-items: center;
+        cursor: pointer;
+        transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+      }
+
+      .media-dropzone:hover {
+        border-color: rgba(76, 81, 255, 0.55);
+        box-shadow: 0 25px 50px -30px rgba(76, 81, 255, 0.55);
+        transform: translateY(-2px);
+      }
+
+      .media-dropzone i {
+        font-size: 1.6rem;
+        width: 56px;
+        height: 56px;
+        border-radius: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+        box-shadow: 0 18px 30px -18px rgba(76, 81, 255, 0.7);
+      }
+
+      .media-dropzone strong {
+        font-size: 1.05rem;
+        color: var(--muted-dark);
+      }
+
+      .media-dropzone span {
+        color: var(--muted);
+        font-size: 0.9rem;
+        max-width: 320px;
+      }
+
+      .media-upload input[type="file"] {
+        display: none;
+      }
+
+      @media (max-width: 720px) {
+        .modal-toolbar {
+          flex-wrap: wrap;
+          justify-content: flex-start;
+        }
+
+        .modal-actions {
+          justify-content: stretch;
+        }
+
+        .modal-actions .btn {
+          flex: 1 1 100%;
+        }
       }
 
       .difference-badge {
@@ -1978,204 +2194,236 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <dialog id="auth-modal">
-      <form method="dialog" class="modal-body" id="auth-form">
-        <div class="modal-header">
-          <div>
-            <h3>Crea tu cuenta verificada</h3>
-            <p style="margin: 0; color: var(--muted)">
-              Sube tu foto, completa tus datos y habilita la publicación de artículos.
-            </p>
+      <div class="modal-surface">
+        <div class="modal-toolbar">
+          <div class="modal-title-block">
+            <span class="modal-eyebrow">Identidad</span>
+            <h3 class="modal-title">Cuenta verificada</h3>
           </div>
           <button type="button" class="modal-close" data-close="auth-modal">
             <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
-        <div class="form-grid">
-          <div class="form-row inline">
-            <label>
-              Nombre completo
-              <input type="text" id="auth-name" required placeholder="Tu nombre" />
-            </label>
-            <label>
-              Correo electrónico
-              <input type="email" id="auth-email" required placeholder="nombre@correo.com" />
-            </label>
+        <form method="dialog" class="modal-body" id="auth-form">
+          <div class="modal-section">
+            <div class="modal-section-header">
+              <div>
+                <h4 class="modal-section-title">Información personal</h4>
+              </div>
+            </div>
+            <div class="form-grid two-column">
+              <label class="field">
+                <span>Nombre completo</span>
+                <input type="text" id="auth-name" required placeholder="Tu nombre" />
+              </label>
+              <label class="field">
+                <span>Correo electrónico</span>
+                <input type="email" id="auth-email" required placeholder="nombre@correo.com" />
+              </label>
+              <label class="field">
+                <span>Teléfono verificado</span>
+                <input type="tel" id="auth-phone" required placeholder="300 000 0000" />
+              </label>
+              <label class="field">
+                <span>Ciudad y país</span>
+                <input type="text" id="auth-location" required placeholder="Bogotá, Colombia" />
+              </label>
+            </div>
           </div>
-          <div class="form-row inline">
-            <label>
-              Teléfono verificado
-              <input type="tel" id="auth-phone" required placeholder="300 000 0000" />
-            </label>
-            <label>
-              Ciudad y país
-              <input type="text" id="auth-location" required placeholder="Bogotá, Colombia" />
-            </label>
-          </div>
-          <div class="form-row">
-            <label>
-              Foto de perfil (PNG o JPG)
+          <div class="modal-section">
+            <div class="modal-section-header">
+              <div>
+                <h4 class="modal-section-title">Revisión de seguridad</h4>
+              </div>
+            </div>
+            <label class="field">
+              <span>Foto de perfil (PNG o JPG)</span>
               <input type="file" id="auth-photo" accept="image/*" required />
             </label>
-          </div>
-          <div class="form-row">
-            <label style="display: flex; align-items: flex-start; gap: 0.6rem">
+            <label class="checkbox-field">
               <input type="checkbox" id="auth-terms" required />
               <span>Acepto las políticas de verificación, reputación y resolución de disputas.</span>
             </label>
           </div>
-        </div>
-        <div style="display: flex; justify-content: flex-end; gap: 0.75rem">
-          <button type="button" class="btn btn-outline" data-close="auth-modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Crear cuenta</button>
-        </div>
-      </form>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-outline" data-close="auth-modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Crear cuenta</button>
+          </div>
+        </form>
+      </div>
     </dialog>
 
     <dialog id="publish-modal">
-      <form method="dialog" class="modal-body" id="publish-form">
-        <div class="modal-header">
-          <div>
-            <h3>Publicar nuevo producto o servicio</h3>
-            <p style="margin: 0; color: var(--muted)">
-              Completa la información con mínimo tres imágenes reales. Todos los campos son
-              obligatorios.
-            </p>
+      <div class="modal-surface">
+        <div class="modal-toolbar">
+          <div class="modal-title-block">
+            <span class="modal-eyebrow">Marketplace</span>
+            <h3 class="modal-title">Nueva publicación</h3>
           </div>
           <button type="button" class="modal-close" data-close="publish-modal">
             <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
-        <div class="form-grid">
-          <div class="form-row inline">
-            <label>
-              Nombre del artículo
-              <input type="text" id="product-name" required />
-            </label>
-            <label>
-              Categoría
-              <select id="product-category" required>
-                <option value="">Selecciona</option>
-                <option value="tecnologia">Tecnología</option>
-                <option value="agricultura">Agricultura</option>
-                <option value="hogar">Hogar</option>
-                <option value="vehiculos">Vehículos</option>
-                <option value="servicios">Servicios</option>
-                <option value="moda">Moda</option>
-                <option value="coleccionables">Coleccionables</option>
-              </select>
-            </label>
+        <form method="dialog" class="modal-body" id="publish-form">
+          <div class="modal-section">
+            <div class="modal-section-header">
+              <div>
+                <h4 class="modal-section-title">Galería del artículo</h4>
+                <p class="modal-section-subtitle">Añade imágenes claras para destacar tu publicación.</p>
+              </div>
+              <span class="modal-chip" id="image-counter">0/10 fotos</span>
+            </div>
+            <div class="media-upload">
+              <label class="media-dropzone" for="product-images">
+                <i class="fa-solid fa-plus"></i>
+                <strong>Agregar fotos</strong>
+                <span>Selecciona entre 3 y 10 imágenes en formato JPG o PNG.</span>
+              </label>
+              <input type="file" id="product-images" accept="image/*" multiple required />
+              <div class="image-preview-grid" id="image-preview"></div>
+            </div>
           </div>
-          <div class="form-row">
-            <label>
-              Descripción detallada
+          <div class="modal-section">
+            <div class="modal-section-header">
+              <div>
+                <h4 class="modal-section-title">Información del producto</h4>
+              </div>
+            </div>
+            <div class="form-grid two-column">
+              <label class="field">
+                <span>Nombre del artículo</span>
+                <input type="text" id="product-name" required />
+              </label>
+              <label class="field">
+                <span>Categoría</span>
+                <select id="product-category" required>
+                  <option value="">Selecciona</option>
+                  <option value="tecnologia">Tecnología</option>
+                  <option value="agricultura">Agricultura</option>
+                  <option value="hogar">Hogar</option>
+                  <option value="vehiculos">Vehículos</option>
+                  <option value="servicios">Servicios</option>
+                  <option value="moda">Moda</option>
+                  <option value="coleccionables">Coleccionables</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Precio estimado (COP)</span>
+                <input type="number" id="product-price" min="0" step="500" required />
+              </label>
+              <label class="field">
+                <span>Ubicación</span>
+                <input type="text" id="product-location" required placeholder="Ciudad, barrio" />
+              </label>
+            </div>
+            <label class="field">
+              <span>Descripción detallada</span>
               <textarea id="product-description" required placeholder="Incluye estado, uso y valor estimado en COP."></textarea>
             </label>
           </div>
-          <div class="form-row inline">
-            <label>
-              Precio estimado (COP)
-              <input type="number" id="product-price" min="0" step="500" required />
-            </label>
-            <label>
-              Ubicación
-              <input type="text" id="product-location" required placeholder="Ciudad, barrio" />
-            </label>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-outline" data-close="publish-modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Publicar en el feed</button>
           </div>
-          <div class="form-row">
-            <label>
-              Imágenes (mínimo 3, máximo 10)
-              <input type="file" id="product-images" accept="image/*" multiple required />
-            </label>
-            <div class="image-preview-grid" id="image-preview"></div>
-          </div>
-        </div>
-        <div style="display: flex; justify-content: flex-end; gap: 0.75rem">
-          <button type="button" class="btn btn-outline" data-close="publish-modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Publicar en el feed</button>
-        </div>
-      </form>
+        </form>
+      </div>
     </dialog>
 
     <dialog id="offer-modal">
-      <form method="dialog" class="modal-body" id="offer-form">
-        <div class="modal-header">
-          <div>
-            <h3>Crear oferta de canje</h3>
-            <p style="margin: 0; color: var(--muted)">
-              Selecciona uno o varios de tus productos y ajusta la compensación en COP.
-            </p>
+      <div class="modal-surface">
+        <div class="modal-toolbar">
+          <div class="modal-title-block">
+            <span class="modal-eyebrow">Canjes</span>
+            <h3 class="modal-title">Crear oferta de canje</h3>
           </div>
           <button type="button" class="modal-close" data-close="offer-modal">
             <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
-        <div class="form-grid" id="offer-content"></div>
-        <div style="display: flex; justify-content: flex-end; gap: 0.75rem">
-          <button type="button" class="btn btn-outline" data-close="offer-modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Enviar oferta</button>
-        </div>
-      </form>
+        <form method="dialog" class="modal-body" id="offer-form">
+          <div class="modal-section">
+            <div class="modal-section-header">
+              <div>
+                <h4 class="modal-section-title">Selecciona los artículos</h4>
+                <p class="modal-section-subtitle">Elige elementos y compensa si lo consideras necesario.</p>
+              </div>
+            </div>
+            <div class="form-grid" id="offer-content"></div>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-outline" data-close="offer-modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Enviar oferta</button>
+          </div>
+        </form>
+      </div>
     </dialog>
 
     <dialog id="negotiate-modal">
-      <form method="dialog" class="modal-body" id="negotiate-form">
-        <div class="modal-header">
-          <div>
-            <h3>Responder contraoferta</h3>
-            <p style="margin: 0; color: var(--muted)">
-              Ajusta los artículos aceptados o propone una nueva diferencia en COP.
-            </p>
+      <div class="modal-surface">
+        <div class="modal-toolbar">
+          <div class="modal-title-block">
+            <span class="modal-eyebrow">Canjes</span>
+            <h3 class="modal-title">Responder contraoferta</h3>
           </div>
           <button type="button" class="modal-close" data-close="negotiate-modal">
             <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
-        <div class="form-grid" id="negotiate-content"></div>
-        <div style="display: flex; justify-content: flex-end; gap: 0.75rem">
-          <button type="button" class="btn btn-outline" data-close="negotiate-modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Enviar contraoferta</button>
-        </div>
-      </form>
+        <form method="dialog" class="modal-body" id="negotiate-form">
+          <div class="modal-section">
+            <div class="modal-section-header">
+              <div>
+                <h4 class="modal-section-title">Ajusta la propuesta</h4>
+                <p class="modal-section-subtitle">Confirma los artículos o plantea una diferencia adicional.</p>
+              </div>
+            </div>
+            <div class="form-grid" id="negotiate-content"></div>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-outline" data-close="negotiate-modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Enviar contraoferta</button>
+          </div>
+        </form>
+      </div>
     </dialog>
 
     <dialog id="report-modal">
-      <form method="dialog" class="modal-body" id="report-form">
-        <div class="modal-header">
-          <div>
-            <h3>Reportar publicación o usuario</h3>
-            <p style="margin: 0; color: var(--muted)">
-              Describe el motivo del reporte con la mayor cantidad de detalles posibles.
-            </p>
+      <div class="modal-surface">
+        <div class="modal-toolbar">
+          <div class="modal-title-block">
+            <span class="modal-eyebrow">Confianza</span>
+            <h3 class="modal-title">Reportar publicación o usuario</h3>
           </div>
           <button type="button" class="modal-close" data-close="report-modal">
             <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
-        <div class="form-grid">
-          <div class="form-row">
-            <label>
-              Enlace o referencia
+        <form method="dialog" class="modal-body" id="report-form">
+          <div class="modal-section">
+            <div class="modal-section-header">
+              <div>
+                <h4 class="modal-section-title">Detalle del reporte</h4>
+              </div>
+            </div>
+            <label class="field">
+              <span>Enlace o referencia</span>
               <input type="text" id="report-reference" required placeholder="Título del artículo o ID del canje" />
             </label>
-          </div>
-          <div class="form-row">
-            <label>
-              Descripción del reporte
+            <label class="field">
+              <span>Descripción del reporte</span>
               <textarea id="report-description" required placeholder="Explica lo ocurrido, fechas y evidencia disponible."></textarea>
             </label>
-          </div>
-          <div class="form-row">
-            <label style="display: flex; align-items: flex-start; gap: 0.6rem">
+            <label class="checkbox-field">
               <input type="checkbox" id="report-terms" required />
               <span>Declaro que la información compartida es verídica y puedo aportar evidencia adicional.</span>
             </label>
           </div>
-        </div>
-        <div style="display: flex; justify-content: flex-end; gap: 0.75rem">
-          <button type="button" class="btn btn-outline" data-close="report-modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Enviar reporte</button>
-        </div>
-      </form>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-outline" data-close="report-modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Enviar reporte</button>
+          </div>
+        </form>
+      </div>
     </dialog>
 
     <script>
@@ -3072,8 +3320,8 @@
         const cashRow = document.createElement("div");
         cashRow.className = "form-row";
         cashRow.innerHTML = `
-          <label>
-            Compensación adicional en COP (opcional)
+          <label class="field">
+            <span>Compensación adicional en COP (opcional)</span>
             <input type="number" min="0" step="1000" id="offer-extra" />
           </label>
         `;
@@ -3159,12 +3407,12 @@
             )}</strong></span>
           </div>
           <div class="negotiation-options">
-            <label>
-              Ajustar compensación en COP
+            <label class="field">
+              <span>Ajustar compensación en COP</span>
               <input type="number" min="0" step="500" id="negotiate-extra" value="${offer.extra}" />
             </label>
-            <label>
-              Comentarios adicionales
+            <label class="field">
+              <span>Comentarios adicionales</span>
               <textarea id="negotiate-message" placeholder="Propón cambios, fechas de entrega o condiciones.">${
                 offer.notes || ""
               }</textarea>
@@ -3273,6 +3521,8 @@
           showToast("Producto publicado en el feed.", "success");
           event.target.reset();
           $("#image-preview").innerHTML = "";
+          const counter = $("#image-counter");
+          if (counter) counter.textContent = "0/10 fotos";
           updateUI();
           setTimeout(() => simulateIncomingOffer(product), 5500);
         });
@@ -3293,8 +3543,10 @@
         const files = Array.from(event.target.files || []);
         const container = $("#image-preview");
         container.innerHTML = "";
-        files.slice(0, 10).forEach((file) => {
-          if (!file.type.startsWith("image")) return;
+        let count = 0;
+        files.forEach((file) => {
+          if (!file.type.startsWith("image") || count >= 10) return;
+          count += 1;
           const preview = document.createElement("div");
           preview.className = "image-preview";
           const img = document.createElement("img");
@@ -3304,6 +3556,10 @@
           reader.onload = () => (img.src = reader.result);
           reader.readAsDataURL(file);
         });
+        const counter = $("#image-counter");
+        if (counter) {
+          counter.textContent = `${count}/10 fotos`;
+        }
       }
 
       function updateAuthButton() {
