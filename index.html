@@ -38,7 +38,7 @@
         --radius-md: 16px;
         --radius-sm: 12px;
         --transition: 240ms cubic-bezier(0.23, 1, 0.32, 1);
-        --header-height: 188px;
+        --header-height: 156px;
       }
 
       *,
@@ -98,13 +98,13 @@
         margin: 0 auto;
         display: grid;
         grid-template-columns: minmax(0, 1fr);
-        gap: 1rem;
-        padding: 1rem clamp(1rem, 4vw, 2rem) 1.3rem;
+        gap: 0.85rem;
+        padding: 0.75rem clamp(1rem, 4vw, 2rem) 1rem;
       }
 
       .header-top {
         display: grid;
-        gap: 1.25rem;
+        gap: 1rem;
         align-items: center;
         grid-template-columns: auto minmax(0, 1fr) auto;
         grid-template-areas: "brand search actions";
@@ -231,10 +231,10 @@
 
       .search-shell {
         position: relative;
-        border-radius: 28px;
+        border-radius: 24px;
         padding: 1px;
         background: linear-gradient(130deg, rgba(76, 81, 255, 0.55), rgba(0, 184, 148, 0.4));
-        box-shadow: 0 24px 54px -32px rgba(15, 23, 42, 0.65);
+        box-shadow: 0 18px 48px -28px rgba(15, 23, 42, 0.6);
         overflow: hidden;
         transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
       }
@@ -255,43 +255,32 @@
         z-index: 1;
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 0.75rem;
         border-radius: inherit;
-        padding: 0.65rem 0.75rem 0.65rem 0.9rem;
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.76));
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
+        padding: 0.5rem 0.65rem 0.5rem 0.8rem;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.78));
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
       }
 
       .search-icon {
-        width: 46px;
-        height: 46px;
-        border-radius: 18px;
+        width: 40px;
+        height: 40px;
+        border-radius: 16px;
         display: grid;
         place-items: center;
         background: linear-gradient(135deg, rgba(76, 81, 255, 0.16), rgba(0, 184, 148, 0.18));
         color: var(--primary-600);
-        box-shadow: 0 22px 42px -26px rgba(15, 23, 42, 0.5);
+        box-shadow: 0 18px 36px -24px rgba(15, 23, 42, 0.55);
       }
 
       .search-icon i {
-        font-size: 1.05rem;
+        font-size: 0.95rem;
       }
 
       .search-field {
         flex: 1;
         min-width: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 0.2rem;
-      }
-
-      .search-label {
-        font-size: 0.68rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        color: rgba(15, 23, 42, 0.48);
       }
 
       .header-search input {
@@ -299,7 +288,7 @@
         background: transparent;
         padding: 0;
         min-width: 0;
-        font-size: 1rem;
+        font-size: 0.95rem;
         font-family: inherit;
         font-weight: 500;
         letter-spacing: -0.01em;
@@ -317,20 +306,20 @@
       .search-actions {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.45rem;
       }
 
       .search-filter,
       .search-submit {
         border: none;
-        border-radius: 16px;
-        padding: 0.55rem 0.8rem;
+        border-radius: 14px;
+        padding: 0.45rem 0.75rem;
         font-weight: 600;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
-        gap: 0.4rem;
-        font-size: 0.88rem;
+        gap: 0.35rem;
+        font-size: 0.85rem;
         transition: transform var(--transition), box-shadow var(--transition), background var(--transition),
           color var(--transition);
       }
@@ -350,8 +339,8 @@
       .search-submit {
         background: #111;
         color: #ffd60a;
-        box-shadow: 0 24px 38px -22px rgba(15, 23, 42, 0.6);
-        padding-inline: 0.95rem;
+        box-shadow: 0 22px 34px -22px rgba(15, 23, 42, 0.6);
+        padding-inline: 0.85rem;
       }
 
       .search-submit:hover,
@@ -361,12 +350,9 @@
         outline: none;
       }
 
-      .search-submit i {
-        font-size: 0.9rem;
-      }
-
+      .search-submit i,
       .search-filter i {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
       }
 
       .header-search:focus-within .search-shell {
@@ -384,15 +370,15 @@
         border: none;
         background: rgba(255, 255, 255, 0.9);
         color: rgba(15, 23, 42, 0.68);
-        width: 42px;
-        height: 42px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.15rem;
+        font-size: 1.05rem;
         cursor: pointer;
-        box-shadow: 0 18px 34px -26px rgba(15, 23, 42, 0.45);
+        box-shadow: 0 16px 32px -26px rgba(15, 23, 42, 0.45);
         transition: transform var(--transition), box-shadow var(--transition), color var(--transition), background var(--transition);
       }
 
@@ -683,7 +669,7 @@
 
       @media (max-width: 1024px) {
         :root {
-          --header-height: 204px;
+          --header-height: 176px;
         }
         .header-top {
           grid-template-columns: auto minmax(0, 1fr);
@@ -710,7 +696,7 @@
 
       @media (max-width: 900px) {
         :root {
-          --header-height: 212px;
+          --header-height: 188px;
         }
         .header-actions {
           width: 100%;
@@ -733,28 +719,23 @@
       }
 
       @media (max-width: 720px) {
-        .search-shell {
-          border-radius: 24px;
-        }
         .search-inner {
-          padding: 0.6rem 0.65rem 0.6rem 0.8rem;
-          gap: 0.8rem;
-        }
-        .search-icon {
-          width: 42px;
-          height: 42px;
-        }
-        .search-actions {
-          gap: 0.4rem;
-        }
-        .feed-quick-actions {
-          flex-wrap: wrap;
-          justify-content: center;
-          padding: 1rem 1.1rem;
+          padding: 0.55rem 0.6rem 0.55rem 0.75rem;
           gap: 0.65rem;
         }
-        .feed-quick-actions .btn {
-          width: min(280px, 100%);
+        .search-icon {
+          width: 38px;
+          height: 38px;
+        }
+        .search-actions {
+          gap: 0.35rem;
+        }
+        .featured-rail-tabs {
+          width: 100%;
+          justify-content: center;
+        }
+        .featured-rail-scroll {
+          grid-auto-columns: minmax(220px, 80vw);
         }
         .category-list {
           grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -773,21 +754,9 @@
         }
       }
 
-      @media (max-width: 560px) {
-        .search-label {
-          font-size: 0.6rem;
-        }
-        .search-submit span {
-          display: none;
-        }
-        .search-submit {
-          padding-inline: 0.7rem;
-        }
-      }
-
       @media (max-width: 640px) {
         :root {
-          --header-height: 228px;
+          --header-height: 204px;
         }
         .header-shell {
           padding: 1.1rem clamp(0.85rem, 6vw, 1.4rem) 1.5rem;
@@ -818,6 +787,18 @@
           justify-content: center;
           display: flex;
         }
+        .featured-rail {
+          padding: 1.25rem clamp(0.9rem, 6vw, 1.4rem);
+        }
+        .featured-rail-title {
+          text-align: center;
+        }
+        .featured-rail-tabs {
+          justify-content: center;
+        }
+        .featured-rail-scroll {
+          grid-auto-columns: minmax(220px, 82vw);
+        }
         .dashboard-grid {
           gap: 2rem;
         }
@@ -828,7 +809,7 @@
 
       @media (max-width: 480px) {
         :root {
-          --header-height: 118px;
+          --header-height: 148px;
         }
         header {
           box-shadow: 0 12px 28px -18px rgba(0, 0, 0, 0.4);
@@ -879,17 +860,19 @@
           grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: clamp(0.6rem, 4vw, 0.9rem);
         }
-        .feed-quick-actions {
-          flex-direction: column;
-          align-items: stretch;
-          justify-content: center;
-          position: static;
-          padding: 0.9rem 1rem;
-          gap: 0.6rem;
-          box-shadow: 0 20px 48px -40px rgba(15, 23, 42, 0.5);
+        .featured-rail {
+          padding: 1rem 0.9rem;
+          gap: 0.9rem;
         }
-        .feed-quick-actions .btn {
-          width: 100%;
+        .featured-rail-title h3 {
+          font-size: 1.1rem;
+        }
+        .featured-rail-tabs {
+          flex-direction: column;
+          gap: 0.4rem;
+        }
+        .featured-rail-scroll {
+          grid-auto-columns: minmax(200px, 88vw);
         }
         .category-board {
           padding: 1rem 1.1rem;
@@ -1076,47 +1059,194 @@
         color: var(--muted);
       }
 
-      .feed-quick-actions {
+      .featured-rail {
+        display: grid;
+        gap: clamp(0.9rem, 2vw, 1.4rem);
+        background: linear-gradient(140deg, rgba(255, 255, 255, 0.95), rgba(235, 240, 255, 0.88));
+        border-radius: clamp(22px, 3vw, 32px);
+        border: 1px solid rgba(99, 102, 241, 0.16);
+        padding: clamp(1rem, 2.4vw, 1.6rem);
+        box-shadow: 0 32px 68px -52px rgba(15, 23, 42, 0.5);
+      }
+
+      .featured-rail-header {
         display: flex;
         align-items: center;
-        justify-content: flex-end;
-        gap: 0.85rem;
-        padding: clamp(1rem, 2.6vw, 1.45rem);
-        border-radius: clamp(20px, 3vw, 28px);
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(225, 233, 255, 0.82));
-        border: 1px solid rgba(99, 102, 241, 0.14);
-        box-shadow: 0 28px 70px -50px rgba(15, 23, 42, 0.45);
-        margin-bottom: clamp(1rem, 3vw, 2rem);
-        position: sticky;
-        top: calc(var(--header-height) + 0.75rem);
-        z-index: 5;
-        backdrop-filter: blur(14px);
+        justify-content: space-between;
+        gap: clamp(0.8rem, 2vw, 1.4rem);
+        flex-wrap: wrap;
       }
 
-      .feed-quick-actions .btn {
+      .featured-rail-title {
+        display: grid;
+        gap: 0.3rem;
+      }
+
+      .featured-rail-title span {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: rgba(15, 23, 42, 0.55);
+        font-weight: 600;
+      }
+
+      .featured-rail-title h3 {
+        margin: 0;
+        font-size: clamp(1.25rem, 2.1vw, 1.7rem);
+        color: #101b42;
+      }
+
+      .featured-rail-tabs {
+        display: inline-flex;
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 999px;
+        padding: 0.25rem;
+        border: 1px solid rgba(99, 102, 241, 0.16);
+        gap: 0.35rem;
+      }
+
+      .featured-rail-tab {
+        border: none;
+        background: transparent;
+        border-radius: 999px;
+        padding: 0.45rem 0.95rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: rgba(16, 27, 66, 0.7);
+        cursor: pointer;
+        transition: background var(--transition), color var(--transition), box-shadow var(--transition), transform var(--transition);
+      }
+
+      .featured-rail-tab.active {
+        background: #111827;
+        color: #ffd60a;
+        box-shadow: 0 18px 36px -24px rgba(15, 23, 42, 0.6);
+      }
+
+      .featured-rail-tab:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(76, 81, 255, 0.22);
+      }
+
+      .featured-rail-panels {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .featured-rail-panel {
+        position: relative;
+      }
+
+      .featured-rail-scroll {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(240px, 1fr);
+        gap: clamp(0.75rem, 2vw, 1.1rem);
+        overflow-x: auto;
+        padding-bottom: 0.35rem;
+        scrollbar-width: thin;
+        scroll-snap-type: x mandatory;
+      }
+
+      .featured-rail-scroll::-webkit-scrollbar {
+        height: 6px;
+      }
+
+      .featured-rail-scroll::-webkit-scrollbar-thumb {
+        background: rgba(99, 102, 241, 0.2);
+        border-radius: 999px;
+      }
+
+      .featured-item {
+        position: relative;
+        display: grid;
+        grid-template-rows: minmax(0, 168px) auto;
+        border-radius: clamp(18px, 2.4vw, 26px);
+        overflow: hidden;
+        background: linear-gradient(160deg, rgba(76, 81, 255, 0.16), rgba(255, 255, 255, 0.92));
+        border: 1px solid rgba(99, 102, 241, 0.16);
+        box-shadow: 0 24px 54px -46px rgba(15, 23, 42, 0.55);
+        scroll-snap-align: start;
+        cursor: pointer;
+        transition: transform var(--transition), box-shadow var(--transition);
+      }
+
+      .featured-item:hover,
+      .featured-item:focus-visible {
+        transform: translateY(-4px);
+        box-shadow: 0 32px 68px -48px rgba(15, 23, 42, 0.6);
+        outline: none;
+      }
+
+      .featured-item-media {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .featured-item-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .featured-item-price {
+        position: absolute;
+        bottom: 0.85rem;
+        right: 0.85rem;
+        padding: 0.4rem 0.9rem;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.82);
+        color: #f8fafc;
+        font-weight: 600;
+        font-size: 0.82rem;
+        box-shadow: 0 12px 32px -20px rgba(15, 23, 42, 0.6);
+      }
+
+      .featured-item-body {
+        display: grid;
+        gap: 0.45rem;
+        padding: 0.9rem 1rem 1rem;
+      }
+
+      .featured-item-category {
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
-        flex: 0 0 auto;
-      }
-
-      .feed-quick-actions .btn.btn-ghost {
-        background: rgba(255, 255, 255, 0.88);
-        border: 1px solid rgba(99, 102, 241, 0.18);
+        gap: 0.35rem;
+        padding: 0.35rem 0.65rem;
+        border-radius: 999px;
+        background: rgba(76, 81, 255, 0.12);
         color: var(--primary-700);
+        font-size: 0.75rem;
         font-weight: 600;
-        transition: transform var(--transition), box-shadow var(--transition);
-        box-shadow: 0 18px 40px -30px rgba(76, 81, 255, 0.4);
       }
 
-      .feed-quick-actions .btn.btn-ghost:hover,
-      .feed-quick-actions .btn.btn-ghost:focus-visible {
-        transform: translateY(-2px);
-        box-shadow: 0 24px 48px -30px rgba(76, 81, 255, 0.55);
+      .featured-item-body h4 {
+        margin: 0;
+        font-size: 1rem;
+        color: #0f172a;
       }
 
-      .feed-quick-actions .btn.btn-primary {
-        box-shadow: 0 24px 50px -32px rgba(76, 81, 255, 0.55);
+      .featured-item-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+
+      .featured-item-meta i {
+        color: rgba(76, 81, 255, 0.65);
+      }
+
+      .featured-empty {
+        min-height: 140px;
+        display: grid;
+        place-content: center;
+        text-align: center;
+        gap: 0.5rem;
+        color: var(--muted);
+        font-size: 0.9rem;
       }
 
       .category-board {
@@ -1971,15 +2101,15 @@
 
       .product-detail-dialog {
         position: relative;
-        width: min(1080px, 94vw);
-        max-height: min(92vh, 880px);
-        margin: clamp(1rem, 4vw, 2.6rem) auto;
+        width: min(1040px, 92vw);
+        max-height: min(88vh, 760px);
+        margin: max(1rem, calc(var(--header-height) - 48px)) auto clamp(0.85rem, 3vw, 2rem);
         background: var(--surface-strong);
         border-radius: clamp(22px, 3vw, 34px);
         border: 1px solid rgba(15, 23, 42, 0.08);
         box-shadow: var(--shadow-lg);
         display: grid;
-        grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr);
         overflow: hidden;
       }
 
@@ -2010,13 +2140,14 @@
       .product-detail-gallery {
         position: relative;
         display: grid;
-        grid-template-rows: minmax(0, 1fr) auto;
+        grid-template-rows: minmax(0, 360px) auto;
         background: radial-gradient(circle at 10% 20%, rgba(76, 81, 255, 0.18) 0%, rgba(9, 16, 36, 1) 80%);
       }
 
       .product-detail-main {
         position: relative;
         overflow: hidden;
+        aspect-ratio: 4 / 3;
       }
 
       .product-detail-main img {
@@ -2028,8 +2159,8 @@
 
       .product-detail-price {
         position: absolute;
-        right: 1.4rem;
-        bottom: 1.4rem;
+        right: 1.2rem;
+        bottom: 1.2rem;
         padding: 0.6rem 1.2rem;
         border-radius: 999px;
         background: rgba(255, 255, 255, 0.16);
@@ -2087,8 +2218,8 @@
 
       .product-detail-body {
         display: grid;
-        gap: clamp(1rem, 2.6vw, 1.6rem);
-        padding: clamp(1.6rem, 3vw, 2.6rem);
+        gap: clamp(0.9rem, 2.2vw, 1.5rem);
+        padding: clamp(1.2rem, 3vw, 1.8rem);
         overflow-y: auto;
       }
 
@@ -2286,6 +2417,9 @@
         .product-detail-price {
           right: 1rem;
           bottom: 1rem;
+        }
+        .product-detail-gallery {
+          grid-template-rows: minmax(0, 280px) auto;
         }
       }
 
@@ -2714,15 +2848,14 @@
       }
 
       @media (max-width: 960px) {
-        .feed-quick-actions {
-          justify-content: center;
-          gap: 0.75rem;
-        }
-        .feed-quick-actions .btn {
-          min-width: 0;
-        }
         .category-board {
           margin-top: 1.2rem;
+        }
+        .featured-rail {
+          padding: 1.2rem;
+        }
+        .featured-rail-scroll {
+          grid-auto-columns: minmax(240px, 70vw);
         }
         .filters-sheet {
           width: 100vw;
@@ -3136,12 +3269,11 @@
                     <i class="fa-solid fa-magnifying-glass"></i>
                   </span>
                   <div class="search-field">
-                    <span class="search-label">Buscar</span>
                     <input
                       type="search"
                       id="header-search-input"
                       placeholder="Productos, categorías o usuarios"
-                      aria-label="Buscar artículos"
+                      aria-label="Explorar artículos del marketplace"
                     />
                   </div>
                   <div class="search-actions">
@@ -3153,8 +3285,7 @@
                     >
                       <i class="fa-solid fa-sliders"></i>
                     </button>
-                    <button type="submit" class="search-submit">
-                      <span>Buscar</span>
+                    <button type="submit" class="search-submit" aria-label="Explorar resultados">
                       <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
                     </button>
                   </div>
@@ -3208,13 +3339,59 @@
           <input type="hidden" id="filter-category" value="" />
           <input type="hidden" id="filter-keyword" />
           <input type="hidden" id="filter-style" value="marketplace" />
-          <div class="feed-quick-actions">
-            <button class="btn btn-ghost" type="button" id="filters-trigger">
-              <i class="fa-solid fa-sliders"></i>
-              <span>Filtros avanzados</span>
-            </button>
-            <button class="btn btn-primary" id="feed-publish">Publicar producto</button>
-          </div>
+          <section class="featured-rail" aria-labelledby="featured-rail-heading">
+            <div class="featured-rail-header">
+              <div class="featured-rail-title">
+                <span>Curaduría inteligente</span>
+                <h3 id="featured-rail-heading">Artículos destacados y tu actividad reciente</h3>
+              </div>
+              <div class="featured-rail-tabs" role="tablist" aria-label="Colecciones de artículos">
+                <button
+                  type="button"
+                  class="featured-rail-tab active"
+                  role="tab"
+                  id="featured-tab-featured"
+                  aria-selected="true"
+                  aria-controls="featured-panel-featured"
+                  data-tab="featured"
+                >
+                  Destacados
+                </button>
+                <button
+                  type="button"
+                  class="featured-rail-tab"
+                  role="tab"
+                  id="featured-tab-recent"
+                  aria-selected="false"
+                  aria-controls="featured-panel-recent"
+                  data-tab="recent"
+                >
+                  Vistos recientemente
+                </button>
+              </div>
+            </div>
+            <div class="featured-rail-panels">
+              <div
+                class="featured-rail-panel"
+                id="featured-panel-featured"
+                role="tabpanel"
+                aria-labelledby="featured-tab-featured"
+                data-tab-panel="featured"
+              >
+                <div class="featured-rail-scroll" id="featured-items" role="list"></div>
+              </div>
+              <div
+                class="featured-rail-panel hidden"
+                id="featured-panel-recent"
+                role="tabpanel"
+                aria-labelledby="featured-tab-recent"
+                aria-hidden="true"
+                data-tab-panel="recent"
+              >
+                <div class="featured-rail-scroll" id="recent-items" role="list"></div>
+              </div>
+            </div>
+          </section>
           <div class="category-board">
             <div class="category-board-header">
               <div class="category-board-title">
@@ -3879,6 +4056,9 @@
       const FALLBACK_AVATAR =
         "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=160&q=80";
 
+      const FEATURED_LIMIT = 8;
+      const RECENT_LIMIT = 10;
+
       const generateId = (prefix) => `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
 
       const safeNumber = (value, fallback = 0) => {
@@ -3948,6 +4128,7 @@
         reports: 0,
         modals: {},
         bannerImages: [],
+        recentlyViewed: [],
       };
 
       let activePage = "feed-section";
@@ -4337,6 +4518,159 @@
         track.appendChild(createAddCard());
       }
 
+      function createRailCard(product) {
+        const card = document.createElement("article");
+        card.className = "featured-item";
+        card.setAttribute("role", "listitem");
+        card.setAttribute("tabindex", "0");
+        card.setAttribute("aria-label", `Ver detalles de ${product.title}`);
+
+        const media = document.createElement("div");
+        media.className = "featured-item-media";
+        const image = document.createElement("img");
+        image.src = product.images?.[0] || FALLBACK_IMAGE;
+        image.alt = product.title;
+        media.appendChild(image);
+
+        const price = document.createElement("span");
+        price.className = "featured-item-price";
+        price.textContent = formatCOP(product.price);
+        media.appendChild(price);
+
+        const body = document.createElement("div");
+        body.className = "featured-item-body";
+
+        const category = document.createElement("span");
+        category.className = "featured-item-category";
+        category.textContent = titleize(getCategoryLabel(product.category));
+        body.appendChild(category);
+
+        const title = document.createElement("h4");
+        title.textContent = product.title;
+        body.appendChild(title);
+
+        const meta = document.createElement("div");
+        meta.className = "featured-item-meta";
+
+        const location = document.createElement("span");
+        location.innerHTML = `<i class="fa-solid fa-location-dot" aria-hidden="true"></i>${product.location}`;
+        location.setAttribute("aria-label", `Ubicación ${product.location}`);
+        meta.appendChild(location);
+
+        const baseRating =
+          product.rating != null
+            ? Number(product.rating)
+            : product.owner?.rating != null
+            ? Number(product.owner.rating)
+            : null;
+        if (Number.isFinite(baseRating)) {
+          const rating = document.createElement("span");
+          rating.innerHTML = `<i class="fa-solid fa-star" aria-hidden="true"></i>${baseRating.toFixed(1)}`;
+          rating.setAttribute("aria-label", `${baseRating.toFixed(1)} sobre 5`);
+          meta.appendChild(rating);
+        }
+
+        body.appendChild(meta);
+        card.append(media, body);
+
+        const openDetail = () => openProductDetail(product);
+        card.addEventListener("click", openDetail);
+        card.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openDetail();
+          }
+        });
+
+        return card;
+      }
+
+      function setFeaturedTab(tab) {
+        const tabs = $$(".featured-rail-tab");
+        const panels = $$(".featured-rail-panel");
+        tabs.forEach((button) => {
+          const isActive = button.dataset.tab === tab;
+          button.classList.toggle("active", isActive);
+          button.setAttribute("aria-selected", isActive ? "true" : "false");
+        });
+        panels.forEach((panel) => {
+          const isActive = panel.dataset.tabPanel === tab;
+          panel.classList.toggle("hidden", !isActive);
+          panel.setAttribute("aria-hidden", isActive ? "false" : "true");
+        });
+      }
+
+      function renderFeaturedRails() {
+        const featuredContainer = $("#featured-items");
+        const recentContainer = $("#recent-items");
+        if (!featuredContainer || !recentContainer) {
+          return;
+        }
+
+        const activeTab = document.querySelector(".featured-rail-tab.active")?.dataset.tab || "featured";
+
+        featuredContainer.innerHTML = "";
+        const rankedProducts = [...state.products].sort((a, b) => {
+          const ratingA =
+            a.rating != null ? Number(a.rating) : a.owner?.rating != null ? Number(a.owner.rating) : 0;
+          const ratingB =
+            b.rating != null ? Number(b.rating) : b.owner?.rating != null ? Number(b.owner.rating) : 0;
+          if (ratingA === ratingB) {
+            return Number(b.price || 0) - Number(a.price || 0);
+          }
+          return ratingB - ratingA;
+        });
+        const featuredProducts = rankedProducts.slice(0, FEATURED_LIMIT);
+
+        if (!featuredProducts.length) {
+          const empty = document.createElement("div");
+          empty.className = "featured-empty";
+          empty.innerHTML = '<i class="fa-regular fa-compass"></i><span>Aún no hay artículos destacados disponibles.</span>';
+          featuredContainer.appendChild(empty);
+        } else {
+          featuredProducts.forEach((product) => featuredContainer.appendChild(createRailCard(product)));
+        }
+
+        const recentIds = Array.isArray(state.recentlyViewed) ? [...state.recentlyViewed] : [];
+        const sanitizedRecent = [];
+        const recentProducts = [];
+        recentIds.forEach((id) => {
+          const product = state.products.find((item) => item.id === id);
+          if (product && !sanitizedRecent.includes(product.id)) {
+            sanitizedRecent.push(product.id);
+            recentProducts.push(product);
+          }
+        });
+        if (sanitizedRecent.length !== recentIds.length) {
+          state.recentlyViewed = sanitizedRecent.slice(0, RECENT_LIMIT);
+        }
+
+        recentContainer.innerHTML = "";
+        if (!recentProducts.length) {
+          const empty = document.createElement("div");
+          empty.className = "featured-empty";
+          empty.innerHTML =
+            '<i class="fa-regular fa-clock"></i><span>Cuando revises artículos aparecerán en esta vista.</span>';
+          recentContainer.appendChild(empty);
+        } else {
+          recentProducts.slice(0, RECENT_LIMIT).forEach((product) => {
+            recentContainer.appendChild(createRailCard(product));
+          });
+        }
+
+        setFeaturedTab(activeTab);
+      }
+
+      function trackRecentlyViewed(product) {
+        if (!product || !product.id) {
+          return;
+        }
+        const ids = Array.isArray(state.recentlyViewed) ? state.recentlyViewed.filter((id) => id !== product.id) : [];
+        ids.unshift(product.id);
+        state.recentlyViewed = ids.slice(0, RECENT_LIMIT);
+        renderFeaturedRails();
+      }
+
       function openModal(id) {
         const dialog = document.getElementById(id);
         if (!dialog) {
@@ -4674,6 +5008,7 @@
         }
 
         activeProductDetail = product;
+        trackRecentlyViewed(product);
 
         const images = Array.isArray(product.images) && product.images.length ? product.images : [FALLBACK_IMAGE];
         const mainImage = $("#product-detail-image");
@@ -5577,6 +5912,7 @@
         updateProfileCard();
         updateAuthButton();
         renderBannerSlider();
+        renderFeaturedRails();
         renderFeed();
         renderMyItems();
         renderOffers();
@@ -5645,6 +5981,7 @@
         const detailAdvancedBtn = $("#product-detail-advanced");
         const detailReportBtn = $("#product-detail-report");
         const detailCloseNodes = $$("[data-close-detail]");
+        const featuredTabs = $$(".featured-rail-tab");
 
         if (headerSearchForm) {
           headerSearchForm.addEventListener("submit", (event) => {
@@ -5725,6 +6062,15 @@
         if (detailCloseNodes.length) {
           detailCloseNodes.forEach((node) =>
             node.addEventListener("click", () => closeProductDetail())
+          );
+        }
+
+        if (featuredTabs.length) {
+          featuredTabs.forEach((tab) =>
+            tab.addEventListener("click", () => {
+              const target = tab.dataset.tab || "featured";
+              setFeaturedTab(target);
+            })
           );
         }
 
