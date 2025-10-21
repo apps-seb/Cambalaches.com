@@ -220,66 +220,160 @@
 
       .header-search {
         position: relative;
-        display: flex;
-        align-items: center;
-        gap: 0.7rem;
-        padding: 0.55rem 1.05rem;
-        border-radius: 999px;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.42));
-        border: 1px solid rgba(255, 255, 255, 0.7);
-        box-shadow: 0 28px 54px -34px rgba(15, 23, 42, 0.58);
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
-        flex: 1 1 0%;
+        flex: 1 1 auto;
         min-width: 0;
-        max-width: 520px;
-        transition: box-shadow var(--transition), transform var(--transition), border-color var(--transition),
-          background var(--transition);
+        max-width: 560px;
       }
 
-      .header-search::after {
-        content: "";
+      .search-shell {
+        position: relative;
+        border-radius: 28px;
+        padding: 1px;
+        background: linear-gradient(130deg, rgba(76, 81, 255, 0.55), rgba(0, 184, 148, 0.4));
+        box-shadow: 0 24px 54px -32px rgba(15, 23, 42, 0.65);
+        overflow: hidden;
+        transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
+      }
+
+      .search-glow {
         position: absolute;
-        inset: 1px;
-        border-radius: inherit;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.05));
+        inset: -45%;
+        background:
+          radial-gradient(circle at 20% 20%, rgba(76, 81, 255, 0.32), transparent 62%),
+          radial-gradient(circle at 80% 18%, rgba(0, 184, 148, 0.3), transparent 58%);
+        opacity: 0.45;
+        transition: opacity var(--transition), transform var(--transition);
         pointer-events: none;
-        opacity: 0.9;
       }
 
-      .header-search > * {
+      .search-inner {
         position: relative;
         z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border-radius: inherit;
+        padding: 0.65rem 0.75rem 0.65rem 0.9rem;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.76));
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
       }
 
-      .header-search i {
-        color: rgba(17, 17, 17, 0.65);
-        font-size: 0.98rem;
+      .search-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 18px;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(135deg, rgba(76, 81, 255, 0.16), rgba(0, 184, 148, 0.18));
+        color: var(--primary-600);
+        box-shadow: 0 22px 42px -26px rgba(15, 23, 42, 0.5);
+      }
+
+      .search-icon i {
+        font-size: 1.05rem;
+      }
+
+      .search-field {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+      }
+
+      .search-label {
+        font-size: 0.68rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: rgba(15, 23, 42, 0.48);
       }
 
       .header-search input {
         border: none;
         background: transparent;
-        flex: 1;
+        padding: 0;
         min-width: 0;
-        font-size: 0.9rem;
+        font-size: 1rem;
         font-family: inherit;
-        color: #111827;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        color: #0f172a;
       }
 
       .header-search input::placeholder {
-        color: rgba(17, 17, 17, 0.55);
+        color: rgba(15, 23, 42, 0.45);
       }
 
       .header-search input:focus {
         outline: none;
       }
 
-      .header-search:focus-within {
-        box-shadow: 0 30px 58px -32px rgba(15, 23, 42, 0.6);
+      .search-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .search-filter,
+      .search-submit {
+        border: none;
+        border-radius: 16px;
+        padding: 0.55rem 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.88rem;
+        transition: transform var(--transition), box-shadow var(--transition), background var(--transition),
+          color var(--transition);
+      }
+
+      .search-filter {
+        background: rgba(76, 81, 255, 0.12);
+        color: var(--primary-600);
+      }
+
+      .search-filter:hover,
+      .search-filter:focus-visible {
+        background: rgba(76, 81, 255, 0.2);
         transform: translateY(-1px);
-        border-color: rgba(76, 81, 255, 0.45);
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.48));
+        outline: none;
+      }
+
+      .search-submit {
+        background: #111;
+        color: #ffd60a;
+        box-shadow: 0 24px 38px -22px rgba(15, 23, 42, 0.6);
+        padding-inline: 0.95rem;
+      }
+
+      .search-submit:hover,
+      .search-submit:focus-visible {
+        transform: translateY(-1px);
+        box-shadow: 0 28px 46px -24px rgba(15, 23, 42, 0.65);
+        outline: none;
+      }
+
+      .search-submit i {
+        font-size: 0.9rem;
+      }
+
+      .search-filter i {
+        font-size: 0.9rem;
+      }
+
+      .header-search:focus-within .search-shell {
+        background: linear-gradient(130deg, rgba(76, 81, 255, 0.75), rgba(0, 184, 148, 0.55));
+        transform: translateY(-1px);
+        box-shadow: 0 36px 62px -30px rgba(15, 23, 42, 0.6);
+      }
+
+      .header-search:focus-within .search-glow {
+        opacity: 0.65;
+        transform: scale(1.03);
       }
 
       .header-notification {
@@ -462,7 +556,7 @@
 
       .dashboard-grid {
         display: grid;
-        grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr);
         gap: 2.5rem;
         align-items: start;
       }
@@ -512,11 +606,37 @@
           flex-direction: column;
           align-items: flex-start;
         }
-        .profile-panel {
-          position: static;
-        }
         main {
           margin-top: 0;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .search-shell {
+          border-radius: 24px;
+        }
+        .search-inner {
+          padding: 0.6rem 0.65rem 0.6rem 0.8rem;
+          gap: 0.8rem;
+        }
+        .search-icon {
+          width: 42px;
+          height: 42px;
+        }
+        .search-actions {
+          gap: 0.4rem;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .search-label {
+          font-size: 0.6rem;
+        }
+        .search-submit span {
+          display: none;
+        }
+        .search-submit {
+          padding-inline: 0.7rem;
         }
       }
 
@@ -539,7 +659,6 @@
           flex: 1 1 160px;
         }
         .header-search {
-          padding: 0.52rem 0.85rem;
           max-width: none;
         }
         .banner-controls {
@@ -590,15 +709,22 @@
           gap: 0.55rem;
         }
         .header-search {
-          padding: 0.45rem 0.8rem;
-          gap: 0.5rem;
+          width: 100%;
           max-width: none;
-          flex: 1 1 0%;
-          min-width: 0;
-          box-shadow: 0 22px 44px -28px rgba(15, 23, 42, 0.55);
         }
-        .header-search i {
-          font-size: 0.95rem;
+        .search-inner {
+          padding: 0.5rem 0.55rem;
+          gap: 0.65rem;
+        }
+        .search-icon {
+          width: 36px;
+          height: 36px;
+        }
+        .search-actions {
+          gap: 0.25rem;
+        }
+        .search-submit {
+          padding-inline: 0.62rem;
         }
         .header-search input {
           font-size: 0.88rem;
@@ -643,118 +769,6 @@
         margin: 0 0 1.2rem;
         font-size: 1.35rem;
         letter-spacing: -0.01em;
-      }
-
-      .profile-panel {
-        display: grid;
-        gap: 1.6rem;
-        position: sticky;
-        top: calc(var(--header-height) + 24px);
-      }
-
-      .profile-card {
-        display: grid;
-        gap: 1.2rem;
-      }
-
-      .profile-main {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-      }
-
-      .profile-main .avatar-large {
-        width: 72px;
-        height: 72px;
-        border-radius: 24px;
-        overflow: hidden;
-        border: 3px solid rgba(76, 81, 255, 0.2);
-        box-shadow: 0 25px 45px -28px rgba(15, 23, 42, 0.6);
-      }
-
-      .profile-main h4 {
-        margin: 0 0 0.35rem;
-        font-size: 1.2rem;
-      }
-
-      .verified {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        padding: 0.25rem 0.65rem;
-        border-radius: 999px;
-        background: rgba(34, 197, 94, 0.16);
-        color: var(--success);
-        font-size: 0.75rem;
-        font-weight: 600;
-      }
-
-      .profile-meta {
-        display: grid;
-        gap: 0.35rem;
-        color: var(--muted);
-        font-size: 0.92rem;
-      }
-
-      .profile-stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 0.75rem;
-      }
-
-      .stat-card {
-        background: var(--surface-strong);
-        border-radius: var(--radius-md);
-        padding: 0.95rem 1.1rem;
-        border: 1px solid var(--border-strong);
-        display: grid;
-        gap: 0.35rem;
-      }
-
-      .stat-card span {
-        font-size: 0.78rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--muted);
-      }
-
-      .stat-card strong {
-        font-size: 1.1rem;
-      }
-
-      .quick-links {
-        display: grid;
-        gap: 0.75rem;
-      }
-
-      .quick-links button {
-        border: 1px solid rgba(76, 81, 255, 0.18);
-        border-radius: var(--radius-md);
-        background: transparent;
-        padding: 0.9rem 1.1rem;
-        text-align: left;
-        font-weight: 600;
-        color: #1f2a54;
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-        cursor: pointer;
-        transition: background var(--transition), transform var(--transition);
-      }
-
-      .quick-links button i {
-        width: 32px;
-        height: 32px;
-        border-radius: 12px;
-        background: rgba(76, 81, 255, 0.12);
-        display: grid;
-        place-items: center;
-        color: var(--primary-600);
-      }
-
-      .quick-links button:hover {
-        background: rgba(76, 81, 255, 0.12);
-        transform: translateY(-2px);
       }
 
       .section-header {
@@ -1125,10 +1139,10 @@
         position: fixed;
         left: 0;
         right: 0;
-        bottom: clamp(0.75rem, 4vw, 1.8rem);
+        bottom: max(env(safe-area-inset-bottom, 0px), 0px);
         display: flex;
         justify-content: center;
-        padding: 0 clamp(1.1rem, 5vw, 2.4rem) env(safe-area-inset-bottom);
+        padding: 0 clamp(1.1rem, 5vw, 2.4rem) 0;
         pointer-events: none;
         z-index: 60;
       }
@@ -1139,15 +1153,16 @@
         justify-content: space-between;
         gap: 0.35rem;
         width: min(600px, 100%);
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.1));
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        box-shadow: 0 25px 50px -30px rgba(15, 23, 42, 0.55);
-        backdrop-filter: blur(24px);
-        border-radius: 22px;
-        padding: 0.15rem 0.4rem 0.7rem;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.08));
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        box-shadow: 0 25px 50px -32px rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(26px);
+        border-radius: 20px;
+        padding: 0.1rem 0.6rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
         pointer-events: auto;
         position: relative;
         overflow: visible;
+        min-height: 72px;
       }
 
       .premium-bottom-nav button {
@@ -1159,9 +1174,9 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0.35rem;
+        gap: 0.3rem;
         border-radius: 18px;
-        padding: 0.55rem 0.35rem;
+        padding: 0.45rem 0.4rem 0.55rem;
         font-size: 0.75rem;
         text-align: center;
         white-space: nowrap;
@@ -1201,17 +1216,24 @@
       }
 
       .premium-bottom-nav button.nav-item--highlight {
+        --highlight-size: 64px;
         flex: 0 0 auto;
-        padding: 0.55rem 0.35rem;
+        position: relative;
+        padding: calc(var(--highlight-size) / 2 + 0.35rem) 0.4rem 0.6rem;
         background: none;
         color: var(--primary-700);
         z-index: 2;
-        gap: 0.45rem;
+        gap: 0.35rem;
+        min-width: calc(var(--highlight-size) + 12px);
       }
 
       .premium-bottom-nav button.nav-item--highlight .nav-icon {
-        width: 64px;
-        height: 64px;
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: var(--highlight-size);
+        height: var(--highlight-size);
         border-radius: 999px;
         background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.6) 100%);
         box-shadow: 0 24px 45px -28px rgba(15, 23, 42, 0.75), 0 6px 18px -12px rgba(76, 81, 255, 0.45);
@@ -1236,26 +1258,27 @@
 
       .premium-bottom-nav button.nav-item--highlight:hover .nav-icon,
       .premium-bottom-nav button.nav-item--highlight:focus-visible .nav-icon {
-        transform: translateY(-2px) scale(1.04);
+        transform: translate(-50%, calc(-50% - 2px)) scale(1.04);
         box-shadow: 0 26px 48px -26px rgba(15, 23, 42, 0.8), 0 8px 20px -12px rgba(76, 81, 255, 0.55);
       }
 
       @media (max-width: 640px) {
         .premium-bottom-nav {
-          bottom: clamp(0.65rem, 6vw, 1.25rem);
-          padding: 0 clamp(0.75rem, 4vw, 1.4rem) env(safe-area-inset-bottom);
+          bottom: max(env(safe-area-inset-bottom, 0px), 0px);
+          padding: 0 clamp(0.75rem, 4vw, 1.4rem) 0;
         }
 
         .premium-bottom-nav__card {
           gap: 0.2rem;
           border-radius: 18px;
-          padding: 0.1rem 0.3rem 0.6rem;
+          padding: 0.08rem 0.4rem calc(0.45rem + env(safe-area-inset-bottom, 0px));
+          min-height: 66px;
         }
 
         .premium-bottom-nav button {
           font-size: 0.7rem;
-          gap: 0.25rem;
-          padding: 0.45rem 0.25rem;
+          gap: 0.22rem;
+          padding: 0.4rem 0.25rem 0.5rem;
         }
 
         .premium-bottom-nav button .nav-icon {
@@ -1265,12 +1288,13 @@
         }
 
         .premium-bottom-nav button.nav-item--highlight {
-          gap: 0.35rem;
+          --highlight-size: 58px;
+          gap: 0.3rem;
+          min-width: calc(var(--highlight-size) + 10px);
+          padding: calc(var(--highlight-size) / 2 + 0.3rem) 0.25rem 0.5rem;
         }
 
         .premium-bottom-nav button.nav-item--highlight .nav-icon {
-          width: 58px;
-          height: 58px;
           font-size: 1.28rem;
         }
 
@@ -1487,6 +1511,10 @@
       .hidden {
         display: none !important;
       }
+
+      [data-page-group].page-hidden {
+        display: none !important;
+      }
     </style>
   </head>
   <body>
@@ -1504,13 +1532,37 @@
           </div>
           <div class="header-search-area">
             <form class="header-search" id="header-search" role="search">
-              <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-              <input
-                type="search"
-                id="header-search-input"
-                placeholder="Buscar en Cambalaches"
-                aria-label="Buscar artículos"
-              />
+              <div class="search-shell">
+                <span class="search-glow" aria-hidden="true"></span>
+                <div class="search-inner">
+                  <span class="search-icon" aria-hidden="true">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                  </span>
+                  <div class="search-field">
+                    <span class="search-label">Buscar</span>
+                    <input
+                      type="search"
+                      id="header-search-input"
+                      placeholder="Productos, categorías o usuarios"
+                      aria-label="Buscar artículos"
+                    />
+                  </div>
+                  <div class="search-actions">
+                    <button
+                      type="button"
+                      class="search-filter"
+                      id="header-search-filter"
+                      aria-label="Abrir filtros avanzados"
+                    >
+                      <i class="fa-solid fa-sliders"></i>
+                    </button>
+                    <button type="submit" class="search-submit">
+                      <span>Buscar</span>
+                      <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </form>
             <button class="header-notification" type="button" aria-label="Ver notificaciones">
               <i class="fa-regular fa-bell" aria-hidden="true"></i>
@@ -1525,7 +1577,6 @@
         <div class="header-bottom">
           <nav class="quick-nav">
             <button data-target="feed-section" data-nav="primary">Explorar</button>
-            <button data-target="publish-anchor" data-nav="primary">Publicar</button>
             <button data-target="my-items" data-nav="primary">Mis artículos</button>
             <button data-target="active-exchanges" data-nav="primary">Canjes activos</button>
             <button data-target="history" data-nav="primary">Historial</button>
@@ -1535,7 +1586,7 @@
       </div>
     </header>
 
-    <section class="admin-banner">
+    <section class="admin-banner" data-page-group="feed-section">
       <div class="banner-controls">
         <div>
           <h2>Banners publicitarios a toda pantalla</h2>
@@ -1556,64 +1607,7 @@
 
     <main>
       <div class="dashboard-grid">
-        <aside class="profile-panel" id="publish-anchor">
-          <div class="panel profile-card" id="profile-card">
-            <div class="profile-main">
-              <div class="avatar-large" id="profile-avatar"></div>
-              <div>
-                <h4 id="profile-name">Invitado</h4>
-                <span class="verified hidden" id="verified-badge"
-                  ><i class="fa-solid fa-circle-check"></i> Cuenta verificada</span
-                >
-                <div class="profile-meta">
-                  <span id="profile-email">Regístrate para publicar</span>
-                  <span id="profile-phone"></span>
-                  <span id="profile-location"></span>
-                </div>
-              </div>
-            </div>
-            <div class="profile-stats">
-              <div class="stat-card">
-                <span>Canjes completados</span>
-                <strong id="stat-completed">0</strong>
-              </div>
-              <div class="stat-card">
-                <span>Ofertas activas</span>
-                <strong id="stat-active">0</strong>
-              </div>
-              <div class="stat-card">
-                <span>Reputación</span>
-                <strong id="stat-rating">-</strong>
-              </div>
-            </div>
-            <button class="btn btn-primary" id="profile-publish">Publicar un nuevo producto</button>
-          </div>
-          <div class="panel quick-links">
-            <button data-target="my-items">
-              <i class="fa-solid fa-box"></i>
-              Mis artículos publicados
-            </button>
-            <button data-target="active-exchanges">
-              <i class="fa-solid fa-shuffle"></i>
-              Mis canjes activos
-            </button>
-            <button data-target="history">
-              <i class="fa-solid fa-clock-rotate-left"></i>
-              Historial y reseñas
-            </button>
-            <button data-target="reputation">
-              <i class="fa-solid fa-star"></i>
-              Gestión de reputación
-            </button>
-            <button data-target="support">
-              <i class="fa-solid fa-flag"></i>
-              Reportes y soporte
-            </button>
-          </div>
-        </aside>
-
-        <div class="content-stack" style="display: grid; gap: 2.8rem">
-          <section class="panel" id="feed-section">
+        <section class="panel" id="feed-section" data-page-group="feed-section">
             <div class="section-header">
               <div class="section-title">
                 <span class="section-icon"><i class="fa-solid fa-compass"></i></span>
@@ -1662,7 +1656,7 @@
             </div>
           </section>
 
-          <section class="panel" id="my-items">
+        <section class="panel page-hidden" id="my-items" data-page-group="my-items">
             <div class="section-header">
               <div class="section-title">
                 <span class="section-icon"><i class="fa-solid fa-layer-group"></i></span>
@@ -1681,7 +1675,7 @@
             </div>
           </section>
 
-          <section class="panel" id="active-exchanges">
+        <section class="panel page-hidden" id="active-exchanges" data-page-group="active-exchanges">
             <div class="section-header">
               <div class="section-title">
                 <span class="section-icon"><i class="fa-solid fa-arrows-rotate"></i></span>
@@ -1711,7 +1705,7 @@
             </div>
           </section>
 
-          <section class="panel" id="history">
+        <section class="panel page-hidden" id="history" data-page-group="history">
             <div class="section-header">
               <div class="section-title">
                 <span class="section-icon"><i class="fa-solid fa-trophy"></i></span>
@@ -1728,7 +1722,7 @@
             </div>
           </section>
 
-          <section class="panel" id="reputation">
+        <section class="panel page-hidden" id="reputation" data-page-group="reputation">
             <div class="section-header">
               <div class="section-title">
                 <span class="section-icon"><i class="fa-solid fa-gem"></i></span>
@@ -1745,7 +1739,7 @@
             </div>
           </section>
 
-          <section class="panel" id="support">
+        <section class="panel page-hidden" id="support" data-page-group="support">
             <div class="section-header">
               <div class="section-title">
                 <span class="section-icon"><i class="fa-solid fa-shield-halved"></i></span>
@@ -1774,8 +1768,7 @@
               </div>
               <button class="btn btn-outline" id="open-report">Denunciar una publicación</button>
             </div>
-          </section>
-        </div>
+        </section>
       </div>
     </main>
 
@@ -2031,6 +2024,45 @@
 
       let bannerInterval = null;
       let bannerCurrentIndex = 0;
+
+      let activePage = "feed-section";
+      let primaryNavButtons = [];
+
+      function switchToPage(targetId, options = {}) {
+        const sections = $$("[data-page-group]");
+        const matched = sections.some((section) => section.dataset.pageGroup === targetId);
+
+        if (!matched) {
+          return false;
+        }
+
+        sections.forEach((section) => {
+          const group = section.dataset.pageGroup;
+          const shouldShow = group === "shared" || group === targetId;
+          section.classList.toggle("page-hidden", !shouldShow);
+        });
+
+        primaryNavButtons.forEach((btn) => {
+          const isActive = btn.getAttribute("data-target") === targetId;
+          btn.classList.toggle("active", isActive);
+          if (isActive) {
+            btn.setAttribute("aria-current", "page");
+          } else {
+            btn.removeAttribute("aria-current");
+          }
+        });
+
+        activePage = targetId;
+
+        if (options.scroll !== false) {
+          const main = document.querySelector("main");
+          if (main) {
+            main.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }
+
+        return true;
+      }
 
       const sampleUsers = [
         {
@@ -2296,41 +2328,19 @@
       }
 
       function updateProfileCard() {
-        const avatar = $("#profile-avatar");
         const navAvatar = $("#nav-avatar");
-        const nameEl = $("#profile-name");
-        const emailEl = $("#profile-email");
-        const phoneEl = $("#profile-phone");
-        const locationEl = $("#profile-location");
-        const badge = $("#verified-badge");
 
-        if (!state.currentUser) {
-          avatar.innerHTML =
-            '<div style="width:100%;height:100%;display:grid;place-items:center;background:rgba(76,81,255,0.08);color:var(--primary-600);font-weight:700;">CB</div>';
-          navAvatar.classList.add("hidden");
-          nameEl.textContent = "Invitado";
-          emailEl.textContent = "Regístrate para publicar";
-          phoneEl.textContent = "";
-          locationEl.textContent = "";
-          badge.classList.add("hidden");
-        } else {
-          avatar.innerHTML = `<img src="${state.currentUser.avatar}" alt="${state.currentUser.name}" />`;
-          navAvatar.innerHTML = `<img src="${state.currentUser.avatar}" alt="${state.currentUser.name}" />`;
-          navAvatar.classList.remove("hidden");
-          nameEl.textContent = state.currentUser.name;
-          emailEl.textContent = state.currentUser.email;
-          phoneEl.textContent = state.currentUser.phone;
-          locationEl.textContent = state.currentUser.location;
-          badge.classList.remove("hidden");
+        if (!navAvatar) {
+          return;
         }
 
-        $("#stat-completed").textContent = state.history.length;
-        $("#stat-active").textContent = state.activeAgreements.length + state.offersSent.length;
-        const average =
-          state.reviews.length
-            ? (state.reviews.reduce((sum, review) => sum + review.rating, 0) / state.reviews.length).toFixed(1)
-            : "-";
-        $("#stat-rating").textContent = average;
+        if (!state.currentUser) {
+          navAvatar.classList.add("hidden");
+          navAvatar.innerHTML = "";
+        } else {
+          navAvatar.innerHTML = `<img src="${state.currentUser.avatar}" alt="${state.currentUser.name}" />`;
+          navAvatar.classList.remove("hidden");
+        }
       }
 
       function renderFeed() {
@@ -3151,36 +3161,26 @@
       }
 
       function registerNavigation() {
-        const scrollToSection = (targetId) => {
-          const section = document.getElementById(targetId);
-          if (section) {
-            section.scrollIntoView({ behavior: "smooth", block: "start" });
-          }
-        };
-
         const navButtons = $$("[data-target]");
-        const primaryButtons = navButtons.filter((btn) => btn.dataset.nav === "primary");
-
-        const setActive = (targetId) => {
-          primaryButtons.forEach((btn) => {
-            const isActive = btn.getAttribute("data-target") === targetId;
-            btn.classList.toggle("active", isActive);
-          });
-        };
+        const pageGroups = new Set($$("[data-page-group]").map((section) => section.dataset.pageGroup));
+        primaryNavButtons = navButtons.filter(
+          (btn) => btn.dataset.nav === "primary" && pageGroups.has(btn.dataset.target)
+        );
 
         navButtons.forEach((btn) =>
           btn.addEventListener("click", (event) => {
             const target = event.currentTarget.getAttribute("data-target");
-            scrollToSection(target);
-            if (event.currentTarget.dataset.nav === "primary") {
-              setActive(target);
+            const handled = switchToPage(target);
+            if (!handled) {
+              const section = document.getElementById(target);
+              if (section) {
+                section.scrollIntoView({ behavior: "smooth", block: "start" });
+              }
             }
           })
         );
 
-        if (primaryButtons.length) {
-          setActive("feed-section");
-        }
+        switchToPage(activePage, { scroll: false });
       }
 
       document.addEventListener("DOMContentLoaded", () => {
@@ -3191,7 +3191,10 @@
         if (ctaRegister) {
           ctaRegister.addEventListener("click", () => openModal("auth-modal"));
         }
-        $("#profile-publish").addEventListener("click", () => ensureAuthenticated(() => openModal("publish-modal")));
+        const profilePublish = $("#profile-publish");
+        if (profilePublish) {
+          profilePublish.addEventListener("click", () => ensureAuthenticated(() => openModal("publish-modal")));
+        }
         $("#quick-publish").addEventListener("click", () => ensureAuthenticated(() => openModal("publish-modal")));
         $("#feed-publish").addEventListener("click", () => ensureAuthenticated(() => openModal("publish-modal")));
         $("#add-product").addEventListener("click", () => ensureAuthenticated(() => openModal("publish-modal")));
@@ -3208,6 +3211,7 @@
 
         const headerSearchForm = $("#header-search");
         const headerSearchInput = $("#header-search-input");
+        const headerSearchFilter = $("#header-search-filter");
         const feedKeywordInput = $("#filter-keyword");
 
         if (headerSearchForm) {
@@ -3216,6 +3220,7 @@
             if (headerSearchInput && feedKeywordInput) {
               feedKeywordInput.value = headerSearchInput.value;
               renderFeed();
+              switchToPage("feed-section", { scroll: false });
               const feedSection = document.getElementById("feed-section");
               if (feedSection) {
                 feedSection.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -3228,6 +3233,26 @@
           headerSearchInput.addEventListener("input", (event) => {
             feedKeywordInput.value = event.target.value;
             renderFeed();
+            if (activePage !== "feed-section") {
+              switchToPage("feed-section", { scroll: false });
+            }
+          });
+        }
+
+        if (headerSearchFilter) {
+          headerSearchFilter.addEventListener("click", () => {
+            const handled = switchToPage("feed-section", { scroll: false });
+            const feedSection = document.getElementById("feed-section");
+            if (feedSection) {
+              feedSection.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+            const firstFilter = $("#filter-category") || feedKeywordInput;
+            if (firstFilter) {
+              firstFilter.focus();
+            }
+            if (!handled && feedKeywordInput) {
+              feedKeywordInput.focus();
+            }
           });
         }
 
