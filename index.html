@@ -4690,12 +4690,67 @@
           return;
         }
         const { viewport, track } = state;
-        const firstItem = track.querySelector("[data-carousel-item]");
-        const computed = window.getComputedStyle(track);
-        const gap = parseFloat(computed.columnGap || computed.gap || 0);
-        const width = firstItem ? firstItem.getBoundingClientRect().width : viewport.clientWidth;
-        const offset = width + gap;
-        viewport.scrollBy({ left: direction * offset, behavior: "smooth" });
+        const items = Array.from(track.querySelectorAll("[data-carousel-item]"));
+        const maxScroll = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+        if (!items.length) {
+          viewport.scrollTo({
+            left: direction > 0 ? maxScroll : 0,
+            behavior: "smooth",
+          });
+          return;
+        }
+
+        const tolerance = 4;
+        const currentLeft = viewport.scrollLeft;
+        const currentRight = currentLeft + viewport.clientWidth;
+
+        let target = direction > 0 ? maxScroll : 0;
+
+        const clampScroll = (value) => Math.max(0, Math.min(maxScroll, value));
+        const prefersCompactLayout =
+          typeof window !== "undefined" && window.matchMedia
+            ? window.matchMedia("(max-width: 1079px)").matches
+            : viewport.clientWidth < 1080;
+
+        if (prefersCompactLayout) {
+          const viewportRect = viewport.getBoundingClientRect();
+          if (direction > 0) {
+            const nextItem = items.find((item) => {
+              const rect = item.getBoundingClientRect();
+              return rect.right - viewportRect.right > tolerance;
+            });
+            if (nextItem) {
+              const rect = nextItem.getBoundingClientRect();
+              target = clampScroll(currentLeft + (rect.right - viewportRect.right));
+            }
+          } else {
+            const prevItem = [...items].reverse().find((item) => {
+              const rect = item.getBoundingClientRect();
+              return viewportRect.left - rect.left > tolerance;
+            });
+            if (prevItem) {
+              const rect = prevItem.getBoundingClientRect();
+              target = clampScroll(currentLeft - (viewportRect.left - rect.left));
+            }
+          }
+        } else if (direction > 0) {
+          const nextItem = items.find(
+            (item) => item.offsetLeft + item.offsetWidth - tolerance > currentRight
+          );
+          if (nextItem) {
+            target = nextItem.offsetLeft + nextItem.offsetWidth - viewport.clientWidth;
+          }
+        } else {
+          const prevItem = [...items].reverse().find(
+            (item) => item.offsetLeft + tolerance < currentLeft
+          );
+          if (prevItem) {
+            target = prevItem.offsetLeft;
+          }
+        }
+
+        target = clampScroll(target);
+        viewport.scrollTo({ left: target, behavior: "smooth" });
       }
 
       function registerCarousel(shell) {
