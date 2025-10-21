@@ -740,10 +740,6 @@
         .search-actions {
           gap: 0.35rem;
         }
-        .featured-rail-tabs {
-          width: 100%;
-          justify-content: center;
-        }
         .featured-carousel-track {
           gap: 0.85rem;
         }
@@ -805,9 +801,6 @@
         }
         .featured-rail-title {
           text-align: center;
-        }
-        .featured-rail-tabs {
-          justify-content: center;
         }
         .featured-item {
           flex-basis: min(82vw, 300px);
@@ -879,10 +872,6 @@
         }
         .featured-rail-title h3 {
           font-size: 1.1rem;
-        }
-        .featured-rail-tabs {
-          flex-direction: column;
-          gap: 0.4rem;
         }
         .featured-carousel-track {
           padding-inline: 0.1rem;
@@ -1090,7 +1079,7 @@
 
       .featured-rail-header {
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         justify-content: space-between;
         gap: clamp(0.8rem, 2vw, 1.4rem);
         flex-wrap: wrap;
@@ -1101,59 +1090,65 @@
         gap: 0.3rem;
       }
 
-      .featured-rail-title span {
-        font-size: 0.78rem;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        color: rgba(15, 23, 42, 0.55);
-        font-weight: 600;
-      }
-
       .featured-rail-title h3 {
         margin: 0;
         font-size: clamp(1.25rem, 2.1vw, 1.7rem);
         color: #101b42;
       }
 
-      .featured-rail-tabs {
-        display: inline-flex;
-        background: rgba(255, 255, 255, 0.7);
-        border-radius: 999px;
-        padding: 0.25rem;
-        border: 1px solid rgba(99, 102, 241, 0.16);
-        gap: 0.35rem;
-      }
-
-      .featured-rail-tab {
-        border: none;
-        background: transparent;
-        border-radius: 999px;
-        padding: 0.45rem 0.95rem;
-        font-weight: 600;
-        font-size: 0.85rem;
-        color: rgba(16, 27, 66, 0.7);
-        cursor: pointer;
-        transition: background var(--transition), color var(--transition), box-shadow var(--transition), transform var(--transition);
-      }
-
-      .featured-rail-tab.active {
-        background: #111827;
-        color: #ffd60a;
-        box-shadow: 0 18px 36px -24px rgba(15, 23, 42, 0.6);
-      }
-
-      .featured-rail-tab:focus-visible {
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(76, 81, 255, 0.22);
-      }
-
-      .featured-rail-panels {
-        display: grid;
-        gap: 1rem;
-      }
-
-      .featured-rail-panel {
+      .featured-rail-body {
         position: relative;
+      }
+
+      .featured-recent-tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        border: 1px solid rgba(15, 23, 42, 0.12);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.78);
+        color: #0f172a;
+        font-weight: 600;
+        font-size: 0.82rem;
+        padding: 0.45rem 0.95rem;
+        cursor: pointer;
+        transition: background var(--transition), color var(--transition), border-color var(--transition);
+        margin-left: auto;
+      }
+
+      .featured-recent-tab:focus-visible {
+        outline: none;
+        border-color: rgba(76, 81, 255, 0.45);
+        box-shadow: 0 0 0 3px rgba(76, 81, 255, 0.2);
+      }
+
+      .featured-recent-tab .featured-recent-tab-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: rgba(76, 81, 255, 0.12);
+        color: rgba(76, 81, 255, 0.88);
+        font-size: 0.85rem;
+      }
+
+      .featured-recent-tab .label-active {
+        display: none;
+      }
+
+      .featured-recent-tab.active {
+        background: linear-gradient(135deg, rgba(76, 81, 255, 0.18), rgba(0, 184, 148, 0.16));
+        color: #101b42;
+      }
+
+      .featured-recent-tab.active .label-default {
+        display: none;
+      }
+
+      .featured-recent-tab.active .label-active {
+        display: inline;
       }
 
       .featured-carousel-shell {
@@ -1269,16 +1264,14 @@
         overflow: hidden;
         background: linear-gradient(160deg, rgba(76, 81, 255, 0.16), rgba(255, 255, 255, 0.95));
         border: 1px solid rgba(99, 102, 241, 0.16);
-        box-shadow: 0 24px 54px -46px rgba(15, 23, 42, 0.55);
         scroll-snap-align: start;
         cursor: pointer;
-        transition: transform var(--transition), box-shadow var(--transition);
+        transition: transform var(--transition);
       }
 
       .featured-item:hover,
       .featured-item:focus-visible {
         transform: translateY(-4px);
-        box-shadow: 0 32px 68px -48px rgba(15, 23, 42, 0.6);
         outline: none;
       }
 
@@ -1310,7 +1303,6 @@
         color: #f8fafc;
         font-weight: 600;
         font-size: 0.82rem;
-        box-shadow: 0 12px 32px -20px rgba(15, 23, 42, 0.6);
       }
 
       .featured-item-body {
@@ -3462,103 +3454,74 @@
           <section class="featured-rail" aria-labelledby="featured-rail-heading">
             <div class="featured-rail-header">
               <div class="featured-rail-title">
-                <span>Curaduría inteligente</span>
-                <h3 id="featured-rail-heading">Artículos destacados y tu actividad reciente</h3>
+                <h3 id="featured-rail-heading">Productos destacados</h3>
               </div>
-              <div class="featured-rail-tabs" role="tablist" aria-label="Colecciones de artículos">
-                <button
-                  type="button"
-                  class="featured-rail-tab active"
-                  role="tab"
-                  id="featured-tab-featured"
-                  aria-selected="true"
-                  aria-controls="featured-panel-featured"
-                  data-tab="featured"
-                >
-                  Destacados
-                </button>
-                <button
-                  type="button"
-                  class="featured-rail-tab"
-                  role="tab"
-                  id="featured-tab-recent"
-                  aria-selected="false"
-                  aria-controls="featured-panel-recent"
-                  data-tab="recent"
-                >
-                  Vistos recientemente
-                </button>
-              </div>
+              <button
+                type="button"
+                class="featured-recent-tab"
+                id="featured-recent-toggle"
+                aria-pressed="false"
+                aria-controls="recent-carousel-track"
+              >
+                <span class="featured-recent-tab-icon" aria-hidden="true"
+                  ><i class="fa-regular fa-clock"></i
+                ></span>
+                <span class="label-default">Visto recientemente</span>
+                <span class="label-active">Visto recientemente · Ver destacados</span>
+              </button>
             </div>
-            <div class="featured-rail-panels">
-              <div
-                class="featured-rail-panel"
-                id="featured-panel-featured"
-                role="tabpanel"
-                aria-labelledby="featured-tab-featured"
-                data-tab-panel="featured"
-              >
-                <div class="featured-carousel-shell" data-carousel="featured">
-                  <button
-                    class="carousel-nav prev"
-                    type="button"
-                    aria-label="Desplazar destacados hacia la izquierda"
-                    data-carousel-prev
-                  >
-                    <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
-                  </button>
-                  <div class="featured-carousel-viewport" data-carousel-viewport>
-                    <div
-                      class="featured-carousel-track"
-                      id="featured-carousel-track"
-                      role="list"
-                      data-carousel-track
-                    ></div>
-                  </div>
-                  <button
-                    class="carousel-nav next"
-                    type="button"
-                    aria-label="Desplazar destacados hacia la derecha"
-                    data-carousel-next
-                  >
-                    <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-                  </button>
+            <div class="featured-rail-body" data-active-view="featured">
+              <div class="featured-carousel-shell" data-carousel="featured" data-view-panel="featured">
+                <button
+                  class="carousel-nav prev"
+                  type="button"
+                  aria-label="Desplazar destacados hacia la izquierda"
+                  data-carousel-prev
+                >
+                  <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                </button>
+                <div class="featured-carousel-viewport" data-carousel-viewport>
+                  <div
+                    class="featured-carousel-track"
+                    id="featured-carousel-track"
+                    role="list"
+                    data-carousel-track
+                  ></div>
                 </div>
+                <button
+                  class="carousel-nav next"
+                  type="button"
+                  aria-label="Desplazar destacados hacia la derecha"
+                  data-carousel-next
+                >
+                  <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                </button>
               </div>
-              <div
-                class="featured-rail-panel hidden"
-                id="featured-panel-recent"
-                role="tabpanel"
-                aria-labelledby="featured-tab-recent"
-                aria-hidden="true"
-                data-tab-panel="recent"
-              >
-                <div class="featured-carousel-shell" data-carousel="recent">
-                  <button
-                    class="carousel-nav prev"
-                    type="button"
-                    aria-label="Desplazar recientes hacia la izquierda"
-                    data-carousel-prev
-                  >
-                    <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
-                  </button>
-                  <div class="featured-carousel-viewport" data-carousel-viewport>
-                    <div
-                      class="featured-carousel-track"
-                      id="recent-carousel-track"
-                      role="list"
-                      data-carousel-track
-                    ></div>
-                  </div>
-                  <button
-                    class="carousel-nav next"
-                    type="button"
-                    aria-label="Desplazar recientes hacia la derecha"
-                    data-carousel-next
-                  >
-                    <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-                  </button>
+              <div class="featured-carousel-shell hidden" data-carousel="recent" data-view-panel="recent">
+                <button
+                  class="carousel-nav prev"
+                  type="button"
+                  aria-label="Desplazar recientes hacia la izquierda"
+                  data-carousel-prev
+                >
+                  <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                </button>
+                <div class="featured-carousel-viewport" data-carousel-viewport>
+                  <div
+                    class="featured-carousel-track"
+                    id="recent-carousel-track"
+                    role="list"
+                    data-carousel-track
+                  ></div>
                 </div>
+                <button
+                  class="carousel-nav next"
+                  type="button"
+                  aria-label="Desplazar recientes hacia la derecha"
+                  data-carousel-next
+                >
+                  <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                </button>
               </div>
             </div>
           </section>
@@ -4290,6 +4253,8 @@
       const state = {
         currentUser: null,
         products: [],
+        recentlyViewed: [],
+        activeFeaturedView: "featured",
         offersSent: [],
         offersReceived: [],
         activeAgreements: [],
@@ -4298,7 +4263,6 @@
         reports: 0,
         modals: {},
         bannerImages: [],
-        recentlyViewed: [],
       };
 
       let activePage = "feed-section";
@@ -4839,18 +4803,19 @@
         return card;
       }
 
-      function setFeaturedTab(tab, { resetScroll = true } = {}) {
-        const tabs = $$(".featured-rail-tab");
-        const panels = $$(".featured-rail-panel");
-        tabs.forEach((button) => {
-          const isActive = button.dataset.tab === tab;
-          button.classList.toggle("active", isActive);
-          button.setAttribute("aria-selected", isActive ? "true" : "false");
-        });
+      function setFeaturedView(view, { resetScroll = true } = {}) {
+        const normalized = view === "recent" ? "recent" : "featured";
+        state.activeFeaturedView = normalized;
+
+        const body = $(".featured-rail-body");
+        if (body) {
+          body.dataset.activeView = normalized;
+        }
+
+        const panels = $$(".featured-carousel-shell[data-view-panel]");
         panels.forEach((panel) => {
-          const isActive = panel.dataset.tabPanel === tab;
+          const isActive = panel.dataset.viewPanel === normalized;
           panel.classList.toggle("hidden", !isActive);
-          panel.setAttribute("aria-hidden", isActive ? "false" : "true");
           if (isActive && resetScroll) {
             const viewport = panel.querySelector("[data-carousel-viewport]");
             if (viewport) {
@@ -4858,20 +4823,32 @@
             }
           }
         });
+
+        const toggle = $("#featured-recent-toggle");
+        if (toggle) {
+          const isRecent = normalized === "recent";
+          toggle.setAttribute("aria-pressed", isRecent ? "true" : "false");
+          toggle.classList.toggle("active", isRecent);
+          toggle.setAttribute(
+            "aria-label",
+            isRecent ? "Volver a destacados" : "Ver artículos vistos recientemente"
+          );
+        }
+
         requestAnimationFrame(() => refreshCarousels());
       }
 
       function renderFeaturedRails() {
+        const featuredShell = document.querySelector('.featured-carousel-shell[data-carousel="featured"]');
+        const recentShell = document.querySelector('.featured-carousel-shell[data-carousel="recent"]');
         const featuredContainer = $("#featured-carousel-track");
         const recentContainer = $("#recent-carousel-track");
-        if (!featuredContainer || !recentContainer) {
+        if (!featuredShell || !recentShell || !featuredContainer || !recentContainer) {
           return;
         }
 
-        registerCarousel(featuredContainer.closest(".featured-carousel-shell"));
-        registerCarousel(recentContainer.closest(".featured-carousel-shell"));
-
-        const activeTab = document.querySelector(".featured-rail-tab.active")?.dataset.tab || "featured";
+        registerCarousel(featuredShell);
+        registerCarousel(recentShell);
 
         featuredContainer.innerHTML = "";
         const rankedProducts = [...state.products].sort((a, b) => {
@@ -4922,15 +4899,17 @@
           });
         }
 
-        setFeaturedTab(activeTab, { resetScroll: false });
-        requestAnimationFrame(() => refreshCarousels());
+        const activeView = state.activeFeaturedView === "recent" ? "recent" : "featured";
+        setFeaturedView(activeView, { resetScroll: false });
       }
 
       function trackRecentlyViewed(product) {
         if (!product || !product.id) {
           return;
         }
-        const ids = Array.isArray(state.recentlyViewed) ? state.recentlyViewed.filter((id) => id !== product.id) : [];
+        const ids = Array.isArray(state.recentlyViewed)
+          ? state.recentlyViewed.filter((id) => id !== product.id)
+          : [];
         ids.unshift(product.id);
         state.recentlyViewed = ids.slice(0, RECENT_LIMIT);
         renderFeaturedRails();
@@ -6246,7 +6225,7 @@
         const detailAdvancedBtn = $("#product-detail-advanced");
         const detailReportBtn = $("#product-detail-report");
         const detailCloseNodes = $$("[data-close-detail]");
-        const featuredTabs = $$(".featured-rail-tab");
+        const featuredRecentToggle = $("#featured-recent-toggle");
 
         if (headerSearchForm) {
           headerSearchForm.addEventListener("submit", (event) => {
@@ -6270,6 +6249,13 @@
             if (activePage !== "feed-section") {
               switchToPage("feed-section", { scroll: false });
             }
+          });
+        }
+
+        if (featuredRecentToggle) {
+          featuredRecentToggle.addEventListener("click", () => {
+            const nextView = state.activeFeaturedView === "recent" ? "featured" : "recent";
+            setFeaturedView(nextView);
           });
         }
 
@@ -6327,15 +6313,6 @@
         if (detailCloseNodes.length) {
           detailCloseNodes.forEach((node) =>
             node.addEventListener("click", () => closeProductDetail())
-          );
-        }
-
-        if (featuredTabs.length) {
-          featuredTabs.forEach((tab) =>
-            tab.addEventListener("click", () => {
-              const target = tab.dataset.tab || "featured";
-              setFeaturedTab(target);
-            })
           );
         }
 
