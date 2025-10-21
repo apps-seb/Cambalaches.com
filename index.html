@@ -667,16 +667,6 @@
         padding: 0;
       }
 
-      @media (min-width: 768px) {
-        .carousel-nav {
-          display: inline-flex;
-        }
-        .featured-carousel-shell::before,
-        .featured-carousel-shell::after {
-          display: block;
-        }
-      }
-
       @media (max-width: 1024px) {
         :root {
           --header-height: 176px;
@@ -740,12 +730,6 @@
         .search-actions {
           gap: 0.35rem;
         }
-        .featured-carousel-track {
-          gap: 0.85rem;
-        }
-        .featured-item {
-          flex-basis: min(78vw, 300px);
-        }
         .category-list {
           grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
         }
@@ -795,15 +779,6 @@
           width: 100%;
           justify-content: center;
           display: flex;
-        }
-        .featured-rail {
-          padding: 1.25rem clamp(0.9rem, 6vw, 1.4rem);
-        }
-        .featured-rail-title {
-          text-align: center;
-        }
-        .featured-item {
-          flex-basis: min(82vw, 300px);
         }
         .dashboard-grid {
           gap: 2rem;
@@ -865,19 +840,6 @@
         #feed-grid {
           grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: clamp(0.6rem, 4vw, 0.9rem);
-        }
-        .featured-rail {
-          padding: 1rem 0.9rem;
-          gap: 0.9rem;
-        }
-        .featured-rail-title h3 {
-          font-size: 1.1rem;
-        }
-        .featured-carousel-track {
-          padding-inline: 0.1rem;
-        }
-        .featured-item {
-          flex-basis: min(88vw, 280px);
         }
         .category-board {
           padding: 1rem 1.1rem;
@@ -981,9 +943,6 @@
           font-size: 0.78rem;
           padding: 0.3rem 0.6rem;
         }
-        .featured-item {
-          flex-basis: 92vw;
-        }
         .product-card-owner img {
           width: 30px;
           height: 30px;
@@ -1065,300 +1024,6 @@
       .section-header p {
         margin: 0;
         color: var(--muted);
-      }
-
-      .featured-rail {
-        display: grid;
-        gap: clamp(1rem, 2.6vw, 1.75rem);
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.97), rgba(231, 237, 255, 0.9));
-        border-radius: clamp(22px, 3vw, 32px);
-        border: 1px solid rgba(99, 102, 241, 0.16);
-        padding: clamp(1.1rem, 2.5vw, 1.8rem);
-        box-shadow: 0 32px 68px -52px rgba(15, 23, 42, 0.5);
-      }
-
-      .featured-rail-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: clamp(0.8rem, 2vw, 1.4rem);
-        flex-wrap: wrap;
-      }
-
-      .featured-rail-title {
-        display: grid;
-        gap: 0.3rem;
-      }
-
-      .featured-rail-title h3 {
-        margin: 0;
-        font-size: clamp(1.25rem, 2.1vw, 1.7rem);
-        color: #101b42;
-      }
-
-      .featured-rail-body {
-        position: relative;
-      }
-
-      .featured-recent-tab {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.45rem;
-        border: 1px solid rgba(15, 23, 42, 0.12);
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.78);
-        color: #0f172a;
-        font-weight: 600;
-        font-size: 0.82rem;
-        padding: 0.45rem 0.95rem;
-        cursor: pointer;
-        transition: background var(--transition), color var(--transition), border-color var(--transition);
-        margin-left: auto;
-      }
-
-      .featured-recent-tab:focus-visible {
-        outline: none;
-        border-color: rgba(76, 81, 255, 0.45);
-        box-shadow: 0 0 0 3px rgba(76, 81, 255, 0.2);
-      }
-
-      .featured-recent-tab .featured-recent-tab-icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 26px;
-        height: 26px;
-        border-radius: 50%;
-        background: rgba(76, 81, 255, 0.12);
-        color: rgba(76, 81, 255, 0.88);
-        font-size: 0.85rem;
-      }
-
-      .featured-recent-tab .label-active {
-        display: none;
-      }
-
-      .featured-recent-tab.active {
-        background: linear-gradient(135deg, rgba(76, 81, 255, 0.18), rgba(0, 184, 148, 0.16));
-        color: #101b42;
-      }
-
-      .featured-recent-tab.active .label-default {
-        display: none;
-      }
-
-      .featured-recent-tab.active .label-active {
-        display: inline;
-      }
-
-      .featured-carousel-shell {
-        position: relative;
-        isolation: isolate;
-      }
-
-      .featured-carousel-shell::before,
-      .featured-carousel-shell::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: clamp(36px, 8vw, 76px);
-        pointer-events: none;
-        z-index: 2;
-        opacity: 0;
-        transition: opacity var(--transition);
-        display: none;
-      }
-
-      .featured-carousel-shell::before {
-        left: 0;
-        background: linear-gradient(90deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0));
-      }
-
-      .featured-carousel-shell::after {
-        right: 0;
-        background: linear-gradient(-90deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0));
-      }
-
-      .featured-carousel-shell.is-scrollable::before,
-      .featured-carousel-shell.is-scrollable::after {
-        opacity: 1;
-      }
-
-      .featured-carousel-shell.at-start::before {
-        opacity: 0;
-      }
-
-      .featured-carousel-shell.at-end::after {
-        opacity: 0;
-      }
-
-      .featured-carousel-viewport {
-        overflow-x: auto;
-        scroll-snap-type: x mandatory;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
-        padding-bottom: 0.35rem;
-      }
-
-      .featured-carousel-viewport::-webkit-scrollbar {
-        display: none;
-      }
-
-      .featured-carousel-track {
-        display: flex;
-        align-items: stretch;
-        gap: clamp(0.75rem, 2.1vw, 1.2rem);
-        padding: 0.2rem 0.35rem 0.5rem;
-      }
-
-      .carousel-nav {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 46px;
-        height: 46px;
-        border-radius: 999px;
-        border: none;
-        background: rgba(17, 24, 39, 0.88);
-        color: #f8fafc;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 25px 45px -30px rgba(15, 23, 42, 0.6);
-        cursor: pointer;
-        z-index: 3;
-        transition: transform var(--transition), opacity var(--transition), box-shadow var(--transition);
-      }
-
-      .carousel-nav.prev {
-        left: clamp(0.2rem, 1.2vw, 0.75rem);
-      }
-
-      .carousel-nav.next {
-        right: clamp(0.2rem, 1.2vw, 0.75rem);
-      }
-
-      .carousel-nav:hover {
-        transform: translateY(-50%) scale(1.05);
-        box-shadow: 0 30px 52px -30px rgba(15, 23, 42, 0.55);
-      }
-
-      .carousel-nav:focus-visible {
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(76, 81, 255, 0.35);
-      }
-
-      .carousel-nav[disabled] {
-        opacity: 0.45;
-        cursor: default;
-        box-shadow: none;
-      }
-
-      .featured-item {
-        position: relative;
-        display: grid;
-        grid-template-rows: minmax(0, clamp(160px, 34vw, 210px)) auto;
-        flex: 0 0 clamp(240px, 68vw, 320px);
-        border-radius: clamp(20px, 3vw, 28px);
-        overflow: hidden;
-        background: linear-gradient(160deg, rgba(76, 81, 255, 0.16), rgba(255, 255, 255, 0.95));
-        border: 1px solid rgba(99, 102, 241, 0.16);
-        scroll-snap-align: start;
-        cursor: pointer;
-        transition: transform var(--transition);
-      }
-
-      .featured-item:hover,
-      .featured-item:focus-visible {
-        transform: translateY(-4px);
-        outline: none;
-      }
-
-      .featured-item-media {
-        position: relative;
-        overflow: hidden;
-      }
-
-      .featured-item-media img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-        transition: transform var(--transition);
-      }
-
-      .featured-item:hover .featured-item-media img,
-      .featured-item:focus-visible .featured-item-media img {
-        transform: scale(1.04);
-      }
-
-      .featured-item-price {
-        position: absolute;
-        bottom: 0.85rem;
-        right: 0.85rem;
-        padding: 0.45rem 1rem;
-        border-radius: 999px;
-        background: rgba(15, 23, 42, 0.82);
-        color: #f8fafc;
-        font-weight: 600;
-        font-size: 0.82rem;
-      }
-
-      .featured-item-body {
-        display: grid;
-        gap: 0.5rem;
-        padding: 1rem 1.1rem 1.2rem;
-      }
-
-      .featured-item-category {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        padding: 0.38rem 0.7rem;
-        border-radius: 999px;
-        background: rgba(76, 81, 255, 0.12);
-        color: var(--primary-700);
-        font-size: 0.75rem;
-        font-weight: 600;
-      }
-
-      .featured-item-body h4 {
-        margin: 0;
-        font-size: 1.05rem;
-        color: #0f172a;
-      }
-
-      .featured-item-meta {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: var(--muted);
-        font-size: 0.84rem;
-      }
-
-      .featured-item-meta i {
-        color: rgba(76, 81, 255, 0.65);
-      }
-
-      .featured-empty {
-        min-height: 160px;
-        display: grid;
-        place-content: center;
-        text-align: center;
-        gap: 0.65rem;
-        color: var(--muted);
-        font-size: 0.92rem;
-        border-radius: clamp(20px, 3vw, 28px);
-        border: 1px dashed rgba(99, 102, 241, 0.22);
-        background: rgba(255, 255, 255, 0.72);
-        padding: clamp(1.25rem, 3vw, 2rem);
-        flex: 1 1 100%;
-      }
-
-      .featured-empty i {
-        font-size: 1.6rem;
-        color: rgba(76, 81, 255, 0.45);
       }
 
       .category-board {
@@ -2963,12 +2628,6 @@
         .category-board {
           margin-top: 1.2rem;
         }
-        .featured-rail {
-          padding: 1.2rem;
-        }
-        .featured-item {
-          flex-basis: min(70vw, 320px);
-        }
         .filters-sheet {
           width: 100vw;
           height: 100vh;
@@ -3451,80 +3110,6 @@
           <input type="hidden" id="filter-category" value="" />
           <input type="hidden" id="filter-keyword" />
           <input type="hidden" id="filter-style" value="marketplace" />
-          <section class="featured-rail" aria-labelledby="featured-rail-heading">
-            <div class="featured-rail-header">
-              <div class="featured-rail-title">
-                <h3 id="featured-rail-heading">Productos destacados</h3>
-              </div>
-              <button
-                type="button"
-                class="featured-recent-tab"
-                id="featured-recent-toggle"
-                aria-pressed="false"
-                aria-controls="recent-carousel-track"
-              >
-                <span class="featured-recent-tab-icon" aria-hidden="true"
-                  ><i class="fa-regular fa-clock"></i
-                ></span>
-                <span class="label-default">Visto recientemente</span>
-                <span class="label-active">Visto recientemente · Ver destacados</span>
-              </button>
-            </div>
-            <div class="featured-rail-body" data-active-view="featured">
-              <div class="featured-carousel-shell" data-carousel="featured" data-view-panel="featured">
-                <button
-                  class="carousel-nav prev"
-                  type="button"
-                  aria-label="Desplazar destacados hacia la izquierda"
-                  data-carousel-prev
-                >
-                  <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
-                </button>
-                <div class="featured-carousel-viewport" data-carousel-viewport>
-                  <div
-                    class="featured-carousel-track"
-                    id="featured-carousel-track"
-                    role="list"
-                    data-carousel-track
-                  ></div>
-                </div>
-                <button
-                  class="carousel-nav next"
-                  type="button"
-                  aria-label="Desplazar destacados hacia la derecha"
-                  data-carousel-next
-                >
-                  <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-                </button>
-              </div>
-              <div class="featured-carousel-shell hidden" data-carousel="recent" data-view-panel="recent">
-                <button
-                  class="carousel-nav prev"
-                  type="button"
-                  aria-label="Desplazar recientes hacia la izquierda"
-                  data-carousel-prev
-                >
-                  <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
-                </button>
-                <div class="featured-carousel-viewport" data-carousel-viewport>
-                  <div
-                    class="featured-carousel-track"
-                    id="recent-carousel-track"
-                    role="list"
-                    data-carousel-track
-                  ></div>
-                </div>
-                <button
-                  class="carousel-nav next"
-                  type="button"
-                  aria-label="Desplazar recientes hacia la derecha"
-                  data-carousel-next
-                >
-                  <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-                </button>
-              </div>
-            </div>
-          </section>
           <div class="category-board">
             <div class="category-board-header">
               <div class="category-board-title">
@@ -4189,9 +3774,6 @@
       const FALLBACK_AVATAR =
         "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=160&q=80";
 
-      const FEATURED_LIMIT = 8;
-      const RECENT_LIMIT = 10;
-
       const generateId = (prefix) => `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
 
       const safeNumber = (value, fallback = 0) => {
@@ -4253,8 +3835,6 @@
       const state = {
         currentUser: null,
         products: [],
-        recentlyViewed: [],
-        activeFeaturedView: "featured",
         offersSent: [],
         offersReceived: [],
         activeAgreements: [],
@@ -4652,269 +4232,6 @@
         track.appendChild(createAddCard());
       }
 
-      const carouselRegistry = new Map();
-      let carouselResizeListenerAttached = false;
-
-      function getCarouselState(shell) {
-        if (!shell) return null;
-        return carouselRegistry.get(shell) || null;
-      }
-
-      function updateCarousel(shell) {
-        const state = getCarouselState(shell);
-        if (!state || !state.viewport) {
-          return;
-        }
-        const { viewport, prev, next } = state;
-        const maxScroll = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
-        const atStart = viewport.scrollLeft <= 8;
-        const atEnd = viewport.scrollLeft >= maxScroll - 8;
-        shell.classList.toggle("is-scrollable", maxScroll > 0);
-        shell.classList.toggle("at-start", atStart);
-        shell.classList.toggle("at-end", atEnd);
-        if (prev) {
-          prev.disabled = atStart || maxScroll <= 0;
-        }
-        if (next) {
-          next.disabled = atEnd || maxScroll <= 0;
-        }
-      }
-
-      function refreshCarousels() {
-        carouselRegistry.forEach((_, shell) => updateCarousel(shell));
-      }
-
-      function scrollCarousel(shell, direction = 1) {
-        const state = getCarouselState(shell);
-        if (!state || !state.viewport || !state.track) {
-          return;
-        }
-        const { viewport, track } = state;
-        const firstItem = track.querySelector("[data-carousel-item]");
-        const computed = window.getComputedStyle(track);
-        const gap = parseFloat(computed.columnGap || computed.gap || 0);
-        const width = firstItem ? firstItem.getBoundingClientRect().width : viewport.clientWidth;
-        const offset = width + gap;
-        viewport.scrollBy({ left: direction * offset, behavior: "smooth" });
-      }
-
-      function registerCarousel(shell) {
-        if (!shell || carouselRegistry.has(shell)) {
-          return;
-        }
-        const viewport = shell.querySelector("[data-carousel-viewport]");
-        const track = shell.querySelector("[data-carousel-track]");
-        const prev = shell.querySelector("[data-carousel-prev]");
-        const next = shell.querySelector("[data-carousel-next]");
-        const state = { viewport, track, prev, next, frame: null };
-        carouselRegistry.set(shell, state);
-
-        const scheduleUpdate = () => {
-          if (state.frame) {
-            cancelAnimationFrame(state.frame);
-          }
-          state.frame = requestAnimationFrame(() => updateCarousel(shell));
-        };
-
-        if (viewport) {
-          viewport.addEventListener("scroll", scheduleUpdate, { passive: true });
-        }
-
-        if (prev) {
-          prev.addEventListener("click", () => scrollCarousel(shell, -1));
-        }
-        if (next) {
-          next.addEventListener("click", () => scrollCarousel(shell, 1));
-        }
-
-        scheduleUpdate();
-
-        if (!carouselResizeListenerAttached) {
-          window.addEventListener("resize", () => refreshCarousels());
-          carouselResizeListenerAttached = true;
-        }
-      }
-
-      function createRailCard(product) {
-        const card = document.createElement("article");
-        card.className = "featured-item";
-        card.setAttribute("role", "listitem");
-        card.setAttribute("tabindex", "0");
-        card.setAttribute("aria-label", `Ver detalles de ${product.title}`);
-        card.dataset.carouselItem = "true";
-
-        const media = document.createElement("div");
-        media.className = "featured-item-media";
-        const image = document.createElement("img");
-        image.src = product.images?.[0] || FALLBACK_IMAGE;
-        image.alt = product.title;
-        media.appendChild(image);
-
-        const price = document.createElement("span");
-        price.className = "featured-item-price";
-        price.textContent = formatCOP(product.price);
-        media.appendChild(price);
-
-        const body = document.createElement("div");
-        body.className = "featured-item-body";
-
-        const category = document.createElement("span");
-        category.className = "featured-item-category";
-        category.textContent = titleize(getCategoryLabel(product.category));
-        body.appendChild(category);
-
-        const title = document.createElement("h4");
-        title.textContent = product.title;
-        body.appendChild(title);
-
-        const meta = document.createElement("div");
-        meta.className = "featured-item-meta";
-
-        const location = document.createElement("span");
-        location.innerHTML = `<i class="fa-solid fa-location-dot" aria-hidden="true"></i>${product.location}`;
-        location.setAttribute("aria-label", `Ubicación ${product.location}`);
-        meta.appendChild(location);
-
-        const baseRating =
-          product.rating != null
-            ? Number(product.rating)
-            : product.owner?.rating != null
-            ? Number(product.owner.rating)
-            : null;
-        if (Number.isFinite(baseRating)) {
-          const rating = document.createElement("span");
-          rating.innerHTML = `<i class="fa-solid fa-star" aria-hidden="true"></i>${baseRating.toFixed(1)}`;
-          rating.setAttribute("aria-label", `${baseRating.toFixed(1)} sobre 5`);
-          meta.appendChild(rating);
-        }
-
-        body.appendChild(meta);
-        card.append(media, body);
-
-        const openDetail = () => openProductDetail(product);
-        card.addEventListener("click", openDetail);
-        card.addEventListener("keydown", (event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            openDetail();
-          }
-        });
-
-        return card;
-      }
-
-      function setFeaturedView(view, { resetScroll = true } = {}) {
-        const normalized = view === "recent" ? "recent" : "featured";
-        state.activeFeaturedView = normalized;
-
-        const body = $(".featured-rail-body");
-        if (body) {
-          body.dataset.activeView = normalized;
-        }
-
-        const panels = $$(".featured-carousel-shell[data-view-panel]");
-        panels.forEach((panel) => {
-          const isActive = panel.dataset.viewPanel === normalized;
-          panel.classList.toggle("hidden", !isActive);
-          if (isActive && resetScroll) {
-            const viewport = panel.querySelector("[data-carousel-viewport]");
-            if (viewport) {
-              viewport.scrollTo({ left: 0, behavior: "auto" });
-            }
-          }
-        });
-
-        const toggle = $("#featured-recent-toggle");
-        if (toggle) {
-          const isRecent = normalized === "recent";
-          toggle.setAttribute("aria-pressed", isRecent ? "true" : "false");
-          toggle.classList.toggle("active", isRecent);
-          toggle.setAttribute(
-            "aria-label",
-            isRecent ? "Volver a destacados" : "Ver artículos vistos recientemente"
-          );
-        }
-
-        requestAnimationFrame(() => refreshCarousels());
-      }
-
-      function renderFeaturedRails() {
-        const featuredShell = document.querySelector('.featured-carousel-shell[data-carousel="featured"]');
-        const recentShell = document.querySelector('.featured-carousel-shell[data-carousel="recent"]');
-        const featuredContainer = $("#featured-carousel-track");
-        const recentContainer = $("#recent-carousel-track");
-        if (!featuredShell || !recentShell || !featuredContainer || !recentContainer) {
-          return;
-        }
-
-        registerCarousel(featuredShell);
-        registerCarousel(recentShell);
-
-        featuredContainer.innerHTML = "";
-        const rankedProducts = [...state.products].sort((a, b) => {
-          const ratingA =
-            a.rating != null ? Number(a.rating) : a.owner?.rating != null ? Number(a.owner.rating) : 0;
-          const ratingB =
-            b.rating != null ? Number(b.rating) : b.owner?.rating != null ? Number(b.owner.rating) : 0;
-          if (ratingA === ratingB) {
-            return Number(b.price || 0) - Number(a.price || 0);
-          }
-          return ratingB - ratingA;
-        });
-        const featuredProducts = rankedProducts.slice(0, FEATURED_LIMIT);
-
-        if (!featuredProducts.length) {
-          const empty = document.createElement("div");
-          empty.className = "featured-empty";
-          empty.innerHTML = '<i class="fa-regular fa-compass"></i><span>Aún no hay artículos destacados disponibles.</span>';
-          featuredContainer.appendChild(empty);
-        } else {
-          featuredProducts.forEach((product) => featuredContainer.appendChild(createRailCard(product)));
-        }
-
-        const recentIds = Array.isArray(state.recentlyViewed) ? [...state.recentlyViewed] : [];
-        const sanitizedRecent = [];
-        const recentProducts = [];
-        recentIds.forEach((id) => {
-          const product = state.products.find((item) => item.id === id);
-          if (product && !sanitizedRecent.includes(product.id)) {
-            sanitizedRecent.push(product.id);
-            recentProducts.push(product);
-          }
-        });
-        if (sanitizedRecent.length !== recentIds.length) {
-          state.recentlyViewed = sanitizedRecent.slice(0, RECENT_LIMIT);
-        }
-
-        recentContainer.innerHTML = "";
-        if (!recentProducts.length) {
-          const empty = document.createElement("div");
-          empty.className = "featured-empty";
-          empty.innerHTML =
-            '<i class="fa-regular fa-clock"></i><span>Cuando revises artículos aparecerán en esta vista.</span>';
-          recentContainer.appendChild(empty);
-        } else {
-          recentProducts.slice(0, RECENT_LIMIT).forEach((product) => {
-            recentContainer.appendChild(createRailCard(product));
-          });
-        }
-
-        const activeView = state.activeFeaturedView === "recent" ? "recent" : "featured";
-        setFeaturedView(activeView, { resetScroll: false });
-      }
-
-      function trackRecentlyViewed(product) {
-        if (!product || !product.id) {
-          return;
-        }
-        const ids = Array.isArray(state.recentlyViewed)
-          ? state.recentlyViewed.filter((id) => id !== product.id)
-          : [];
-        ids.unshift(product.id);
-        state.recentlyViewed = ids.slice(0, RECENT_LIMIT);
-        renderFeaturedRails();
-      }
-
       function openModal(id) {
         const dialog = document.getElementById(id);
         if (!dialog) {
@@ -5252,7 +4569,6 @@
         }
 
         activeProductDetail = product;
-        trackRecentlyViewed(product);
 
         const images = Array.isArray(product.images) && product.images.length ? product.images : [FALLBACK_IMAGE];
         const mainImage = $("#product-detail-image");
@@ -6156,7 +5472,6 @@
         updateProfileCard();
         updateAuthButton();
         renderBannerSlider();
-        renderFeaturedRails();
         renderFeed();
         renderMyItems();
         renderOffers();
@@ -6225,7 +5540,6 @@
         const detailAdvancedBtn = $("#product-detail-advanced");
         const detailReportBtn = $("#product-detail-report");
         const detailCloseNodes = $$("[data-close-detail]");
-        const featuredRecentToggle = $("#featured-recent-toggle");
 
         if (headerSearchForm) {
           headerSearchForm.addEventListener("submit", (event) => {
@@ -6249,13 +5563,6 @@
             if (activePage !== "feed-section") {
               switchToPage("feed-section", { scroll: false });
             }
-          });
-        }
-
-        if (featuredRecentToggle) {
-          featuredRecentToggle.addEventListener("click", () => {
-            const nextView = state.activeFeaturedView === "recent" ? "featured" : "recent";
-            setFeaturedView(nextView);
           });
         }
 
