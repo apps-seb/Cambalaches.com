@@ -449,102 +449,205 @@
       .admin-banner {
         width: 100%;
         margin: 0;
-        background: linear-gradient(180deg, rgba(255, 214, 10, 0.55), rgba(255, 214, 10, 0));
-        padding-top: 0.6rem;
+        background: radial-gradient(circle at 22% 18%, rgba(76, 81, 255, 0.16) 0%, transparent 60%),
+          radial-gradient(circle at 82% 12%, rgba(0, 184, 148, 0.2) 0%, transparent 52%),
+          linear-gradient(165deg, rgba(255, 255, 255, 0.95) 0%, #f3f8ff 55%, #eef7ff 100%);
+        padding: clamp(1.5rem, 3.6vw, 3rem) 0;
       }
 
-      .banner-controls {
-        width: min(1280px, 100%);
-        margin: 0 auto 1rem;
+      .banner-shell {
+        width: min(1180px, 100%);
+        margin: 0 auto;
+        padding: 0 clamp(1rem, 4vw, 2.25rem);
+        display: grid;
+        gap: clamp(1rem, 2vw, 1.6rem);
+      }
+
+      .banner-header {
         display: flex;
-        align-items: center;
         justify-content: space-between;
-        gap: 1.2rem;
+        align-items: flex-start;
         flex-wrap: wrap;
-        padding: 0 clamp(1rem, 4vw, 2rem);
+        gap: 1rem;
       }
 
-      .banner-controls h2 {
+      .banner-title {
+        display: grid;
+        gap: 0.4rem;
+      }
+
+      .banner-title h2 {
         margin: 0;
-        font-size: 1.2rem;
+        font-size: clamp(1.35rem, 2.4vw, 1.85rem);
         font-weight: 700;
-        color: #111;
+        color: #101b42;
+        letter-spacing: -0.02em;
       }
 
-      .banner-controls p {
-        margin: 0.2rem 0 0;
-        color: rgba(17, 17, 17, 0.6);
-        font-size: 0.9rem;
+      .banner-title p {
+        margin: 0;
+        font-size: 0.95rem;
+        color: rgba(16, 27, 66, 0.72);
       }
 
-      .banner-upload {
-        position: relative;
-        overflow: hidden;
-        border-radius: 999px;
-        background: rgba(17, 17, 17, 0.08);
-        color: #111;
-        font-weight: 600;
-        padding: 0.65rem 1.4rem;
+      .banner-summary {
         display: inline-flex;
         align-items: center;
-        gap: 0.6rem;
-        cursor: pointer;
-        transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
-      }
-
-      .banner-upload:hover {
-        transform: translateY(-2px);
-        background: rgba(17, 17, 17, 0.16);
-        box-shadow: 0 16px 32px -20px rgba(0, 0, 0, 0.4);
-      }
-
-      .banner-upload input {
-        position: absolute;
-        inset: 0;
-        opacity: 0;
-        cursor: pointer;
+        gap: 0.5rem;
+        padding: 0.55rem 0.9rem;
+        border-radius: 999px;
+        background: rgba(76, 81, 255, 0.08);
+        color: #3a3fe0;
+        font-weight: 600;
+        font-size: 0.82rem;
       }
 
       .banner-slider {
-        position: relative;
         width: 100%;
+        position: relative;
         overflow: hidden;
-        min-height: clamp(220px, 32vw, 380px);
-        border-radius: 0;
       }
 
-      .banner-slide {
+      .banner-track {
+        display: flex;
+        gap: clamp(0.65rem, 1.5vw, 1rem);
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+        margin: 0 -0.4rem;
+        padding-inline: 0.4rem;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+      }
+
+      .banner-track::-webkit-scrollbar {
+        display: none;
+      }
+
+      .banner-card {
+        position: relative;
+        flex: 0 0 clamp(280px, 68vw, 420px);
+        min-height: clamp(220px, 28vw, 320px);
+        background: var(--surface-strong);
+        border-radius: clamp(18px, 4vw, 26px);
+        box-shadow: 0 32px 48px -36px rgba(15, 23, 42, 0.55);
+        overflow: hidden;
+        scroll-snap-align: start;
+        transition: transform var(--transition), box-shadow var(--transition);
+      }
+
+      .banner-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 42px 68px -36px rgba(15, 23, 42, 0.6);
+      }
+
+      .banner-media {
         position: absolute;
         inset: 0;
-        opacity: 0;
-        transform: scale(1.01);
-        transition: opacity 0.8s ease, transform 0.8s ease;
       }
 
-      .banner-slide.active {
-        opacity: 1;
-        transform: scale(1);
-        z-index: 1;
-      }
-
-      .banner-slide img {
+      .banner-media img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        display: block;
       }
 
-      .banner-empty-state {
-        width: 100%;
-        min-height: clamp(220px, 32vw, 380px);
+      .banner-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(160deg, rgba(16, 27, 66, 0.08), rgba(16, 27, 66, 0.55));
+        opacity: 0;
+        transition: opacity var(--transition);
+        pointer-events: none;
+      }
+
+      .banner-card:hover .banner-overlay {
+        opacity: 1;
+      }
+
+      .banner-card-actions {
+        position: absolute;
+        top: 0.8rem;
+        right: 0.8rem;
+        display: flex;
+        gap: 0.45rem;
+        z-index: 2;
+      }
+
+      .banner-action {
+        position: relative;
+        border: none;
+        border-radius: 999px;
+        width: 34px;
+        height: 34px;
         display: grid;
         place-items: center;
-        background: repeating-linear-gradient(135deg, rgba(17, 17, 17, 0.04) 0px, rgba(17, 17, 17, 0.04) 14px, rgba(17, 17, 17, 0.1) 14px, rgba(17, 17, 17, 0.1) 28px);
-        color: rgba(17, 17, 17, 0.6);
+        background: rgba(16, 27, 66, 0.72);
+        color: #f8fafc;
+        cursor: pointer;
+        transition: transform var(--transition), background var(--transition);
+      }
+
+      .banner-action:hover,
+      .banner-action:focus-visible {
+        background: rgba(76, 81, 255, 0.92);
+        transform: translateY(-2px);
+      }
+
+      .banner-action input[type="file"] {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+      }
+
+      .banner-add-card {
+        border: 2px dashed rgba(76, 81, 255, 0.25);
+        background: rgba(255, 255, 255, 0.9);
+        color: rgba(16, 27, 66, 0.7);
+        display: grid;
+        place-items: center;
         text-align: center;
-        padding: 2rem 1rem;
+        padding: 1.5rem 1rem;
+        cursor: pointer;
+      }
+
+      .banner-add-card:hover {
+        border-color: rgba(76, 81, 255, 0.5);
+      }
+
+      .banner-add-card:focus-visible {
+        outline: 3px solid rgba(58, 63, 224, 0.4);
+        outline-offset: 2px;
+      }
+
+      .banner-add-card span {
+        display: grid;
+        gap: 0.55rem;
         font-weight: 600;
-        letter-spacing: 0.02em;
+        font-size: 0.95rem;
+      }
+
+      .banner-add-card i {
+        font-size: 1.55rem;
+        color: #3a3fe0;
+      }
+
+      .banner-empty-card {
+        align-items: center;
+        justify-items: center;
+        padding: 1.5rem;
+        color: rgba(16, 27, 66, 0.6);
+      }
+
+      .banner-empty-card i {
+        font-size: 1.8rem;
+        color: rgba(16, 27, 66, 0.35);
+      }
+
+      .banner-empty-card p {
+        margin: 0;
+        font-weight: 600;
+        font-size: 0.9rem;
       }
 
       main {
@@ -601,9 +704,10 @@
         .quick-nav {
           justify-content: center;
         }
-        .banner-controls {
+        .banner-header {
           flex-direction: column;
           align-items: flex-start;
+          gap: 0.75rem;
         }
         main {
           margin-top: 0;
@@ -660,16 +764,17 @@
         .header-search {
           max-width: none;
         }
-        .banner-controls {
+        .banner-header {
           align-items: center;
           text-align: center;
         }
-        .banner-controls > div {
-          width: 100%;
+        .banner-title {
+          text-align: center;
         }
-        .banner-upload {
+        .banner-summary {
           width: 100%;
           justify-content: center;
+          display: flex;
         }
         .dashboard-grid {
           gap: 2rem;
@@ -2017,20 +2122,20 @@
     </header>
 
     <section class="admin-banner" data-page-group="feed-section">
-      <div class="banner-controls">
-        <div>
-          <h2>Banners publicitarios a toda pantalla</h2>
-          <p>Sube campañas de alto impacto y alterna múltiples piezas automáticamente.</p>
+      <div class="banner-shell">
+        <div class="banner-header">
+          <div class="banner-title">
+            <h2>Campañas destacadas del marketplace</h2>
+            <p>Activa experiencias publicitarias premium y desliza para explorarlas.</p>
+          </div>
+          <div class="banner-summary" id="banner-count-pill">
+            <i class="fa-solid fa-bullhorn"></i>
+            <span id="banner-count-text">0 campañas activas</span>
+          </div>
         </div>
-        <label class="banner-upload">
-          <i class="fa-solid fa-cloud-arrow-up"></i>
-          Agregar banners
-          <input type="file" id="banner-upload" accept="image/*" multiple />
-        </label>
-      </div>
-      <div class="banner-slider" id="banner-slider">
-        <div class="banner-empty-state" id="banner-empty-state">
-          Sube un banner publicitario para activar este carrusel premium.
+        <input type="file" id="banner-upload" accept="image/*" multiple hidden />
+        <div class="banner-slider">
+          <div class="banner-track" id="banner-slider"></div>
         </div>
       </div>
     </section>
@@ -2517,9 +2622,6 @@
         bannerImages: [],
       };
 
-      let bannerInterval = null;
-      let bannerCurrentIndex = 0;
-
       let activePage = "feed-section";
       let primaryNavButtons = [];
 
@@ -2693,52 +2795,126 @@
         toastTimeout = setTimeout(() => toastEl.classList.remove("show"), 3800);
       }
 
-      function stopBannerRotation() {
-        if (bannerInterval) {
-          clearInterval(bannerInterval);
-          bannerInterval = null;
+      function updateBannerCount() {
+        const pill = $("#banner-count-text");
+        if (!pill) return;
+        const total = state.bannerImages.length;
+        const label = total === 1 ? "1 campaña activa" : `${total} campañas activas`;
+        pill.textContent = label;
+      }
+
+      function handleBannerRemove(index) {
+        if (index < 0 || index >= state.bannerImages.length) {
+          return;
+        }
+        state.bannerImages.splice(index, 1);
+        renderBannerSlider();
+        showToast("Banner eliminado.", "info");
+      }
+
+      async function handleBannerReplace(event) {
+        const input = event.target;
+        const index = Number(input.dataset.index);
+        const files = Array.from(input.files || []);
+        if (!files.length || Number.isNaN(index)) {
+          input.value = "";
+          return;
+        }
+        const image = files.find((file) => file.type.startsWith("image"));
+        if (!image) {
+          showToast("Selecciona un archivo de imagen válido.", "danger");
+          input.value = "";
+          return;
+        }
+
+        try {
+          const result = await readFile(image);
+          if (result) {
+            state.bannerImages.splice(index, 1, result);
+            renderBannerSlider();
+            showToast("Banner actualizado.", "success");
+          }
+        } catch (error) {
+          console.error(error);
+          showToast("No pudimos actualizar el banner.", "danger");
+        } finally {
+          input.value = "";
         }
       }
 
-      function startBannerRotation() {
-        const slides = $$("#banner-slider .banner-slide");
-        stopBannerRotation();
-        if (!slides.length) return;
-        bannerCurrentIndex = 0;
-        slides[bannerCurrentIndex].classList.add("active");
-        if (slides.length === 1) return;
-        bannerInterval = setInterval(() => {
-          slides[bannerCurrentIndex].classList.remove("active");
-          bannerCurrentIndex = (bannerCurrentIndex + 1) % slides.length;
-          slides[bannerCurrentIndex].classList.add("active");
-        }, 6000);
-      }
-
       function renderBannerSlider() {
-        const slider = $("#banner-slider");
-        if (!slider) return;
-        stopBannerRotation();
-        slider.innerHTML = "";
+        const track = $("#banner-slider");
+        if (!track) return;
+        track.innerHTML = "";
+        updateBannerCount();
+
+        const createAddCard = () => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "banner-card banner-add-card";
+          button.innerHTML = '<span><i class="fa-solid fa-plus"></i>Nuevo banner</span>';
+          button.addEventListener("click", () => {
+            const input = $("#banner-upload");
+            if (input) {
+              input.click();
+            }
+          });
+          return button;
+        };
 
         if (!state.bannerImages.length) {
-          const empty = document.createElement("div");
-          empty.className = "banner-empty-state";
-          empty.textContent = "Sube un banner publicitario para activar este carrusel premium.";
-          slider.appendChild(empty);
+          track.appendChild(createAddCard());
+          const emptyCard = document.createElement("div");
+          emptyCard.className = "banner-card banner-empty-card";
+          emptyCard.innerHTML = '<i class="fa-solid fa-image"></i><p>Aún no hay campañas activas.</p>';
+          track.appendChild(emptyCard);
           return;
         }
 
         state.bannerImages.forEach((src, index) => {
-          const slide = document.createElement("div");
-          slide.className = "banner-slide";
+          const card = document.createElement("article");
+          card.className = "banner-card";
+
+          const actions = document.createElement("div");
+          actions.className = "banner-card-actions";
+
+          const removeBtn = document.createElement("button");
+          removeBtn.type = "button";
+          removeBtn.className = "banner-action banner-remove";
+          removeBtn.setAttribute("aria-label", "Eliminar banner");
+          removeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+          removeBtn.addEventListener("click", () => handleBannerRemove(index));
+          actions.appendChild(removeBtn);
+
+          const uploadLabel = document.createElement("label");
+          uploadLabel.className = "banner-action banner-upload-action";
+          uploadLabel.setAttribute("aria-label", "Actualizar banner");
+          uploadLabel.innerHTML = '<i class="fa-solid fa-image"></i>';
+
+          const replaceInput = document.createElement("input");
+          replaceInput.type = "file";
+          replaceInput.accept = "image/*";
+          replaceInput.dataset.index = String(index);
+          replaceInput.addEventListener("change", handleBannerReplace);
+          uploadLabel.appendChild(replaceInput);
+          actions.appendChild(uploadLabel);
+
+          const media = document.createElement("div");
+          media.className = "banner-media";
           const img = document.createElement("img");
           img.src = src;
           img.alt = `Banner publicitario ${index + 1}`;
-          slide.appendChild(img);
-          slider.appendChild(slide);
+          media.appendChild(img);
+
+          const overlay = document.createElement("span");
+          overlay.className = "banner-overlay";
+          overlay.setAttribute("aria-hidden", "true");
+
+          card.append(actions, media, overlay);
+          track.appendChild(card);
         });
 
-        startBannerRotation();
+        track.appendChild(createAddCard());
       }
 
       function openModal(id) {
