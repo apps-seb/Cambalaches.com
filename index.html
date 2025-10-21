@@ -851,41 +851,6 @@
         font-size: 1.1rem;
       }
 
-      .quick-links {
-        display: grid;
-        gap: 0.75rem;
-      }
-
-      .quick-links button {
-        border: 1px solid rgba(76, 81, 255, 0.18);
-        border-radius: var(--radius-md);
-        background: transparent;
-        padding: 0.9rem 1.1rem;
-        text-align: left;
-        font-weight: 600;
-        color: #1f2a54;
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-        cursor: pointer;
-        transition: background var(--transition), transform var(--transition);
-      }
-
-      .quick-links button i {
-        width: 32px;
-        height: 32px;
-        border-radius: 12px;
-        background: rgba(76, 81, 255, 0.12);
-        display: grid;
-        place-items: center;
-        color: var(--primary-600);
-      }
-
-      .quick-links button:hover {
-        background: rgba(76, 81, 255, 0.12);
-        transform: translateY(-2px);
-      }
-
       .section-header {
         display: flex;
         align-items: center;
@@ -1754,28 +1719,6 @@
               </div>
             </div>
             <button class="btn btn-primary" id="profile-publish">Publicar un nuevo producto</button>
-          </div>
-          <div class="panel quick-links">
-            <button data-target="my-items">
-              <i class="fa-solid fa-box"></i>
-              Mis artículos publicados
-            </button>
-            <button data-target="active-exchanges">
-              <i class="fa-solid fa-shuffle"></i>
-              Mis canjes activos
-            </button>
-            <button data-target="history">
-              <i class="fa-solid fa-clock-rotate-left"></i>
-              Historial y reseñas
-            </button>
-            <button data-target="reputation">
-              <i class="fa-solid fa-star"></i>
-              Gestión de reputación
-            </button>
-            <button data-target="support">
-              <i class="fa-solid fa-flag"></i>
-              Reportes y soporte
-            </button>
           </div>
         </aside>
 
