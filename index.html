@@ -1161,19 +1161,33 @@
       }
 
       .category-board {
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(241, 245, 255, 0.92) 100%);
+        position: relative;
+        background: linear-gradient(125deg, rgba(255, 255, 255, 0.92) 0%, rgba(225, 233, 255, 0.86) 100%);
         border-radius: clamp(22px, 3vw, 32px);
         border: 1px solid rgba(99, 102, 241, 0.16);
-        padding: clamp(1.2rem, 2.8vw, 2rem);
-        box-shadow: 0 30px 70px -45px rgba(15, 23, 42, 0.55);
+        padding: clamp(1rem, 2.4vw, 1.6rem);
+        box-shadow: 0 45px 80px -55px rgba(15, 23, 42, 0.55);
+        display: grid;
+        gap: clamp(0.9rem, 2vw, 1.4rem);
+        overflow: hidden;
+      }
+
+      .category-board::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 20% 20%, rgba(76, 81, 255, 0.12), transparent 60%),
+          radial-gradient(circle at 80% 10%, rgba(0, 184, 148, 0.12), transparent 55%);
+        pointer-events: none;
       }
 
       .category-board-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 1rem;
-        margin-bottom: clamp(1.1rem, 2.4vw, 1.6rem);
+        gap: clamp(0.75rem, 2vw, 1.25rem);
+        position: relative;
+        z-index: 1;
       }
 
       .category-board-title {
@@ -1183,7 +1197,7 @@
 
       .category-board-title span {
         font-size: 0.78rem;
-        letter-spacing: 0.2em;
+        letter-spacing: 0.22em;
         text-transform: uppercase;
         color: rgba(15, 23, 42, 0.55);
         font-weight: 600;
@@ -1191,46 +1205,76 @@
 
       .category-board-title h4 {
         margin: 0;
-        font-size: clamp(1.1rem, 2.2vw, 1.6rem);
+        font-size: clamp(1.1rem, 2.2vw, 1.5rem);
         letter-spacing: -0.01em;
       }
 
-      .category-reset {
-        border: none;
-        background: none;
-        color: var(--primary-600);
-        font-weight: 600;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-        cursor: pointer;
-        display: inline-flex;
+      .category-board-actions {
+        display: flex;
         align-items: center;
-        gap: 0.4rem;
       }
 
-      .category-reset i {
-        font-size: 0.9rem;
+      .category-filters {
+        border: none;
+        border-radius: 999px;
+        background: rgba(76, 81, 255, 0.12);
+        color: var(--primary-700);
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1.3rem;
+        cursor: pointer;
+        transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+        backdrop-filter: blur(8px);
+      }
+
+      .category-filters i {
+        font-size: 1rem;
+      }
+
+      .category-filters:hover,
+      .category-filters:focus-visible {
+        transform: translateY(-2px);
+        box-shadow: 0 22px 40px -28px rgba(76, 81, 255, 0.45);
+        background: linear-gradient(135deg, rgba(76, 81, 255, 0.2), rgba(0, 184, 148, 0.16));
       }
 
       .category-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: clamp(0.8rem, 1.8vw, 1.4rem);
+        position: relative;
+        display: flex;
+        gap: clamp(0.65rem, 1.8vw, 1.1rem);
+        overflow-x: auto;
+        padding: 0.35rem 0.25rem 0.75rem;
+        margin: 0;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        z-index: 1;
+      }
+
+      .category-list::-webkit-scrollbar {
+        display: none;
       }
 
       .category-card {
-        border: none;
-        border-radius: clamp(18px, 3vw, 26px);
-        padding: clamp(1rem, 2vw, 1.4rem);
-        background: rgba(255, 255, 255, 0.92);
-        box-shadow: 0 22px 40px -30px rgba(15, 23, 42, 0.45);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        border-radius: clamp(18px, 3vw, 24px);
+        padding: clamp(0.65rem, 1.6vw, 1rem);
+        min-width: clamp(140px, 18vw, 190px);
+        background: rgba(255, 255, 255, 0.88);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 25px 55px -45px rgba(15, 23, 42, 0.55);
         display: grid;
-        gap: 0.75rem;
+        gap: 0.55rem;
         justify-items: center;
         text-align: center;
         cursor: pointer;
-        transition: transform var(--transition), box-shadow var(--transition), border var(--transition);
+        transition: transform var(--transition), box-shadow var(--transition), border var(--transition),
+          background var(--transition);
         position: relative;
+        scroll-snap-align: center;
         overflow: hidden;
       }
 
@@ -1238,15 +1282,15 @@
         content: "";
         position: absolute;
         inset: 0;
-        background: radial-gradient(circle at top, rgba(76, 81, 255, 0.12), transparent 65%);
+        background: radial-gradient(circle at top, rgba(76, 81, 255, 0.18), transparent 65%);
         opacity: 0;
         transition: opacity var(--transition);
       }
 
       .category-card:hover,
       .category-card:focus-visible {
-        transform: translateY(-6px);
-        box-shadow: 0 36px 70px -38px rgba(76, 81, 255, 0.45);
+        transform: translateY(-4px) scale(0.98);
+        box-shadow: 0 32px 70px -45px rgba(76, 81, 255, 0.45);
       }
 
       .category-card:hover::after,
@@ -1256,36 +1300,40 @@
       }
 
       .category-card.active {
-        border: 1px solid rgba(76, 81, 255, 0.35);
+        border-color: rgba(76, 81, 255, 0.38);
+        background: rgba(255, 255, 255, 0.94);
       }
 
       .category-icon {
-        width: 64px;
-        height: 64px;
+        width: clamp(44px, 6vw, 52px);
+        height: clamp(44px, 6vw, 52px);
         border-radius: 50%;
         display: grid;
         place-items: center;
-        background: linear-gradient(135deg, rgba(76, 81, 255, 0.15), rgba(0, 184, 148, 0.2));
+        background: linear-gradient(135deg, rgba(76, 81, 255, 0.16), rgba(0, 184, 148, 0.18));
         color: var(--primary-700);
-        font-size: 1.6rem;
+        font-size: clamp(1.1rem, 2.4vw, 1.35rem);
       }
 
       .category-label {
         font-weight: 600;
-        font-size: 0.95rem;
+        font-size: clamp(0.78rem, 1.6vw, 0.9rem);
+        letter-spacing: 0.03em;
       }
 
       .filters-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(8, 15, 35, 0.55);
-        backdrop-filter: blur(10px);
+        background: radial-gradient(circle at top left, rgba(76, 81, 255, 0.25), transparent 55%),
+          radial-gradient(circle at bottom right, rgba(0, 184, 148, 0.25), transparent 45%),
+          rgba(8, 15, 35, 0.72);
+        backdrop-filter: blur(18px);
         display: grid;
-        place-items: center;
+        place-items: stretch;
         opacity: 0;
         pointer-events: none;
         transition: opacity var(--transition);
-        z-index: 120;
+        z-index: 140;
       }
 
       .filters-overlay.active {
@@ -1294,42 +1342,124 @@
       }
 
       .filters-sheet {
-        width: min(820px, 94vw);
-        height: min(640px, 92vh);
-        background: var(--surface-strong);
-        border-radius: clamp(24px, 4vw, 32px);
-        box-shadow: 0 55px 120px -50px rgba(15, 23, 42, 0.55);
-        border: 1px solid rgba(99, 102, 241, 0.22);
+        width: 100vw;
+        height: 100vh;
         display: grid;
-        grid-template-rows: auto 1fr auto;
-        overflow: hidden;
+        grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+        background: transparent;
         position: relative;
+        overflow: hidden;
       }
 
       .filters-sheet::before {
         content: "";
         position: absolute;
         inset: 0;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 45%);
+        background: linear-gradient(120deg, rgba(255, 255, 255, 0.08), transparent 55%);
         pointer-events: none;
+        z-index: 0;
+      }
+
+      .filters-panel {
+        background: linear-gradient(160deg, rgba(16, 24, 72, 0.95) 0%, rgba(33, 56, 135, 0.9) 100%);
+        color: white;
+        display: grid;
+        place-items: stretch;
+        position: relative;
+        z-index: 1;
+      }
+
+      .filters-panel::after {
+        content: "";
+        position: absolute;
+        inset: clamp(1.5rem, 3vw, 2.5rem);
+        border-radius: clamp(1.8rem, 3vw, 2.4rem);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        opacity: 0.65;
+        pointer-events: none;
+      }
+
+      .filters-panel-inner {
+        padding: clamp(2rem, 4vw, 3rem) clamp(1.8rem, 4vw, 3rem);
+        display: grid;
+        gap: clamp(1.2rem, 3vw, 1.8rem);
+        align-content: start;
+        position: relative;
+        z-index: 1;
+      }
+
+      .filters-panel-eyebrow {
+        font-size: 0.78rem;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        opacity: 0.68;
+        font-weight: 600;
+      }
+
+      .filters-panel-inner h2 {
+        margin: 0;
+        font-size: clamp(1.6rem, 3vw, 2.25rem);
+        letter-spacing: -0.01em;
+      }
+
+      .filters-panel-inner p {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.78);
+        line-height: 1.6;
+      }
+
+      .filters-panel-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 1rem;
+      }
+
+      .filters-panel-list li {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .filters-panel-list i {
+        width: 34px;
+        height: 34px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        background: rgba(255, 255, 255, 0.12);
+        color: white;
+        font-size: 1rem;
+      }
+
+      .filters-content {
+        background: var(--surface-strong);
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-rows: auto 1fr;
       }
 
       .filters-sheet-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 1rem;
-        padding: clamp(1.2rem, 2.5vw, 1.8rem);
+        gap: clamp(1rem, 2vw, 1.5rem);
+        padding: clamp(1.6rem, 3vw, 2.2rem) clamp(1.6rem, 4vw, 2.8rem);
+        border-bottom: 1px solid rgba(148, 163, 184, 0.25);
       }
 
       .filters-sheet-header .title-block {
         display: grid;
-        gap: 0.35rem;
+        gap: 0.4rem;
       }
 
       .filters-sheet-header span {
-        font-size: 0.82rem;
-        letter-spacing: 0.18em;
+        font-size: 0.8rem;
+        letter-spacing: 0.2em;
         text-transform: uppercase;
         color: rgba(15, 23, 42, 0.58);
         font-weight: 600;
@@ -1337,19 +1467,19 @@
 
       .filters-sheet-header h3 {
         margin: 0;
-        font-size: clamp(1.3rem, 3vw, 2rem);
+        font-size: clamp(1.4rem, 3vw, 2.1rem);
         letter-spacing: -0.015em;
       }
 
       .filters-close {
         border: none;
-        background: rgba(15, 23, 42, 0.05);
-        width: 42px;
-        height: 42px;
+        background: rgba(15, 23, 42, 0.08);
+        width: 44px;
+        height: 44px;
         border-radius: 50%;
         display: grid;
         place-items: center;
-        font-size: 1.2rem;
+        font-size: 1.25rem;
         color: rgba(15, 23, 42, 0.75);
         cursor: pointer;
         transition: background var(--transition), transform var(--transition);
@@ -1357,21 +1487,161 @@
 
       .filters-close:hover,
       .filters-close:focus-visible {
-        background: rgba(76, 81, 255, 0.12);
+        background: rgba(76, 81, 255, 0.18);
         transform: rotate(90deg);
       }
 
       .filters-form {
-        padding: 0 clamp(1.2rem, 2.6vw, 2.1rem) clamp(1.2rem, 2.6vw, 2rem);
-        overflow-y: auto;
         display: grid;
-        gap: clamp(1.2rem, 2.8vw, 1.8rem);
+        grid-template-rows: 1fr auto;
+        padding: clamp(1.6rem, 4vw, 2.6rem);
+        gap: clamp(1.2rem, 2.8vw, 1.6rem);
+        overflow: hidden;
       }
 
       .filters-grid {
         display: grid;
-        gap: clamp(1rem, 2.2vw, 1.4rem);
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: clamp(1rem, 2.5vw, 1.6rem);
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        overflow-y: auto;
+        padding-right: clamp(0rem, 1vw, 0.6rem);
+      }
+
+      .price-range-field {
+        grid-column: 1 / -1;
+        background: rgba(76, 81, 255, 0.08);
+        border-radius: clamp(18px, 3vw, 24px);
+        padding: clamp(1rem, 2.6vw, 1.6rem);
+      }
+
+      .field-heading {
+        display: grid;
+        gap: 0.35rem;
+        margin-bottom: clamp(0.6rem, 2vw, 1rem);
+      }
+
+      .field-heading span {
+        font-size: 0.82rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(15, 23, 42, 0.7);
+        font-weight: 700;
+      }
+
+      .field-heading small {
+        color: rgba(15, 23, 42, 0.6);
+        font-size: 0.78rem;
+      }
+
+      .price-slider {
+        position: relative;
+        height: 48px;
+        display: grid;
+        place-items: center;
+        --start: 0%;
+        --end: 100%;
+      }
+
+      .price-slider::before {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 8px;
+        background: rgba(15, 23, 42, 0.15);
+        border-radius: 999px;
+      }
+
+      .price-slider::after {
+        content: "";
+        position: absolute;
+        height: 8px;
+        left: var(--start);
+        right: calc(100% - var(--end));
+        background: linear-gradient(135deg, rgba(76, 81, 255, 0.9), rgba(0, 184, 148, 0.85));
+        border-radius: 999px;
+      }
+
+      .price-range-input {
+        position: absolute;
+        width: 100%;
+        height: 48px;
+        pointer-events: none;
+        background: none;
+        margin: 0;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+
+      .price-range-input::-webkit-slider-runnable-track {
+        height: 8px;
+        background: transparent;
+      }
+
+      .price-range-input::-moz-range-track {
+        height: 8px;
+        background: transparent;
+      }
+
+      .price-range-input::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: white;
+        border: 3px solid var(--primary-600);
+        box-shadow: 0 18px 35px -20px rgba(76, 81, 255, 0.6);
+        pointer-events: auto;
+        cursor: pointer;
+        transition: transform var(--transition), box-shadow var(--transition);
+      }
+
+      .price-range-input::-moz-range-thumb {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: 3px solid var(--primary-600);
+        background: white;
+        box-shadow: 0 18px 35px -20px rgba(76, 81, 255, 0.6);
+        pointer-events: auto;
+        cursor: pointer;
+        transition: transform var(--transition), box-shadow var(--transition);
+      }
+
+      .price-range-input:focus-visible::-webkit-slider-thumb,
+      .price-range-input::-webkit-slider-thumb:hover {
+        transform: scale(1.08);
+        box-shadow: 0 30px 65px -35px rgba(76, 81, 255, 0.6);
+      }
+
+      .price-range-input:focus-visible::-moz-range-thumb,
+      .price-range-input::-moz-range-thumb:hover {
+        transform: scale(1.08);
+        box-shadow: 0 30px 65px -35px rgba(76, 81, 255, 0.6);
+      }
+
+      .price-values {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: clamp(0.65rem, 2vw, 0.9rem);
+        font-weight: 600;
+        color: var(--muted-dark);
+        font-size: 0.92rem;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .price-values span {
+        display: flex;
+        align-items: baseline;
+        gap: 0.35rem;
+      }
+
+      .price-values strong {
+        font-size: 0.75rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(15, 23, 42, 0.6);
       }
 
       .style-toggle {
@@ -1416,9 +1686,9 @@
         justify-content: space-between;
         align-items: center;
         gap: 1rem;
-        padding: clamp(1.1rem, 2.2vw, 1.6rem);
-        border-top: 1px solid rgba(148, 163, 184, 0.25);
-        background: rgba(255, 255, 255, 0.8);
+        padding: clamp(1.1rem, 2.6vw, 1.8rem) clamp(1rem, 3vw, 1.8rem) 0;
+        border-top: 1px solid rgba(148, 163, 184, 0.2);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(244, 247, 255, 0.9) 100%);
       }
 
       .filters-footer-actions {
@@ -1432,6 +1702,43 @@
 
       body.filters-open {
         overflow: hidden;
+      }
+
+      @media (max-width: 960px) {
+        .filters-sheet {
+          grid-template-columns: 1fr;
+        }
+
+        .filters-panel {
+          display: none;
+        }
+
+        .filters-content {
+          grid-template-rows: auto 1fr;
+        }
+
+        .filters-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .price-range-field {
+          padding: clamp(0.85rem, 4vw, 1.2rem);
+        }
+      }
+
+      @media (max-width: 720px) {
+        .category-board {
+          padding: clamp(0.9rem, 4vw, 1.2rem);
+        }
+
+        .category-filters {
+          padding: 0.5rem 1.1rem;
+          font-size: 0.72rem;
+        }
+
+        .category-list {
+          gap: 0.5rem;
+        }
       }
 
       #feed-grid {
@@ -2680,10 +2987,12 @@
                 <span>Categorías premium</span>
                 <h4>Selecciona la experiencia que buscas</h4>
               </div>
-              <button class="category-reset" type="button" id="reset-category">
-                <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i>
-                Limpiar selección
-              </button>
+              <div class="category-board-actions">
+                <button class="category-filters" type="button" id="filters-inline">
+                  <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+                  <span>Filtros avanzados</span>
+                </button>
+              </div>
             </div>
             <div class="category-list" role="list">
               <button class="category-card active" type="button" data-category="">
@@ -2723,56 +3032,108 @@
           <div class="card-grid mode-marketplace" id="feed-grid"></div>
           <div class="filters-overlay" id="filters-overlay" aria-hidden="true">
             <div class="filters-sheet" role="dialog" aria-modal="true" aria-labelledby="filters-title">
-              <div class="filters-sheet-header">
-                <div class="title-block">
-                  <span>Filtrado avanzado</span>
-                  <h3 id="filters-title">Personaliza tu exploración</h3>
+              <aside class="filters-panel">
+                <div class="filters-panel-inner">
+                  <span class="filters-panel-eyebrow">Búsqueda guiada</span>
+                  <h2>Configura tu experiencia ideal</h2>
+                  <p>
+                    Ajusta los parámetros clave de tu marketplace y obtén resultados alineados a la inversión,
+                    ubicación y estilo de vitrina que prefieres.
+                  </p>
+                  <ul class="filters-panel-list">
+                    <li>
+                      <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                      <span>Prioriza canjes cercanos o estratégicos</span>
+                    </li>
+                    <li>
+                      <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
+                      <span>Combina estilos de vitrina en segundos</span>
+                    </li>
+                    <li>
+                      <i class="fa-solid fa-coins" aria-hidden="true"></i>
+                      <span>Controla los rangos de inversión con precisión</span>
+                    </li>
+                  </ul>
                 </div>
-                <button class="filters-close" type="button" id="filters-close" aria-label="Cerrar filtros">
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
-              </div>
-              <form class="filters-form" id="filters-form">
-                <div class="filters-grid">
-                  <label class="field">
-                    <span>Ubicación preferida</span>
-                    <input
-                      type="search"
-                      id="filter-location"
-                      placeholder="Ciudad o región"
-                      autocomplete="off"
-                    />
-                  </label>
-                  <label class="field">
-                    <span>Precio mínimo (COP)</span>
-                    <input type="number" id="filter-min" min="0" step="1000" placeholder="0" />
-                  </label>
-                  <label class="field">
-                    <span>Precio máximo (COP)</span>
-                    <input type="number" id="filter-max" min="0" step="1000" placeholder="1000000" />
-                  </label>
-                  <div class="field">
-                    <span>Estilo de vitrina</span>
-                    <div class="style-toggle" role="radiogroup" aria-label="Estilo de vitrina">
-                      <button class="style-pill active" type="button" data-style="marketplace" aria-pressed="true">
-                        <i class="fa-solid fa-people-arrows" aria-hidden="true"></i>
-                        <span>Marketplace colaborativo</span>
-                      </button>
-                      <button class="style-pill" type="button" data-style="ecommerce" aria-pressed="false">
-                        <i class="fa-solid fa-store" aria-hidden="true"></i>
-                        <span>E-commerce profesional</span>
-                      </button>
+              </aside>
+              <div class="filters-content">
+                <div class="filters-sheet-header">
+                  <div class="title-block">
+                    <span>Filtrado avanzado</span>
+                    <h3 id="filters-title">Personaliza tu exploración</h3>
+                  </div>
+                  <button class="filters-close" type="button" id="filters-close" aria-label="Cerrar filtros">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+                <form class="filters-form" id="filters-form">
+                  <div class="filters-grid">
+                    <label class="field">
+                      <span>Ubicación preferida</span>
+                      <input
+                        type="search"
+                        id="filter-location"
+                        placeholder="Ciudad o región"
+                        autocomplete="off"
+                      />
+                    </label>
+                    <div class="field price-range-field" role="group" aria-labelledby="price-range-label">
+                      <div class="field-heading">
+                        <span id="price-range-label">Rango de inversión</span>
+                        <small>Desliza las perillas para definir el mínimo y máximo deseado.</small>
+                      </div>
+                      <div class="price-slider" id="price-slider">
+                        <input
+                          type="range"
+                          id="filter-min"
+                          class="price-range-input"
+                          data-handle="min"
+                          min="0"
+                          max="20000000"
+                          step="50000"
+                          value="0"
+                          aria-label="Precio mínimo"
+                        />
+                        <input
+                          type="range"
+                          id="filter-max"
+                          class="price-range-input"
+                          data-handle="max"
+                          min="0"
+                          max="20000000"
+                          step="50000"
+                          value="20000000"
+                          aria-label="Precio máximo"
+                        />
+                      </div>
+                      <div class="price-values" aria-live="polite">
+                        <span><strong>Mín.</strong> <span id="filter-min-display"></span></span>
+                        <span><strong>Máx.</strong> <span id="filter-max-display"></span></span>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <span>Estilo de vitrina</span>
+                      <div class="style-toggle" role="radiogroup" aria-label="Estilo de vitrina">
+                        <button class="style-pill active" type="button" data-style="marketplace" aria-pressed="true">
+                          <i class="fa-solid fa-people-arrows" aria-hidden="true"></i>
+                          <span>Marketplace colaborativo</span>
+                        </button>
+                        <button class="style-pill" type="button" data-style="ecommerce" aria-pressed="false">
+                          <i class="fa-solid fa-store" aria-hidden="true"></i>
+                          <span>E-commerce profesional</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div class="filters-form-footer">
-                  <button class="btn btn-outline" type="button" id="filters-clear">Limpiar filtros</button>
-                  <div class="filters-footer-actions">
-                    <button class="btn btn-outline" type="button" id="filters-cancel">Cancelar</button>
-                    <button class="btn btn-primary" type="submit">Aplicar filtros</button>
+                  <div class="filters-form-footer">
+                    <button class="btn btn-outline" type="button" id="filters-clear">Limpiar filtros</button>
+                    <div class="filters-footer-actions">
+                      <button class="btn btn-outline" type="button" id="filters-cancel">Cancelar</button>
+                      <button class="btn btn-primary" type="submit">Aplicar filtros</button>
+                    </div>
                   </div>
-                </div>
-              </form>
+                </form>
+              </div>
             </div>
           </div>
             <div class="empty-state hidden" id="feed-empty">
@@ -3219,6 +3580,62 @@
 
       const generateId = (prefix) => `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
 
+      const safeNumber = (value, fallback = 0) => {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : fallback;
+      };
+
+      const PRICE_LIMITS = {
+        min: 0,
+        max: 20000000,
+      };
+
+      const updatePriceSlider = (handle) => {
+        const minInput = $("#filter-min");
+        const maxInput = $("#filter-max");
+        const slider = $("#price-slider");
+        const minDisplay = $("#filter-min-display");
+        const maxDisplay = $("#filter-max-display");
+
+        if (!minInput || !maxInput) {
+          return;
+        }
+
+        let minValue = safeNumber(minInput.value, PRICE_LIMITS.min);
+        let maxValue = safeNumber(maxInput.value, PRICE_LIMITS.max);
+
+        minValue = Math.max(PRICE_LIMITS.min, Math.min(minValue, PRICE_LIMITS.max));
+        maxValue = Math.max(PRICE_LIMITS.min, Math.min(maxValue, PRICE_LIMITS.max));
+
+        if (handle === "min" && minValue > maxValue) {
+          maxValue = minValue;
+        }
+
+        if (handle === "max" && maxValue < minValue) {
+          minValue = maxValue;
+        }
+
+        minInput.value = String(minValue);
+        maxInput.value = String(maxValue);
+
+        if (minDisplay) {
+          minDisplay.textContent = formatCOP(minValue);
+        }
+
+        if (maxDisplay) {
+          maxDisplay.textContent =
+            maxValue >= PRICE_LIMITS.max ? "Sin tope" : formatCOP(maxValue);
+        }
+
+        if (slider) {
+          const range = PRICE_LIMITS.max - PRICE_LIMITS.min;
+          const start = range ? ((minValue - PRICE_LIMITS.min) / range) * 100 : 0;
+          const end = range ? ((maxValue - PRICE_LIMITS.min) / range) * 100 : 100;
+          slider.style.setProperty("--start", `${Math.max(0, Math.min(start, 100))}%`);
+          slider.style.setProperty("--end", `${Math.max(0, Math.min(end, 100))}%`);
+        }
+      };
+
       const state = {
         currentUser: null,
         products: [],
@@ -3405,8 +3822,8 @@
 
       const captureFilterSnapshot = () => ({
         location: $("#filter-location")?.value || "",
-        min: $("#filter-min")?.value || "",
-        max: $("#filter-max")?.value || "",
+        min: $("#filter-min") ? $("#filter-min").value ?? PRICE_LIMITS.min : PRICE_LIMITS.min,
+        max: $("#filter-max") ? $("#filter-max").value ?? PRICE_LIMITS.max : PRICE_LIMITS.max,
         style: $("#filter-style")?.value || "marketplace",
         category: $("#filter-category")?.value || "",
       });
@@ -3433,12 +3850,13 @@
         }
         const minInput = $("#filter-min");
         if (minInput) {
-          minInput.value = snapshot.min || "";
+          minInput.value = snapshot.min ?? PRICE_LIMITS.min;
         }
         const maxInput = $("#filter-max");
         if (maxInput) {
-          maxInput.value = snapshot.max || "";
+          maxInput.value = snapshot.max ?? PRICE_LIMITS.max;
         }
+        updatePriceSlider();
         setStyleSelection(snapshot.style || "marketplace", { updateHidden });
         const categoryInput = $("#filter-category");
         if (categoryInput && typeof snapshot.category !== "undefined") {
@@ -3457,6 +3875,7 @@
         if (!overlay) return;
         filtersSnapshot = captureFilterSnapshot();
         setStyleSelection(filtersSnapshot.style || "marketplace", { updateHidden: false });
+        updatePriceSlider();
         overlay.classList.add("active");
         overlay.setAttribute("aria-hidden", "false");
         document.body.classList.add("filters-open");
@@ -3478,6 +3897,7 @@
         } else {
           filtersSnapshot = captureFilterSnapshot();
           pendingStyle = filtersSnapshot.style || "marketplace";
+          updatePriceSlider();
         }
       };
 
@@ -3791,10 +4211,16 @@
 
         const category = categorySelect ? categorySelect.value : "";
         const location = locationInput ? locationInput.value.trim().toLowerCase() : "";
-        const min = minInput && minInput.value !== "" ? Number(minInput.value) : 0;
-        const max = maxInput && maxInput.value !== ""
-          ? Number(maxInput.value)
-          : Number.MAX_SAFE_INTEGER;
+        const minLimit = PRICE_LIMITS.min;
+        const maxLimit = PRICE_LIMITS.max;
+        const rawMin = minInput ? safeNumber(minInput.value, minLimit) : minLimit;
+        const sliderCap = maxInput ? safeNumber(maxInput.max, maxLimit) : maxLimit;
+        const rawMax = maxInput ? safeNumber(maxInput.value, sliderCap) : sliderCap;
+        const min = Math.max(minLimit, Math.min(rawMin, sliderCap));
+        const max =
+          rawMax >= sliderCap
+            ? Number.MAX_SAFE_INTEGER
+            : Math.max(min, Math.min(rawMax, sliderCap));
         const keyword = keywordInput ? keywordInput.value.trim().toLowerCase() : "";
         const layoutStyle = styleInput ? styleInput.value || "marketplace" : "marketplace";
 
@@ -4755,14 +5181,16 @@
         const feedKeywordInput = $("#filter-keyword");
         const categoryInput = $("#filter-category");
         const categoryCards = $$(".category-card");
-        const resetCategoryButton = $("#reset-category");
         const filtersTrigger = $("#filters-trigger");
+        const inlineFiltersTrigger = $("#filters-inline");
         const filtersOverlay = $("#filters-overlay");
         const filtersClose = $("#filters-close");
         const filtersCancel = $("#filters-cancel");
         const filtersClear = $("#filters-clear");
         const filtersForm = $("#filters-form");
         const stylePills = $$(".style-pill");
+        const priceMinInput = $("#filter-min");
+        const priceMaxInput = $("#filter-max");
 
         if (headerSearchForm) {
           headerSearchForm.addEventListener("submit", (event) => {
@@ -4803,20 +5231,6 @@
           });
         }
 
-        if (resetCategoryButton) {
-          resetCategoryButton.addEventListener("click", () => {
-            if (categoryInput) {
-              categoryInput.value = "";
-            }
-            categoryCards.forEach((btn) => {
-              const target = btn.dataset.category || "";
-              btn.classList.toggle("active", target === "");
-            });
-            renderFeed();
-            filtersSnapshot = captureFilterSnapshot();
-          });
-        }
-
         if (stylePills.length) {
           stylePills.forEach((pill) =>
             pill.addEventListener("click", () => {
@@ -4828,6 +5242,12 @@
 
         if (filtersTrigger) {
           filtersTrigger.addEventListener("click", () => {
+            openFiltersOverlay();
+          });
+        }
+
+        if (inlineFiltersTrigger) {
+          inlineFiltersTrigger.addEventListener("click", () => {
             openFiltersOverlay();
           });
         }
@@ -4851,6 +5271,7 @@
         if (filtersForm) {
           filtersForm.addEventListener("submit", (event) => {
             event.preventDefault();
+            updatePriceSlider();
             setStyleSelection(pendingStyle, { updateHidden: true });
             renderFeed();
             filtersSnapshot = captureFilterSnapshot();
@@ -4864,8 +5285,9 @@
             const minField = $("#filter-min");
             const maxField = $("#filter-max");
             if (locationField) locationField.value = "";
-            if (minField) minField.value = "";
-            if (maxField) maxField.value = "";
+            if (minField) minField.value = PRICE_LIMITS.min;
+            if (maxField) maxField.value = PRICE_LIMITS.max;
+            updatePriceSlider();
             setStyleSelection("marketplace", { updateHidden: true });
             if (categoryInput) {
               categoryInput.value = "";
@@ -4877,6 +5299,16 @@
             renderFeed();
             filtersSnapshot = captureFilterSnapshot();
           });
+        }
+
+        const priceInputs = [priceMinInput, priceMaxInput].filter(Boolean);
+        if (priceInputs.length) {
+          const handlePriceInput = (event) => {
+            const handle = event?.currentTarget?.dataset?.handle;
+            updatePriceSlider(handle);
+          };
+          priceInputs.forEach((input) => input.addEventListener("input", handlePriceInput));
+          updatePriceSlider();
         }
 
         if (headerSearchFilter) {
@@ -4901,6 +5333,7 @@
 
         pendingStyle = $("#filter-style")?.value || "marketplace";
         setStyleSelection(pendingStyle, { updateHidden: true });
+        updatePriceSlider();
         filtersSnapshot = captureFilterSnapshot();
 
         onAll("[data-close]", "click", (event) => {
