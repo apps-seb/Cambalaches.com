@@ -1199,6 +1199,7 @@
         scrollbar-width: none;
         -webkit-overflow-scrolling: touch;
         padding-bottom: 0.35rem;
+        scroll-padding-inline: clamp(0.35rem, 2.1vw, 1.2rem);
       }
 
       .featured-carousel-viewport::-webkit-scrollbar {
@@ -1265,6 +1266,7 @@
         background: linear-gradient(160deg, rgba(76, 81, 255, 0.16), rgba(255, 255, 255, 0.95));
         border: 1px solid rgba(99, 102, 241, 0.16);
         scroll-snap-align: start;
+        scroll-snap-stop: always;
         cursor: pointer;
         transition: transform var(--transition);
       }
@@ -4695,7 +4697,11 @@
         const gap = parseFloat(computed.columnGap || computed.gap || 0);
         const width = firstItem ? firstItem.getBoundingClientRect().width : viewport.clientWidth;
         const offset = width + gap;
-        viewport.scrollBy({ left: direction * offset, behavior: "smooth" });
+        const maxScroll = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+        const target = direction > 0
+          ? Math.min(maxScroll, viewport.scrollLeft + offset)
+          : Math.max(0, viewport.scrollLeft - offset);
+        viewport.scrollTo({ left: target, behavior: "smooth" });
       }
 
       function registerCarousel(shell) {
