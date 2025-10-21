@@ -809,10 +809,6 @@
         .featured-rail-heading {
           justify-items: start;
         }
-        .featured-recent-tab {
-          width: auto;
-          justify-content: center;
-        }
         .featured-item {
           width: 100%;
         }
@@ -883,24 +879,6 @@
         }
         .featured-rail-title h3 {
           font-size: 1.35rem;
-        }
-        .featured-rail-actions {
-          width: 100%;
-          justify-content: flex-start;
-        }
-        .featured-rail-note {
-          width: 100%;
-          justify-content: center;
-        }
-        .featured-recent-tab {
-          font-size: 0.78rem;
-          min-height: 40px;
-          padding: 0.4rem 1.05rem;
-        }
-        .featured-recent-tab .featured-recent-tab-icon {
-          width: 24px;
-          height: 24px;
-          font-size: 0.78rem;
         }
         .featured-carousel-track {
           grid-auto-columns: 85vw;
@@ -1170,98 +1148,9 @@
         line-height: 1.6;
       }
 
-      .featured-rail-actions {
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        margin-left: auto;
-        z-index: 1;
-      }
-
-      .featured-rail-note {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.45rem;
-        padding: 0.55rem 0.9rem;
-        border-radius: 999px;
-        background: rgba(15, 23, 42, 0.06);
-        color: rgba(15, 23, 42, 0.68);
-        font-size: 0.78rem;
-        font-weight: 600;
-      }
-
-      .featured-rail-note i {
-        color: rgba(76, 81, 255, 0.8);
-      }
-
       .featured-rail-body {
         position: relative;
         z-index: 1;
-      }
-
-      .featured-recent-tab {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.45rem;
-        border: 1px solid rgba(15, 23, 42, 0.12);
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.95);
-        color: #0f172a;
-        font-weight: 600;
-        font-size: 0.78rem;
-        padding: 0.35rem 1.1rem;
-        min-height: 38px;
-        cursor: pointer;
-        transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition),
-          background var(--transition);
-        justify-self: start;
-        align-self: start;
-        box-shadow: 0 16px 40px -26px rgba(15, 23, 42, 0.45);
-        white-space: nowrap;
-      }
-
-      .featured-recent-tab:focus-visible {
-        outline: none;
-        border-color: rgba(76, 81, 255, 0.45);
-        box-shadow: 0 0 0 3px rgba(76, 81, 255, 0.2);
-      }
-
-      .featured-recent-tab:hover,
-      .featured-recent-tab:focus-visible {
-        transform: translateY(-2px);
-      }
-
-      .featured-recent-tab .featured-recent-tab-icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        background: rgba(76, 81, 255, 0.12);
-        color: rgba(76, 81, 255, 0.82);
-        font-size: 0.78rem;
-      }
-
-      .featured-recent-tab .label-active {
-        display: none;
-      }
-
-      .featured-recent-tab.active {
-        background: rgba(76, 81, 255, 0.1);
-        border-color: rgba(76, 81, 255, 0.28);
-        box-shadow: 0 18px 46px -28px rgba(76, 81, 255, 0.35);
-        color: var(--primary-700);
-      }
-
-      .featured-recent-tab.active .label-default {
-        display: none;
-      }
-
-      .featured-recent-tab.active .label-active {
-        display: inline;
       }
 
       .featured-carousel-shell {
@@ -3151,20 +3040,6 @@
           flex-direction: column;
           align-items: stretch;
         }
-        .featured-rail-actions {
-          width: 100%;
-          margin-left: 0;
-          justify-content: flex-start;
-        }
-        .featured-rail-note {
-          width: 100%;
-          justify-content: center;
-        }
-        .featured-recent-tab {
-          width: auto;
-          margin-left: 0;
-          justify-content: center;
-        }
         .featured-carousel-shell {
           padding-inline: 0;
         }
@@ -3186,19 +3061,6 @@
         }
         .featured-rail-title p {
           font-size: 0.9rem;
-        }
-        .featured-rail-actions {
-          width: 100%;
-          justify-content: flex-start;
-        }
-        .featured-rail-note {
-          width: 100%;
-          justify-content: center;
-        }
-        .featured-recent-tab {
-          font-size: 0.78rem;
-          min-height: 40px;
-          padding: 0.4rem 1.05rem;
         }
         .featured-carousel-track {
           grid-auto-columns: 85vw;
@@ -3670,34 +3532,15 @@
                 <span class="featured-rail-eyebrow">Selección premium</span>
                 <div class="featured-rail-heading">
                   <h3 id="featured-rail-heading">Productos destacados</h3>
-                  <button
-                    type="button"
-                    class="featured-recent-tab"
-                    id="featured-recent-toggle"
-                    aria-pressed="false"
-                    aria-controls="recent-carousel-track"
-                  >
-                    <span class="featured-recent-tab-icon" aria-hidden="true"
-                      ><i class="fa-regular fa-clock"></i
-                    ></span>
-                    <span class="label-default">Visto recientemente</span>
-                    <span class="label-active">Visto recientemente · Ver destacados</span>
-                  </button>
                 </div>
                 <p>
                   Explora los canjes mejor valorados de la semana y desliza para descubrir
                   alternativas compatibles con tus intereses.
                 </p>
               </div>
-              <div class="featured-rail-actions" aria-hidden="true">
-                <div class="featured-rail-note">
-                  <i class="fa-solid fa-arrows-left-right" aria-hidden="true"></i>
-                  <span>Desliza para explorar más artículos</span>
-                </div>
-              </div>
             </div>
-            <div class="featured-rail-body" data-active-view="featured">
-              <div class="featured-carousel-shell" data-carousel="featured" data-view-panel="featured">
+            <div class="featured-rail-body">
+              <div class="featured-carousel-shell" data-carousel="featured">
                 <button
                   class="carousel-nav prev"
                   type="button"
@@ -3718,32 +3561,6 @@
                   class="carousel-nav next"
                   type="button"
                   aria-label="Desplazar destacados hacia la derecha"
-                  data-carousel-next
-                >
-                  <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-                </button>
-              </div>
-              <div class="featured-carousel-shell hidden" data-carousel="recent" data-view-panel="recent">
-                <button
-                  class="carousel-nav prev"
-                  type="button"
-                  aria-label="Desplazar recientes hacia la izquierda"
-                  data-carousel-prev
-                >
-                  <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
-                </button>
-                <div class="featured-carousel-viewport" data-carousel-viewport>
-                  <div
-                    class="featured-carousel-track"
-                    id="recent-carousel-track"
-                    role="list"
-                    data-carousel-track
-                  ></div>
-                </div>
-                <button
-                  class="carousel-nav next"
-                  type="button"
-                  aria-label="Desplazar recientes hacia la derecha"
                   data-carousel-next
                 >
                   <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
@@ -4416,7 +4233,6 @@
         "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=160&q=80";
 
       const FEATURED_LIMIT = 8;
-      const RECENT_LIMIT = 10;
 
       const generateId = (prefix) => `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
 
@@ -4479,8 +4295,6 @@
       const state = {
         currentUser: null,
         products: [],
-        recentlyViewed: [],
-        activeFeaturedView: "featured",
         offersSent: [],
         offersReceived: [],
         activeAgreements: [],
@@ -5029,54 +4843,15 @@
         return card;
       }
 
-      function setFeaturedView(view, { resetScroll = true } = {}) {
-        const normalized = view === "recent" ? "recent" : "featured";
-        state.activeFeaturedView = normalized;
-
-        const body = $(".featured-rail-body");
-        if (body) {
-          body.dataset.activeView = normalized;
-        }
-
-        const panels = $$(".featured-carousel-shell[data-view-panel]");
-        panels.forEach((panel) => {
-          const isActive = panel.dataset.viewPanel === normalized;
-          panel.classList.toggle("hidden", !isActive);
-          if (isActive && resetScroll) {
-            const viewport = panel.querySelector("[data-carousel-viewport]");
-            if (viewport) {
-              viewport.scrollTo({ left: 0, behavior: "auto" });
-            }
-          }
-        });
-
-        const toggle = $("#featured-recent-toggle");
-        if (toggle) {
-          const isRecent = normalized === "recent";
-          toggle.setAttribute("aria-pressed", isRecent ? "true" : "false");
-          toggle.classList.toggle("active", isRecent);
-          toggle.setAttribute(
-            "aria-label",
-            isRecent ? "Volver a destacados" : "Ver artículos vistos recientemente"
-          );
-        }
-
-        requestAnimationFrame(() => refreshCarousels());
-      }
-
       function renderFeaturedRails() {
         const featuredShell = document.querySelector('.featured-carousel-shell[data-carousel="featured"]');
-        const recentShell = document.querySelector('.featured-carousel-shell[data-carousel="recent"]');
         const featuredContainer = $("#featured-carousel-track");
-        const recentContainer = $("#recent-carousel-track");
-        if (!featuredShell || !recentShell || !featuredContainer || !recentContainer) {
+        if (!featuredShell || !featuredContainer) {
           return;
         }
 
         registerCarousel(featuredShell);
-        registerCarousel(recentShell);
 
-        featuredContainer.innerHTML = "";
         const rankedProducts = [...state.products].sort((a, b) => {
           const ratingA =
             a.rating != null ? Number(a.rating) : a.owner?.rating != null ? Number(a.owner.rating) : 0;
@@ -5089,6 +4864,7 @@
         });
         const featuredProducts = rankedProducts.slice(0, FEATURED_LIMIT);
 
+        featuredContainer.innerHTML = "";
         if (!featuredProducts.length) {
           const empty = document.createElement("div");
           empty.className = "featured-empty";
@@ -5097,48 +4873,7 @@
         } else {
           featuredProducts.forEach((product) => featuredContainer.appendChild(createRailCard(product)));
         }
-
-        const recentIds = Array.isArray(state.recentlyViewed) ? [...state.recentlyViewed] : [];
-        const sanitizedRecent = [];
-        const recentProducts = [];
-        recentIds.forEach((id) => {
-          const product = state.products.find((item) => item.id === id);
-          if (product && !sanitizedRecent.includes(product.id)) {
-            sanitizedRecent.push(product.id);
-            recentProducts.push(product);
-          }
-        });
-        if (sanitizedRecent.length !== recentIds.length) {
-          state.recentlyViewed = sanitizedRecent.slice(0, RECENT_LIMIT);
-        }
-
-        recentContainer.innerHTML = "";
-        if (!recentProducts.length) {
-          const empty = document.createElement("div");
-          empty.className = "featured-empty";
-          empty.innerHTML =
-            '<i class="fa-regular fa-clock"></i><span>Cuando revises artículos aparecerán en esta vista.</span>';
-          recentContainer.appendChild(empty);
-        } else {
-          recentProducts.slice(0, RECENT_LIMIT).forEach((product) => {
-            recentContainer.appendChild(createRailCard(product));
-          });
-        }
-
-        const activeView = state.activeFeaturedView === "recent" ? "recent" : "featured";
-        setFeaturedView(activeView, { resetScroll: false });
-      }
-
-      function trackRecentlyViewed(product) {
-        if (!product || !product.id) {
-          return;
-        }
-        const ids = Array.isArray(state.recentlyViewed)
-          ? state.recentlyViewed.filter((id) => id !== product.id)
-          : [];
-        ids.unshift(product.id);
-        state.recentlyViewed = ids.slice(0, RECENT_LIMIT);
-        renderFeaturedRails();
+        requestAnimationFrame(() => refreshCarousels());
       }
 
       function openModal(id) {
@@ -5478,7 +5213,6 @@
         }
 
         activeProductDetail = product;
-        trackRecentlyViewed(product);
 
         const images = Array.isArray(product.images) && product.images.length ? product.images : [FALLBACK_IMAGE];
         const mainImage = $("#product-detail-image");
@@ -6451,7 +6185,6 @@
         const detailAdvancedBtn = $("#product-detail-advanced");
         const detailReportBtn = $("#product-detail-report");
         const detailCloseNodes = $$("[data-close-detail]");
-        const featuredRecentToggle = $("#featured-recent-toggle");
 
         if (headerSearchForm) {
           headerSearchForm.addEventListener("submit", (event) => {
@@ -6475,13 +6208,6 @@
             if (activePage !== "feed-section") {
               switchToPage("feed-section", { scroll: false });
             }
-          });
-        }
-
-        if (featuredRecentToggle) {
-          featuredRecentToggle.addEventListener("click", () => {
-            const nextView = state.activeFeaturedView === "recent" ? "featured" : "recent";
-            setFeaturedView(nextView);
           });
         }
 
