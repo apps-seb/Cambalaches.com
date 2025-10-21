@@ -805,6 +805,15 @@
         .featured-item {
           flex-basis: min(82vw, 300px);
         }
+        .mobile-product-carousel {
+          padding: 1rem 1.05rem 1.25rem;
+        }
+        .mobile-carousel-header {
+          text-align: center;
+        }
+        .mobile-carousel-shell {
+          margin-inline: -0.6rem;
+        }
         .dashboard-grid {
           gap: 2rem;
         }
@@ -878,6 +887,16 @@
         }
         .featured-item {
           flex-basis: min(88vw, 280px);
+        }
+        .mobile-product-carousel {
+          padding: 0.95rem 0.85rem 1.2rem;
+          gap: 0.8rem;
+        }
+        .mobile-carousel-shell {
+          margin-inline: -0.5rem;
+        }
+        .mobile-product-carousel .featured-item {
+          flex-basis: min(82vw, 260px);
         }
         .category-board {
           padding: 1rem 1.1rem;
@@ -983,6 +1002,12 @@
         }
         .featured-item {
           flex-basis: 92vw;
+        }
+        .mobile-product-carousel {
+          padding: 0.85rem 0.75rem 1.1rem;
+        }
+        .mobile-product-carousel .featured-item {
+          flex-basis: 88vw;
         }
         .product-card-owner img {
           width: 30px;
@@ -1359,6 +1384,55 @@
       .featured-empty i {
         font-size: 1.6rem;
         color: rgba(76, 81, 255, 0.45);
+      }
+
+      .mobile-product-carousel {
+        display: grid;
+        gap: 0.9rem;
+        background: linear-gradient(165deg, rgba(255, 255, 255, 0.95), rgba(231, 237, 255, 0.82));
+        border-radius: clamp(20px, 3vw, 28px);
+        border: 1px solid rgba(99, 102, 241, 0.12);
+        padding: clamp(1rem, 2.5vw, 1.4rem);
+        box-shadow: 0 30px 60px -48px rgba(15, 23, 42, 0.45);
+      }
+
+      .mobile-carousel-header {
+        display: grid;
+        gap: 0.35rem;
+      }
+
+      .mobile-carousel-header h3 {
+        margin: 0;
+        font-size: clamp(1.1rem, 3vw, 1.35rem);
+        color: #101b42;
+      }
+
+      .mobile-carousel-header p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      .mobile-carousel-shell {
+        margin: 0 calc(clamp(1rem, 2.5vw, 1.4rem) * -0.4) 0;
+      }
+
+      .mobile-carousel-shell .featured-carousel-track {
+        padding-inline: clamp(0.1rem, 1.5vw, 0.4rem);
+      }
+
+      .mobile-product-carousel .featured-item {
+        flex-basis: clamp(220px, 78vw, 280px);
+      }
+
+      .mobile-product-carousel .featured-empty {
+        min-height: 140px;
+      }
+
+      @media (min-width: 769px) {
+        .mobile-product-carousel {
+          display: none;
+        }
       }
 
       .category-board {
@@ -3525,6 +3599,22 @@
               </div>
             </div>
           </section>
+          <section class="mobile-product-carousel" aria-labelledby="mobile-carousel-heading">
+            <div class="mobile-carousel-header">
+              <h3 id="mobile-carousel-heading">Desliza y descubre</h3>
+              <p>Explora rápidamente nuevos canjes desde tu dispositivo móvil.</p>
+            </div>
+            <div class="featured-carousel-shell mobile-carousel-shell" data-carousel="mobile-products">
+              <div class="featured-carousel-viewport" data-carousel-viewport>
+                <div
+                  class="featured-carousel-track mobile-carousel-track"
+                  id="mobile-carousel-track"
+                  role="list"
+                  data-carousel-track
+                ></div>
+              </div>
+            </div>
+          </section>
           <div class="category-board">
             <div class="category-board-header">
               <div class="category-board-title">
@@ -4191,6 +4281,7 @@
 
       const FEATURED_LIMIT = 8;
       const RECENT_LIMIT = 10;
+      const MOBILE_CAROUSEL_LIMIT = 12;
 
       const generateId = (prefix) => `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
 
@@ -4901,6 +4992,41 @@
 
         const activeView = state.activeFeaturedView === "recent" ? "recent" : "featured";
         setFeaturedView(activeView, { resetScroll: false });
+        renderMobileProductCarousel();
+      }
+
+      function renderMobileProductCarousel() {
+        const shell = document.querySelector('.mobile-carousel-shell[data-carousel="mobile-products"]');
+        const track = document.getElementById("mobile-carousel-track");
+        if (!shell || !track) {
+          return;
+        }
+
+        registerCarousel(shell);
+
+        const viewport = shell.querySelector("[data-carousel-viewport]");
+        track.innerHTML = "";
+
+        if (!state.products.length) {
+          const empty = document.createElement("div");
+          empty.className = "featured-empty";
+          empty.innerHTML =
+            '<i class="fa-regular fa-face-smile"></i><span>Publica o descubre artículos para verlos aquí.</span>';
+          track.appendChild(empty);
+          if (viewport) {
+            viewport.scrollTo({ left: 0, behavior: "auto" });
+          }
+          updateCarousel(shell);
+          return;
+        }
+
+        const curatedProducts = state.products.slice(0, MOBILE_CAROUSEL_LIMIT);
+        curatedProducts.forEach((product) => track.appendChild(createRailCard(product)));
+
+        if (viewport) {
+          viewport.scrollTo({ left: 0, behavior: "auto" });
+        }
+        updateCarousel(shell);
       }
 
       function trackRecentlyViewed(product) {
