@@ -1212,7 +1212,7 @@
         overflow-x: auto;
         padding: 0.35rem 0.25rem 0.75rem;
         margin: 0;
-        scroll-snap-type: x proximity;
+        scroll-snap-type: x mandatory;
         scroll-padding-inline: clamp(0.75rem, 2vw, 1.25rem);
         scrollbar-width: none;
         scrollbar-gutter: stable both-edges;
@@ -1277,6 +1277,7 @@
         grid-template-rows: minmax(0, 160px) auto;
         overflow: hidden;
         scroll-snap-align: center;
+        scroll-snap-stop: always;
         cursor: pointer;
         transition: transform var(--transition), box-shadow var(--transition), border var(--transition);
         position: relative;
@@ -4034,6 +4035,7 @@
           momentumFrame: 0,
           suppressClick: false,
           dragExceeded: false,
+          currentScrollLeft: 0,
         };
 
         const dragThreshold =
@@ -4043,11 +4045,84 @@
         const minMomentumVelocity = 0.08;
         const momentumDecay = 0.92;
 
+        const snapOptions = {
+          enabled: Boolean(options.snapToChildren),
+          selector: typeof options.snapSelector === "string" ? options.snapSelector : null,
+          align: options.snapAlign === "start" || options.snapAlign === "end" ? options.snapAlign : "center",
+          behavior: options.snapBehavior === "auto" ? "auto" : "smooth",
+          wheel: options.snapOnWheel !== false,
+        };
+
         if (!container.hasAttribute("tabindex")) {
           container.setAttribute("tabindex", "0");
         }
 
         container.setAttribute("data-scroll-enhanced", "true");
+
+        const getSnapItems = () => {
+          if (!snapOptions.enabled) {
+            return [];
+          }
+          const nodes = snapOptions.selector
+            ? container.querySelectorAll(snapOptions.selector)
+            : container.children;
+          return Array.from(nodes).filter((node) => node instanceof HTMLElement);
+        };
+
+        const scrollToItem = (item, behavior = snapOptions.behavior) => {
+          if (!item) {
+            return;
+          }
+          const maxScroll = Math.max(0, container.scrollWidth - container.clientWidth);
+          let target = item.offsetLeft;
+          if (snapOptions.align === "center") {
+            target -= (container.clientWidth - item.offsetWidth) / 2;
+          } else if (snapOptions.align === "end") {
+            target -= container.clientWidth - item.offsetWidth;
+          }
+          target = Math.max(0, Math.min(maxScroll, target));
+          container.scrollTo({ left: target, behavior });
+          requestAnimationFrame(updateOverflow);
+        };
+
+        const getActiveIndex = () => {
+          const items = getSnapItems();
+          if (!items.length) {
+            return -1;
+          }
+          const center = container.scrollLeft + container.clientWidth / 2;
+          let closest = 0;
+          let minDistance = Infinity;
+          items.forEach((item, index) => {
+            const itemCenter = item.offsetLeft + item.offsetWidth / 2;
+            const distance = Math.abs(itemCenter - center);
+            if (distance < minDistance) {
+              closest = index;
+              minDistance = distance;
+            }
+          });
+          return closest;
+        };
+
+        const snapToClosest = (direction = 0, behavior) => {
+          if (!snapOptions.enabled) {
+            return;
+          }
+          const items = getSnapItems();
+          if (!items.length) {
+            return;
+          }
+          let index = getActiveIndex();
+          if (index === -1) {
+            index = direction > 0 ? 0 : items.length - 1;
+          }
+          if (direction > 0 && index < items.length - 1) {
+            index += 1;
+          } else if (direction < 0 && index > 0) {
+            index -= 1;
+          }
+          scrollToItem(items[index], behavior);
+        };
 
         const cancelMomentum = () => {
           if (state.momentumFrame) {
@@ -4126,6 +4201,7 @@
           state.velocity = 0;
           state.dragExceeded = false;
           state.suppressClick = false;
+          state.currentScrollLeft = container.scrollLeft;
 
           cancelMomentum();
           container.classList.add("is-dragging");
@@ -4158,6 +4234,7 @@
           state.velocity = -(deltaX / deltaTime) * 16;
           state.lastClientX = event.clientX;
           state.lastTimestamp = event.timeStamp;
+          state.currentScrollLeft = container.scrollLeft;
 
           if (event.pointerType === "mouse") {
             event.preventDefault();
@@ -4191,6 +4268,23 @@
             state.velocity = 0;
           }
 
+          state.currentScrollLeft = container.scrollLeft;
+
+          if (snapOptions.enabled) {
+            cancelMomentum();
+            const traveled = state.currentScrollLeft - state.startScrollLeft;
+            let direction = 0;
+            if (Math.abs(state.velocity) > minMomentumVelocity) {
+              direction = state.velocity > 0 ? 1 : -1;
+            } else if (Math.abs(traveled) > dragThreshold) {
+              direction = traveled > 0 ? 1 : -1;
+            }
+            snapToClosest(direction);
+            updateOverflow();
+            state.velocity = 0;
+            return;
+          }
+
           startMomentum();
           updateOverflow();
         };
@@ -4203,6 +4297,9 @@
           state.dragExceeded = false;
           state.velocity = 0;
           cancelMomentum();
+          if (snapOptions.enabled) {
+            snapToClosest();
+          }
           updateOverflow();
         };
 
@@ -4223,9 +4320,14 @@
             return;
           }
 
-          const absDeltaY = Math.abs(event.deltaY);
-          const absDeltaX = Math.abs(event.deltaX);
-          if (absDeltaY <= absDeltaX) {
+          if (snapOptions.enabled && snapOptions.wheel) {
+            const primaryDelta = Math.abs(event.deltaY) >= Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
+            if (primaryDelta !== 0) {
+              event.preventDefault();
+              cancelMomentum();
+              snapToClosest(primaryDelta > 0 ? 1 : -1);
+              return;
+            }
             return;
           }
 
@@ -4250,8 +4352,12 @@
 
           if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
             const direction = event.key === "ArrowRight" ? 1 : -1;
-            const distance = Math.max(160, container.clientWidth * 0.6);
-            container.scrollBy({ left: distance * direction, behavior: "smooth" });
+            if (snapOptions.enabled) {
+              snapToClosest(direction);
+            } else {
+              const distance = Math.max(160, container.clientWidth * 0.6);
+              container.scrollBy({ left: distance * direction, behavior: "smooth" });
+            }
             event.preventDefault();
           }
         };
@@ -4282,6 +4388,7 @@
 
         const controller = {
           refresh: () => requestAnimationFrame(updateOverflow),
+          snap: (direction = 0) => requestAnimationFrame(() => snapToClosest(direction)),
         };
 
         horizontalScrollRegistry.set(container, controller);
@@ -4969,7 +5076,11 @@
           return;
         }
 
-        const scroller = enhanceHorizontalScroll(list);
+        const scroller = enhanceHorizontalScroll(list, {
+          snapToChildren: true,
+          snapSelector: ".most-viewed-card",
+          snapOnWheel: true,
+        });
         const refreshScroll = () => {
           if (scroller && typeof scroller.refresh === "function") {
             scroller.refresh();
