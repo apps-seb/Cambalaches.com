@@ -3072,6 +3072,238 @@
         height: 18px;
       }
 
+      .register-shell {
+        width: min(1100px, 100%);
+        margin: clamp(3rem, 6vw, 5rem) auto;
+        padding: clamp(2.2rem, 4vw, 3rem);
+        background: var(--surface-strong);
+        border: 1px solid var(--border-strong);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-lg);
+        display: grid;
+        gap: clamp(2rem, 4vw, 3rem);
+        position: relative;
+      }
+
+      .register-shell::before {
+        content: "";
+        position: absolute;
+        inset: -1px;
+        border-radius: inherit;
+        padding: 1px;
+        background: linear-gradient(140deg, rgba(76, 81, 255, 0.3), rgba(0, 184, 148, 0.35));
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+
+      .register-shell--highlight {
+        box-shadow: 0 22px 60px -32px rgba(76, 81, 255, 0.5), var(--shadow-lg);
+      }
+
+      .register-grid {
+        display: grid;
+        gap: clamp(2rem, 4vw, 3rem);
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        align-items: start;
+      }
+
+      .register-info {
+        display: grid;
+        gap: 1.5rem;
+      }
+
+      .register-eyebrow {
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--primary-700);
+      }
+
+      .register-info h2 {
+        margin: 0;
+        font-size: clamp(2rem, 4vw, 2.6rem);
+        line-height: 1.15;
+      }
+
+      .register-info p {
+        margin: 0;
+        color: var(--muted-dark);
+        font-size: 1rem;
+        line-height: 1.6;
+      }
+
+      .register-checklist {
+        list-style: none;
+        display: grid;
+        gap: 0.75rem;
+        margin: 0;
+        padding: 0;
+      }
+
+      .register-checklist li {
+        display: flex;
+        gap: 0.65rem;
+        align-items: flex-start;
+        font-size: 0.92rem;
+        color: var(--muted-dark);
+      }
+
+      .register-checklist i {
+        color: var(--success);
+        font-size: 1rem;
+        margin-top: 0.15rem;
+      }
+
+      .register-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+
+      .register-badge {
+        background: rgba(76, 81, 255, 0.08);
+        color: var(--primary-700);
+        border-radius: 999px;
+        padding: 0.4rem 0.85rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .register-form {
+        display: grid;
+        gap: 1.5rem;
+        background: white;
+        border-radius: var(--radius-lg);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        padding: clamp(1.5rem, 3vw, 2rem);
+        box-shadow: var(--shadow-sm);
+      }
+
+      .register-fieldset {
+        display: grid;
+        gap: 1.2rem;
+      }
+
+      .register-upload-grid {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      }
+
+      .file-dropzone {
+        position: relative;
+        border: 1px dashed rgba(99, 102, 241, 0.35);
+        border-radius: var(--radius-md);
+        padding: 1rem;
+        background: rgba(76, 81, 255, 0.04);
+        display: grid;
+        gap: 0.75rem;
+        align-items: center;
+        justify-items: start;
+        min-height: 150px;
+        transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+      }
+
+      .file-dropzone input[type="file"] {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+      }
+
+      .file-dropzone:hover {
+        border-color: var(--primary-500);
+        background: rgba(76, 81, 255, 0.08);
+        box-shadow: 0 16px 32px -28px rgba(76, 81, 255, 0.65);
+      }
+
+      .register-avatar-preview {
+        width: 92px;
+        height: 92px;
+        border-radius: 999px;
+        border: 3px solid rgba(76, 81, 255, 0.22);
+        display: grid;
+        place-items: center;
+        color: rgba(76, 81, 255, 0.55);
+        background: rgba(255, 255, 255, 0.65);
+        background-size: cover;
+        background-position: center;
+        transition: transform var(--transition), box-shadow var(--transition);
+      }
+
+      .register-avatar-preview i {
+        font-size: 2rem;
+        transition: opacity var(--transition);
+      }
+
+      .register-avatar-preview[data-empty="false"] {
+        box-shadow: 0 12px 24px -16px rgba(76, 81, 255, 0.7);
+        color: transparent;
+      }
+
+      .register-avatar-preview[data-empty="false"] i {
+        opacity: 0;
+      }
+
+      .file-dropzone-body {
+        display: grid;
+        gap: 0.4rem;
+        color: var(--muted-dark);
+        font-size: 0.88rem;
+      }
+
+      .file-dropzone-body strong {
+        font-size: 0.95rem;
+        color: #0f172a;
+      }
+
+      .file-dropzone-filename {
+        font-size: 0.82rem;
+        color: var(--primary-700);
+        font-weight: 600;
+      }
+
+      .register-feedback {
+        display: none;
+        gap: 0.75rem;
+        align-items: center;
+        padding: 0.85rem 1rem;
+        border-radius: var(--radius-md);
+        background: rgba(16, 185, 129, 0.12);
+        color: var(--success);
+        font-weight: 600;
+        font-size: 0.92rem;
+      }
+
+      .register-feedback.visible {
+        display: flex;
+      }
+
+      .register-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.85rem;
+        justify-content: flex-end;
+        margin-top: 0.5rem;
+      }
+
+      @media (max-width: 720px) {
+        .register-shell {
+          margin: clamp(2.5rem, 8vw, 3rem) 1rem;
+          padding: clamp(1.5rem, 6vw, 2.5rem);
+        }
+
+        .register-form {
+          padding: clamp(1.2rem, 5vw, 1.8rem);
+        }
+      }
+
       .modal-actions {
         display: flex;
         justify-content: flex-end;
@@ -3665,6 +3897,117 @@
               <button class="btn btn-outline" id="open-report">Denunciar una publicación</button>
             </div>
         </section>
+
+        <section class="register-shell" id="register-section">
+          <div class="register-grid">
+            <div class="register-info">
+              <span class="register-eyebrow">Registro profesional</span>
+              <h2>Activa tu cuenta verificada en minutos</h2>
+              <p>
+                Valida tu identidad y accede a todas las funciones de Cambalaches con un perfil confiable.
+                Nuestro equipo revisa cada cuenta para mantener la comunidad segura.
+              </p>
+              <ul class="register-checklist">
+                <li>
+                  <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                  <span>Protección adicional en tus canjes con usuarios verificados.</span>
+                </li>
+                <li>
+                  <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                  <span>Notificaciones inteligentes cuando alguien esté interesado en tus artículos.</span>
+                </li>
+                <li>
+                  <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                  <span>Prioridad para publicar y destacar tus productos más rápido.</span>
+                </li>
+              </ul>
+              <div class="register-badges">
+                <span class="register-badge"><i class="fa-solid fa-shield"></i> Verificación segura</span>
+                <span class="register-badge"><i class="fa-solid fa-bolt"></i> Revisión en menos de 24h</span>
+                <span class="register-badge"><i class="fa-solid fa-user-check"></i> Soporte prioritario</span>
+              </div>
+            </div>
+            <form class="register-form" id="auth-form" method="post" enctype="multipart/form-data" novalidate>
+              <div class="register-feedback" id="register-feedback" role="status" aria-live="polite">
+                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                <span>Tu identidad fue validada con éxito. ¡Ya puedes publicar y recibir ofertas!</span>
+              </div>
+              <div class="register-fieldset">
+                <div class="form-grid two-column">
+                  <label class="field">
+                    <span>Nombre completo</span>
+                    <input type="text" id="auth-name" required placeholder="Tu nombre" autocomplete="name" />
+                  </label>
+                  <label class="field">
+                    <span>Correo electrónico</span>
+                    <input
+                      type="email"
+                      id="auth-email"
+                      required
+                      placeholder="nombre@correo.com"
+                      autocomplete="email"
+                    />
+                  </label>
+                  <label class="field">
+                    <span>Teléfono verificado</span>
+                    <input
+                      type="tel"
+                      id="auth-phone"
+                      required
+                      placeholder="300 000 0000"
+                      autocomplete="tel"
+                    />
+                  </label>
+                  <label class="field">
+                    <span>Ciudad y país</span>
+                    <input
+                      type="text"
+                      id="auth-location"
+                      required
+                      placeholder="Bogotá, Colombia"
+                      autocomplete="address-level2"
+                    />
+                  </label>
+                </div>
+                <div class="register-upload-grid">
+                  <label class="field">
+                    <span>Foto de perfil</span>
+                    <div class="file-dropzone">
+                      <input type="file" id="auth-photo" accept="image/*" required />
+                      <div class="register-avatar-preview" id="register-avatar-preview" data-empty="true">
+                        <i class="fa-solid fa-user" aria-hidden="true"></i>
+                      </div>
+                      <div class="file-dropzone-body">
+                        <strong>Sube una imagen clara de tu rostro</strong>
+                        <small>Formatos permitidos: PNG o JPG (máx. 5MB).</small>
+                      </div>
+                    </div>
+                  </label>
+                  <label class="field">
+                    <span>Documento de identidad</span>
+                    <div class="file-dropzone">
+                      <input type="file" id="auth-document" accept=".pdf,.png,.jpg,.jpeg" required />
+                      <div class="file-dropzone-body">
+                        <strong>Adjunta tu documento oficial</strong>
+                        <small>PDF, JPG o PNG legible (anverso y reverso o página principal).</small>
+                        <span class="file-dropzone-filename" id="register-document-name">Ningún archivo seleccionado</span>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+                <label class="checkbox-field">
+                  <input type="checkbox" id="auth-terms" required />
+                  <span>
+                    Acepto las políticas de verificación, reputación y resolución de disputas de Cambalaches.
+                  </span>
+                </label>
+              </div>
+              <div class="register-actions">
+                <button type="submit" class="btn btn-primary">Crear cuenta verificada</button>
+              </div>
+            </form>
+          </div>
+        </section>
       </div>
     </main>
 
@@ -3757,66 +4100,6 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <div class="modal-backdrop" id="modal-backdrop" aria-hidden="true"></div>
-
-    <dialog id="auth-modal">
-      <div class="modal-surface">
-        <div class="modal-toolbar">
-          <div class="modal-title-block">
-            <span class="modal-eyebrow">Identidad</span>
-            <h3 class="modal-title">Cuenta verificada</h3>
-          </div>
-          <button type="button" class="modal-close" data-close="auth-modal">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
-        </div>
-        <form method="dialog" class="modal-body" id="auth-form">
-          <div class="modal-section">
-            <div class="modal-section-header">
-              <div>
-                <h4 class="modal-section-title">Información personal</h4>
-              </div>
-            </div>
-            <div class="form-grid two-column">
-              <label class="field">
-                <span>Nombre completo</span>
-                <input type="text" id="auth-name" required placeholder="Tu nombre" />
-              </label>
-              <label class="field">
-                <span>Correo electrónico</span>
-                <input type="email" id="auth-email" required placeholder="nombre@correo.com" />
-              </label>
-              <label class="field">
-                <span>Teléfono verificado</span>
-                <input type="tel" id="auth-phone" required placeholder="300 000 0000" />
-              </label>
-              <label class="field">
-                <span>Ciudad y país</span>
-                <input type="text" id="auth-location" required placeholder="Bogotá, Colombia" />
-              </label>
-            </div>
-          </div>
-          <div class="modal-section">
-            <div class="modal-section-header">
-              <div>
-                <h4 class="modal-section-title">Revisión de seguridad</h4>
-              </div>
-            </div>
-            <label class="field">
-              <span>Foto de perfil (PNG o JPG)</span>
-              <input type="file" id="auth-photo" accept="image/*" required />
-            </label>
-            <label class="checkbox-field">
-              <input type="checkbox" id="auth-terms" required />
-              <span>Acepto las políticas de verificación, reputación y resolución de disputas.</span>
-            </label>
-          </div>
-          <div class="modal-actions">
-            <button type="button" class="btn btn-outline" data-close="auth-modal">Cancelar</button>
-            <button type="submit" class="btn btn-primary">Crear cuenta</button>
-          </div>
-        </form>
-      </div>
-    </dialog>
 
     <dialog id="publish-modal">
       <div class="modal-surface">
@@ -5017,6 +5300,84 @@
         });
       }
 
+      function focusRegistration() {
+        const section = $("#register-section");
+        if (!section) return;
+        section.classList.add("register-shell--highlight");
+        section.scrollIntoView({ behavior: "smooth", block: "center" });
+        window.setTimeout(() => section.classList.remove("register-shell--highlight"), 1800);
+        window.setTimeout(() => {
+          const input = $("#auth-name");
+          if (input) {
+            try {
+              input.focus({ preventScroll: true });
+            } catch (error) {
+              input.focus();
+            }
+          }
+        }, 600);
+      }
+
+      function resetRegistrationUploads() {
+        const preview = $("#register-avatar-preview");
+        if (preview) {
+          preview.style.backgroundImage = "";
+          preview.setAttribute("data-empty", "true");
+        }
+        const docLabel = $("#register-document-name");
+        if (docLabel) {
+          docLabel.textContent = "Ningún archivo seleccionado";
+          docLabel.removeAttribute("title");
+        }
+        const photoInput = $("#auth-photo");
+        if (photoInput) {
+          photoInput.value = "";
+        }
+        const docInput = $("#auth-document");
+        if (docInput) {
+          docInput.value = "";
+        }
+      }
+
+      function updateAvatarPreview(event) {
+        const input = (event && event.target) || $("#auth-photo");
+        const preview = $("#register-avatar-preview");
+        if (!input || !preview) return;
+        const file = input.files && input.files[0];
+        if (!file) {
+          preview.style.backgroundImage = "";
+          preview.setAttribute("data-empty", "true");
+          return;
+        }
+        if (!file.type.startsWith("image")) {
+          showToast("Selecciona una imagen válida para tu perfil.", "danger");
+          input.value = "";
+          preview.style.backgroundImage = "";
+          preview.setAttribute("data-empty", "true");
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+          preview.style.backgroundImage = `url(${reader.result})`;
+          preview.setAttribute("data-empty", "false");
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function updateDocumentName(event) {
+        const input = (event && event.target) || $("#auth-document");
+        const label = $("#register-document-name");
+        if (!input || !label) return;
+        const file = input.files && input.files[0];
+        if (file) {
+          label.textContent = file.name;
+          label.title = file.name;
+        } else {
+          label.textContent = "Ningún archivo seleccionado";
+          label.removeAttribute("title");
+        }
+      }
+
       async function handleBannerUpload(event) {
         const input = event.target;
         const files = Array.from(input.files || []);
@@ -5053,7 +5414,7 @@
       function ensureAuthenticated(callback) {
         if (!state.currentUser) {
           showToast("Debes crear tu cuenta verificada para continuar.", "danger");
-          openModal("auth-modal");
+          focusRegistration();
           return false;
         }
         if (typeof callback === "function") callback();
@@ -6151,14 +6512,16 @@
         const phoneInput = $("#auth-phone");
         const locationInput = $("#auth-location");
         const fileInput = $("#auth-photo");
+        const documentInput = $("#auth-document");
         const termsCheckbox = $("#auth-terms");
         const name = nameInput ? nameInput.value.trim() : "";
         const email = emailInput ? emailInput.value.trim() : "";
         const phone = phoneInput ? phoneInput.value.trim() : "";
         const location = locationInput ? locationInput.value.trim() : "";
         const file = fileInput && fileInput.files ? fileInput.files[0] : null;
+        const documentFile = documentInput && documentInput.files ? documentInput.files[0] : null;
         const acceptedTerms = termsCheckbox ? Boolean(termsCheckbox.checked) : false;
-        if (!name || !email || !phone || !location || !file || !acceptedTerms) {
+        if (!name || !email || !phone || !location || !file || !documentFile || !acceptedTerms) {
           showToast("Completa todos los campos de verificación.", "danger");
           return;
         }
@@ -6170,10 +6533,20 @@
             phone,
             location,
             avatar,
+            documentName: documentFile ? documentFile.name : "",
             rating: 5,
           };
-          closeModal("auth-modal");
           showToast("Cuenta verificada creada. ¡Ya puedes publicar!", "success");
+          const feedback = $("#register-feedback");
+          if (feedback) {
+            feedback.classList.add("visible");
+            const message = feedback.querySelector("span");
+            if (message) {
+              message.textContent = `${name}, tu identidad fue validada con éxito. ¡Ya puedes publicar y recibir ofertas!`;
+            }
+          }
+          event.target.reset();
+          resetRegistrationUploads();
           updateUI();
         });
       }
@@ -6276,12 +6649,21 @@
             state.activeAgreements = [];
             state.history = [];
             state.reviews = [];
+            const form = $("#auth-form");
+            if (form && typeof form.reset === "function") {
+              form.reset();
+            }
+            resetRegistrationUploads();
+            const feedback = $("#register-feedback");
+            if (feedback) {
+              feedback.classList.remove("visible");
+            }
             showToast("Sesión cerrada. Hasta pronto.", "info");
             updateUI();
           };
         } else {
           authBtn.textContent = "Ingresar";
-          authBtn.onclick = () => openModal("auth-modal");
+          authBtn.onclick = focusRegistration;
         }
       }
 
@@ -6325,7 +6707,12 @@
         registerNavigation();
         updateUI();
 
-        on("#cta-register", "click", () => openModal("auth-modal"));
+        on("#cta-register", "click", (event) => {
+          if (event && typeof event.preventDefault === "function") {
+            event.preventDefault();
+          }
+          focusRegistration();
+        });
         on("#profile-publish", "click", () => ensureAuthenticated(() => openModal("publish-modal")));
         on("#quick-publish", "click", () => ensureAuthenticated(() => openModal("publish-modal")));
         on("#feed-publish", "click", () => ensureAuthenticated(() => openModal("publish-modal")));
@@ -6333,6 +6720,8 @@
         on("#add-product-secondary", "click", () => ensureAuthenticated(() => openModal("publish-modal")));
 
         on("#auth-form", "submit", handleAuth);
+        on("#auth-photo", "change", updateAvatarPreview);
+        on("#auth-document", "change", updateDocumentName);
         on("#publish-form", "submit", handlePublish);
         on("#product-images", "change", updatePreview);
 
