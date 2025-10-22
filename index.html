@@ -426,32 +426,192 @@
         overflow: hidden;
       }
 
-      .profile-card {
-        background: var(--surface-strong);
-        border-radius: var(--radius-lg);
-        border: 1px solid var(--border-strong);
-        box-shadow: var(--shadow-sm);
-        padding: clamp(1.4rem, 2.6vw, 2rem);
-        display: grid;
-        gap: clamp(1rem, 2vw, 1.6rem);
+      #profile.panel {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 0;
       }
 
-      .profile-form-heading {
-        display: grid;
-        gap: 0.5rem;
+      .profile-container {
+        width: 100%;
+        min-height: calc(100vh - var(--header-height));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: clamp(0.75rem, 5vw, 2.5rem) clamp(0.75rem, 6vw, 2rem);
+        padding-bottom: clamp(0.75rem, 5vw, 2.5rem);
       }
 
-      .profile-form-heading h4 {
+      @supports (height: 100dvh) {
+        .profile-container {
+          min-height: calc(100dvh - var(--header-height));
+        }
+      }
+
+      @supports (padding-bottom: calc(1rem + env(safe-area-inset-bottom))) {
+        .profile-container {
+          padding-bottom: calc(clamp(0.75rem, 5vw, 2.5rem) + env(safe-area-inset-bottom));
+        }
+      }
+
+      .profile-layout {
+        width: min(100%, 720px);
+        display: grid;
+        gap: clamp(1.2rem, 4vw, 2rem);
+      }
+
+      .profile-hero {
+        display: grid;
+        gap: 0.85rem;
+        justify-items: center;
+        text-align: center;
+      }
+
+      .profile-hero__icon {
+        width: 68px;
+        height: 68px;
+        border-radius: 24px;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(135deg, rgba(76, 81, 255, 0.85), rgba(0, 184, 148, 0.75));
+        color: #fff;
+        box-shadow: 0 26px 48px -28px rgba(15, 23, 42, 0.55);
+      }
+
+      .profile-hero h3 {
         margin: 0;
-        font-size: 1.3rem;
+        font-size: clamp(1.4rem, 4vw, 1.8rem);
         color: var(--muted-dark);
       }
 
-      .profile-form-heading p {
+      .profile-hero p {
+        margin: 0;
+        color: var(--muted);
+        font-size: clamp(0.92rem, 3vw, 1rem);
+        line-height: 1.6;
+        max-width: 42ch;
+      }
+
+      .profile-stage {
+        background: var(--surface-strong);
+        border-radius: clamp(20px, 6vw, 26px);
+        border: 1px solid var(--border-strong);
+        box-shadow: var(--shadow-sm);
+        padding: clamp(1.2rem, 5vw, 2.2rem);
+        display: grid;
+        gap: clamp(1rem, 3vw, 1.6rem);
+        width: min(100%, 640px);
+        margin: 0 auto;
+      }
+
+      .profile-stage__header {
+        display: grid;
+        gap: 0.55rem;
+        text-align: center;
+      }
+
+      .profile-stage__title {
+        margin: 0;
+        font-size: clamp(1.2rem, 3.6vw, 1.45rem);
+        color: var(--muted-dark);
+      }
+
+      .profile-stage__helper {
         margin: 0;
         color: var(--muted);
         font-size: 0.95rem;
         line-height: 1.55;
+      }
+
+      .profile-form {
+        display: grid;
+        gap: clamp(1rem, 3vw, 1.5rem);
+      }
+
+      .profile-grid {
+        display: grid;
+        gap: clamp(0.85rem, 2.6vw, 1.2rem);
+      }
+
+      .profile-grid[data-columns="two"] {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+
+      .profile-field {
+        display: grid;
+        gap: 0.45rem;
+      }
+
+      .profile-field > span {
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: rgba(15, 23, 42, 0.62);
+      }
+
+      .profile-field--full {
+        grid-column: 1 / -1;
+      }
+
+      .profile-photo-control {
+        display: flex;
+        align-items: center;
+        gap: clamp(0.85rem, 4vw, 1.4rem);
+        flex-wrap: wrap;
+      }
+
+      .profile-avatar {
+        width: clamp(78px, 24vw, 96px);
+        height: clamp(78px, 24vw, 96px);
+        border-radius: 50%;
+        background: rgba(76, 81, 255, 0.12);
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        border: 3px solid rgba(76, 81, 255, 0.28);
+        box-shadow: 0 18px 30px -22px rgba(15, 23, 42, 0.35);
+        color: var(--primary-600);
+        font-size: clamp(1.4rem, 6vw, 2rem);
+      }
+
+      .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .profile-avatar--summary {
+        width: clamp(90px, 28vw, 112px);
+        height: clamp(90px, 28vw, 112px);
+      }
+
+      .profile-photo-actions {
+        display: grid;
+        gap: 0.45rem;
+        min-width: min(240px, 100%);
+      }
+
+      .profile-upload {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: fit-content;
+        cursor: pointer;
+        position: relative;
+      }
+
+      .profile-upload i {
+        font-size: 0.95rem;
+      }
+
+      .profile-photo-hint {
+        margin: 0;
+        font-size: 0.78rem;
+        color: var(--muted);
+        line-height: 1.45;
       }
 
       .profile-form-actions {
@@ -461,70 +621,42 @@
         flex-wrap: wrap;
       }
 
-      .profile-photo-field {
-        display: grid;
-        gap: 0.75rem;
-      }
-
-      .profile-photo-upload {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 1rem;
-        align-items: center;
-      }
-
-      .profile-photo-preview {
-        width: 88px;
-        height: 88px;
-        border-radius: 50%;
-        background: rgba(76, 81, 255, 0.12);
-        display: grid;
-        place-items: center;
-        overflow: hidden;
-        box-shadow: 0 18px 30px -22px rgba(15, 23, 42, 0.35);
-        border: 3px solid rgba(255, 214, 10, 0.45);
-      }
-
-      .profile-photo-preview img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-
       .profile-summary {
         display: grid;
-        gap: clamp(1rem, 2vw, 1.6rem);
+        gap: clamp(1rem, 3vw, 1.6rem);
       }
 
       .profile-summary-header {
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: clamp(1rem, 4vw, 1.5rem);
       }
 
-      .profile-summary-header .profile-photo-preview {
-        width: 100px;
-        height: 100px;
+      .profile-summary-identity {
+        display: grid;
+        gap: 0.35rem;
       }
 
-      .profile-summary-header h3 {
+      .profile-summary-identity h3 {
         margin: 0;
-        font-size: 1.4rem;
+        font-size: clamp(1.3rem, 3.6vw, 1.6rem);
         color: var(--muted-dark);
       }
 
-      .profile-summary-header span {
+      .profile-summary-identity p {
+        margin: 0.15rem 0 0;
         color: var(--muted);
         font-size: 0.92rem;
+        line-height: 1.45;
       }
 
       .profile-summary-list {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 1rem;
+        gap: clamp(0.8rem, 3vw, 1.2rem);
       }
 
-      .profile-summary-list div {
+      .profile-summary-item {
         background: rgba(15, 23, 42, 0.03);
         border: 1px solid rgba(15, 23, 42, 0.08);
         border-radius: var(--radius-md);
@@ -533,7 +665,11 @@
         gap: 0.35rem;
       }
 
-      .profile-summary-list dt {
+      .profile-summary-item--full {
+        grid-column: 1 / -1;
+      }
+
+      .profile-summary-item dt {
         margin: 0;
         font-size: 0.8rem;
         letter-spacing: 0.08em;
@@ -541,7 +677,7 @@
         color: rgba(15, 23, 42, 0.55);
       }
 
-      .profile-summary-list dd {
+      .profile-summary-item dd {
         margin: 0;
         font-size: 0.96rem;
         color: var(--muted-dark);
@@ -567,6 +703,64 @@
         display: flex;
         gap: 0.6rem;
         flex-wrap: wrap;
+      }
+
+      @media (max-width: 720px) {
+        .profile-stage {
+          padding: clamp(1.1rem, 7vw, 1.8rem);
+        }
+
+        .profile-summary-header {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .profile-summary-footer {
+          justify-content: center;
+          text-align: center;
+        }
+
+        .profile-summary-actions {
+          justify-content: center;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .profile-container {
+          padding: clamp(0.6rem, 6vw, 1.2rem) clamp(0.6rem, 6vw, 1.2rem);
+          padding-bottom: clamp(0.6rem, 6vw, 1.2rem);
+        }
+
+        .profile-form-actions {
+          justify-content: center;
+        }
+
+        .profile-photo-actions {
+          justify-items: center;
+          text-align: center;
+        }
+
+        @supports (padding-bottom: calc(1rem + env(safe-area-inset-bottom))) {
+          .profile-container {
+            padding-bottom: calc(clamp(0.6rem, 6vw, 1.2rem) + env(safe-area-inset-bottom));
+          }
+        }
+      }
+
+      @media (max-width: 480px) {
+        .profile-grid[data-columns="two"] {
+          grid-template-columns: 1fr;
+        }
+
+        .profile-photo-actions {
+          min-width: 100%;
+        }
+      }
+
+      @media (max-width: 420px) {
+        .profile-stage {
+          padding: clamp(1rem, 8vw, 1.4rem);
+        }
       }
 
       @media (min-width: 1024px) {
@@ -4089,110 +4283,123 @@
             </div>
         </section>
 
-        <section class="panel page-hidden" id="profile" data-page-group="profile">
-            <div class="section-header">
-              <div class="section-title">
-                <span class="section-icon"><i class="fa-solid fa-user-shield"></i></span>
+        <section class="panel page-hidden profile-panel" id="profile" data-page-group="profile">
+          <div class="profile-container">
+            <div class="profile-layout">
+              <div class="profile-hero">
+                <div class="profile-hero__icon" aria-hidden="true">
+                  <i class="fa-solid fa-user-shield"></i>
+                </div>
                 <div>
                   <h3>Perfil verificado de Cambalaches</h3>
                   <p>Controla la información que compartes con la comunidad y gestiona tu cuenta.</p>
                 </div>
               </div>
-            </div>
-            <div class="profile-card" id="profile-form-card">
-              <div class="profile-form-heading">
-                <h4 id="profile-form-heading">Crea tu perfil verificado</h4>
-                <p id="profile-form-helper">
-                  Completa la información para operar con la comunidad Cambalaches.
-                </p>
-              </div>
-              <form id="profile-form" class="profile-form" novalidate>
-                <div class="form-grid two-column">
-                  <label class="field">
-                    <span>Nombre completo</span>
-                    <input type="text" id="profile-name" name="profile-name" placeholder="Tu nombre" required />
-                  </label>
-                  <label class="field">
-                    <span>Correo electrónico</span>
-                    <input type="email" id="profile-email" name="profile-email" placeholder="nombre@correo.com" required />
-                  </label>
-                  <label class="field">
-                    <span>Teléfono verificado</span>
-                    <input type="tel" id="profile-phone" name="profile-phone" placeholder="300 000 0000" required />
-                  </label>
-                  <label class="field">
-                    <span>Ciudad y país</span>
-                    <input type="text" id="profile-location" name="profile-location" placeholder="Bogotá, Colombia" required />
-                  </label>
+              <div class="profile-stage profile-stage--form" id="profile-form-card">
+                <div class="profile-stage__header">
+                  <h4 class="profile-stage__title" id="profile-form-heading">Crea tu perfil verificado</h4>
+                  <p class="profile-stage__helper" id="profile-form-helper">
+                    Completa la información para operar con la comunidad Cambalaches.
+                  </p>
                 </div>
-                <label class="field">
-                  <span>Biografía corta</span>
-                  <textarea
-                    id="profile-bio"
-                    name="profile-bio"
-                    rows="4"
-                    placeholder="Describe tu experiencia intercambiando y qué ofreces a la comunidad"
-                  ></textarea>
-                </label>
-                <div class="profile-photo-field">
-                  <span>Foto de perfil</span>
-                  <div class="profile-photo-upload">
-                    <div class="profile-photo-preview" id="profile-photo-preview">
-                      <i class="fa-regular fa-user" aria-hidden="true"></i>
-                    </div>
-                    <label class="field" style="margin: 0">
-                      <span>Sube una imagen reciente</span>
-                      <small>Formatos JPG o PNG hasta 5 MB.</small>
-                      <input type="file" id="profile-photo" name="profile-photo" accept="image/*" />
+                <form id="profile-form" class="profile-form" novalidate>
+                  <div class="profile-grid" data-columns="two">
+                    <label class="profile-field">
+                      <span>Nombre completo</span>
+                      <input type="text" id="profile-name" name="profile-name" placeholder="Tu nombre" required />
+                    </label>
+                    <label class="profile-field">
+                      <span>Correo electrónico</span>
+                      <input type="email" id="profile-email" name="profile-email" placeholder="nombre@correo.com" required />
+                    </label>
+                    <label class="profile-field">
+                      <span>Teléfono verificado</span>
+                      <input type="tel" id="profile-phone" name="profile-phone" placeholder="300 000 0000" required />
+                    </label>
+                    <label class="profile-field">
+                      <span>Ciudad y país</span>
+                      <input type="text" id="profile-location" name="profile-location" placeholder="Bogotá, Colombia" required />
                     </label>
                   </div>
+                  <label class="profile-field profile-field--full">
+                    <span>Biografía corta</span>
+                    <textarea
+                      id="profile-bio"
+                      name="profile-bio"
+                      rows="4"
+                      placeholder="Describe tu experiencia intercambiando y qué ofreces a la comunidad"
+                    ></textarea>
+                  </label>
+                  <div class="profile-field profile-field--full">
+                    <span>Foto de perfil</span>
+                    <div class="profile-photo-control">
+                      <div class="profile-avatar" id="profile-photo-preview">
+                        <i class="fa-regular fa-user" aria-hidden="true"></i>
+                      </div>
+                      <div class="profile-photo-actions">
+                        <input
+                          type="file"
+                          id="profile-photo"
+                          name="profile-photo"
+                          accept="image/*"
+                          class="visually-hidden"
+                        />
+                        <label class="profile-upload btn btn-outline" for="profile-photo" role="button" tabindex="0">
+                          <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>
+                          <span>Elegir imagen</span>
+                        </label>
+                        <p class="profile-photo-hint">Formatos JPG o PNG hasta 5 MB.</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="profile-form-actions">
+                    <button type="button" class="btn btn-ghost hidden" id="profile-cancel">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="profile-submit">Crear perfil</button>
+                  </div>
+                </form>
+              </div>
+              <div class="profile-stage profile-stage--summary profile-summary hidden" id="profile-summary">
+                <div class="profile-summary-header">
+                  <div class="profile-avatar profile-avatar--summary" id="profile-summary-avatar">
+                    <i class="fa-regular fa-user" aria-hidden="true"></i>
+                  </div>
+                  <div class="profile-summary-identity">
+                    <h3 id="profile-summary-name">Invitado</h3>
+                    <p id="profile-summary-meta">Completa tu perfil para que otros te conozcan.</p>
+                  </div>
                 </div>
-                <div class="profile-form-actions">
-                  <button type="button" class="btn btn-ghost hidden" id="profile-cancel">Cancelar</button>
-                  <button type="submit" class="btn btn-primary" id="profile-submit">Crear perfil</button>
-                </div>
-              </form>
-            </div>
-            <div class="profile-card profile-summary hidden" id="profile-summary">
-              <div class="profile-summary-header">
-                <div class="profile-photo-preview" id="profile-summary-avatar">
-                  <i class="fa-regular fa-user" aria-hidden="true"></i>
-                </div>
-                <div>
-                  <h3 id="profile-summary-name">Invitado</h3>
-                  <span id="profile-summary-meta">Completa tu perfil para que otros te conozcan.</span>
+                <dl class="profile-summary-list">
+                  <div class="profile-summary-item">
+                    <dt>Correo</dt>
+                    <dd id="profile-summary-email">—</dd>
+                  </div>
+                  <div class="profile-summary-item">
+                    <dt>Teléfono</dt>
+                    <dd id="profile-summary-phone">—</dd>
+                  </div>
+                  <div class="profile-summary-item">
+                    <dt>Ubicación</dt>
+                    <dd id="profile-summary-location">—</dd>
+                  </div>
+                  <div class="profile-summary-item profile-summary-item--full">
+                    <dt>Biografía</dt>
+                    <dd id="profile-summary-bio">—</dd>
+                  </div>
+                  <div class="profile-summary-item">
+                    <dt>Reputación base</dt>
+                    <dd id="profile-summary-rating">—</dd>
+                  </div>
+                </dl>
+                <div class="profile-summary-footer">
+                  <span id="profile-summary-updated">Perfil sin verificar</span>
+                  <div class="profile-summary-actions">
+                    <button type="button" class="btn btn-outline" id="profile-edit">Editar perfil</button>
+                    <button type="button" class="btn btn-ghost" id="profile-logout">Cerrar sesión</button>
+                  </div>
                 </div>
               </div>
-              <dl class="profile-summary-list">
-                <div>
-                  <dt>Correo</dt>
-                  <dd id="profile-summary-email">—</dd>
-                </div>
-                <div>
-                  <dt>Teléfono</dt>
-                  <dd id="profile-summary-phone">—</dd>
-                </div>
-                <div>
-                  <dt>Ubicación</dt>
-                  <dd id="profile-summary-location">—</dd>
-                </div>
-                <div>
-                  <dt>Biografía</dt>
-                  <dd id="profile-summary-bio">—</dd>
-                </div>
-                <div>
-                  <dt>Reputación base</dt>
-                  <dd id="profile-summary-rating">—</dd>
-                </div>
-              </dl>
-              <div class="profile-summary-footer">
-                <span id="profile-summary-updated">Perfil sin verificar</span>
-                <div class="profile-summary-actions">
-                  <button type="button" class="btn btn-outline" id="profile-edit">Editar perfil</button>
-                  <button type="button" class="btn btn-ghost" id="profile-logout">Cerrar sesión</button>
-                </div>
-              </div>
             </div>
+          </div>
         </section>
         </div>
       </div>
