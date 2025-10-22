@@ -377,6 +377,34 @@
         box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.05);
       }
 
+      .app-sidebar__nav button[data-role="sell"] {
+        background: linear-gradient(135deg, rgba(255, 214, 10, 0.9), rgba(255, 189, 46, 0.9));
+        color: #111827;
+        border-color: rgba(255, 214, 10, 0.6);
+        box-shadow: 0 32px 65px -40px rgba(250, 204, 21, 0.75);
+      }
+
+      .app-sidebar__nav button[data-role="sell"] .nav-icon {
+        background: rgba(17, 17, 17, 0.12);
+        color: #111827;
+        box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.08);
+      }
+
+      .app-sidebar__nav button[data-role="sell"]:hover,
+      .app-sidebar__nav button[data-role="sell"]:focus-visible {
+        transform: translateX(6px) scale(1.01);
+        background: linear-gradient(135deg, rgba(255, 214, 10, 1), rgba(255, 180, 0, 0.95));
+        border-color: rgba(255, 214, 10, 0.85);
+        color: #0b0f19;
+        box-shadow: 0 45px 90px -48px rgba(250, 204, 21, 0.9);
+      }
+
+      .app-sidebar__nav button[data-role="sell"]:hover .nav-icon,
+      .app-sidebar__nav button[data-role="sell"]:focus-visible .nav-icon {
+        background: rgba(17, 17, 17, 0.18);
+        color: #0b0f19;
+      }
+
       .app-sidebar__nav button:hover,
       .app-sidebar__nav button:focus-visible {
         transform: translateX(6px);
@@ -426,32 +454,192 @@
         overflow: hidden;
       }
 
-      .profile-card {
-        background: var(--surface-strong);
-        border-radius: var(--radius-lg);
-        border: 1px solid var(--border-strong);
-        box-shadow: var(--shadow-sm);
-        padding: clamp(1.4rem, 2.6vw, 2rem);
-        display: grid;
-        gap: clamp(1rem, 2vw, 1.6rem);
+      #profile.panel {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 0;
       }
 
-      .profile-form-heading {
-        display: grid;
-        gap: 0.5rem;
+      .profile-container {
+        width: 100%;
+        min-height: calc(100vh - var(--header-height));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: clamp(0.75rem, 5vw, 2.5rem) clamp(0.75rem, 6vw, 2rem);
+        padding-bottom: clamp(0.75rem, 5vw, 2.5rem);
       }
 
-      .profile-form-heading h4 {
+      @supports (height: 100dvh) {
+        .profile-container {
+          min-height: calc(100dvh - var(--header-height));
+        }
+      }
+
+      @supports (padding-bottom: calc(1rem + env(safe-area-inset-bottom))) {
+        .profile-container {
+          padding-bottom: calc(clamp(0.75rem, 5vw, 2.5rem) + env(safe-area-inset-bottom));
+        }
+      }
+
+      .profile-layout {
+        width: min(100%, 720px);
+        display: grid;
+        gap: clamp(1.2rem, 4vw, 2rem);
+      }
+
+      .profile-hero {
+        display: grid;
+        gap: 0.85rem;
+        justify-items: center;
+        text-align: center;
+      }
+
+      .profile-hero__icon {
+        width: 68px;
+        height: 68px;
+        border-radius: 24px;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(135deg, rgba(76, 81, 255, 0.85), rgba(0, 184, 148, 0.75));
+        color: #fff;
+        box-shadow: 0 26px 48px -28px rgba(15, 23, 42, 0.55);
+      }
+
+      .profile-hero h3 {
         margin: 0;
-        font-size: 1.3rem;
+        font-size: clamp(1.4rem, 4vw, 1.8rem);
         color: var(--muted-dark);
       }
 
-      .profile-form-heading p {
+      .profile-hero p {
+        margin: 0;
+        color: var(--muted);
+        font-size: clamp(0.92rem, 3vw, 1rem);
+        line-height: 1.6;
+        max-width: 42ch;
+      }
+
+      .profile-stage {
+        background: var(--surface-strong);
+        border-radius: clamp(20px, 6vw, 26px);
+        border: 1px solid var(--border-strong);
+        box-shadow: var(--shadow-sm);
+        padding: clamp(1.2rem, 5vw, 2.2rem);
+        display: grid;
+        gap: clamp(1rem, 3vw, 1.6rem);
+        width: min(100%, 640px);
+        margin: 0 auto;
+      }
+
+      .profile-stage__header {
+        display: grid;
+        gap: 0.55rem;
+        text-align: center;
+      }
+
+      .profile-stage__title {
+        margin: 0;
+        font-size: clamp(1.2rem, 3.6vw, 1.45rem);
+        color: var(--muted-dark);
+      }
+
+      .profile-stage__helper {
         margin: 0;
         color: var(--muted);
         font-size: 0.95rem;
         line-height: 1.55;
+      }
+
+      .profile-form {
+        display: grid;
+        gap: clamp(1rem, 3vw, 1.5rem);
+      }
+
+      .profile-grid {
+        display: grid;
+        gap: clamp(0.85rem, 2.6vw, 1.2rem);
+      }
+
+      .profile-grid[data-columns="two"] {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+
+      .profile-field {
+        display: grid;
+        gap: 0.45rem;
+      }
+
+      .profile-field > span {
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: rgba(15, 23, 42, 0.62);
+      }
+
+      .profile-field--full {
+        grid-column: 1 / -1;
+      }
+
+      .profile-photo-control {
+        display: flex;
+        align-items: center;
+        gap: clamp(0.85rem, 4vw, 1.4rem);
+        flex-wrap: wrap;
+      }
+
+      .profile-avatar {
+        width: clamp(78px, 24vw, 96px);
+        height: clamp(78px, 24vw, 96px);
+        border-radius: 50%;
+        background: rgba(76, 81, 255, 0.12);
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        border: 3px solid rgba(76, 81, 255, 0.28);
+        box-shadow: 0 18px 30px -22px rgba(15, 23, 42, 0.35);
+        color: var(--primary-600);
+        font-size: clamp(1.4rem, 6vw, 2rem);
+      }
+
+      .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .profile-avatar--summary {
+        width: clamp(90px, 28vw, 112px);
+        height: clamp(90px, 28vw, 112px);
+      }
+
+      .profile-photo-actions {
+        display: grid;
+        gap: 0.45rem;
+        min-width: min(240px, 100%);
+      }
+
+      .profile-upload {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: fit-content;
+        cursor: pointer;
+        position: relative;
+      }
+
+      .profile-upload i {
+        font-size: 0.95rem;
+      }
+
+      .profile-photo-hint {
+        margin: 0;
+        font-size: 0.78rem;
+        color: var(--muted);
+        line-height: 1.45;
       }
 
       .profile-form-actions {
@@ -461,70 +649,42 @@
         flex-wrap: wrap;
       }
 
-      .profile-photo-field {
-        display: grid;
-        gap: 0.75rem;
-      }
-
-      .profile-photo-upload {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 1rem;
-        align-items: center;
-      }
-
-      .profile-photo-preview {
-        width: 88px;
-        height: 88px;
-        border-radius: 50%;
-        background: rgba(76, 81, 255, 0.12);
-        display: grid;
-        place-items: center;
-        overflow: hidden;
-        box-shadow: 0 18px 30px -22px rgba(15, 23, 42, 0.35);
-        border: 3px solid rgba(255, 214, 10, 0.45);
-      }
-
-      .profile-photo-preview img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-
       .profile-summary {
         display: grid;
-        gap: clamp(1rem, 2vw, 1.6rem);
+        gap: clamp(1rem, 3vw, 1.6rem);
       }
 
       .profile-summary-header {
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: clamp(1rem, 4vw, 1.5rem);
       }
 
-      .profile-summary-header .profile-photo-preview {
-        width: 100px;
-        height: 100px;
+      .profile-summary-identity {
+        display: grid;
+        gap: 0.35rem;
       }
 
-      .profile-summary-header h3 {
+      .profile-summary-identity h3 {
         margin: 0;
-        font-size: 1.4rem;
+        font-size: clamp(1.3rem, 3.6vw, 1.6rem);
         color: var(--muted-dark);
       }
 
-      .profile-summary-header span {
+      .profile-summary-identity p {
+        margin: 0.15rem 0 0;
         color: var(--muted);
         font-size: 0.92rem;
+        line-height: 1.45;
       }
 
       .profile-summary-list {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 1rem;
+        gap: clamp(0.8rem, 3vw, 1.2rem);
       }
 
-      .profile-summary-list div {
+      .profile-summary-item {
         background: rgba(15, 23, 42, 0.03);
         border: 1px solid rgba(15, 23, 42, 0.08);
         border-radius: var(--radius-md);
@@ -533,7 +693,11 @@
         gap: 0.35rem;
       }
 
-      .profile-summary-list dt {
+      .profile-summary-item--full {
+        grid-column: 1 / -1;
+      }
+
+      .profile-summary-item dt {
         margin: 0;
         font-size: 0.8rem;
         letter-spacing: 0.08em;
@@ -541,7 +705,7 @@
         color: rgba(15, 23, 42, 0.55);
       }
 
-      .profile-summary-list dd {
+      .profile-summary-item dd {
         margin: 0;
         font-size: 0.96rem;
         color: var(--muted-dark);
@@ -567,6 +731,77 @@
         display: flex;
         gap: 0.6rem;
         flex-wrap: wrap;
+      }
+
+      @media (max-width: 720px) {
+        .profile-stage {
+          padding: clamp(1.1rem, 7vw, 1.8rem);
+        }
+
+        .profile-summary-header {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .profile-summary-footer {
+          justify-content: center;
+          text-align: center;
+        }
+
+        .profile-summary-actions {
+          justify-content: center;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .profile-container {
+          padding: clamp(0.6rem, 6vw, 1.2rem) clamp(0.6rem, 6vw, 1.2rem);
+          padding-bottom: clamp(0.6rem, 6vw, 1.2rem);
+        }
+
+        .profile-form-actions {
+          justify-content: center;
+        }
+
+        .profile-photo-actions {
+          justify-items: center;
+          text-align: center;
+        }
+
+        .toggle-field {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .toggle {
+          align-self: flex-end;
+        }
+
+        .sell-selector-grid {
+          grid-template-columns: 1fr;
+        }
+
+        @supports (padding-bottom: calc(1rem + env(safe-area-inset-bottom))) {
+          .profile-container {
+            padding-bottom: calc(clamp(0.6rem, 6vw, 1.2rem) + env(safe-area-inset-bottom));
+          }
+        }
+      }
+
+      @media (max-width: 480px) {
+        .profile-grid[data-columns="two"] {
+          grid-template-columns: 1fr;
+        }
+
+        .profile-photo-actions {
+          min-width: 100%;
+        }
+      }
+
+      @media (max-width: 420px) {
+        .profile-stage {
+          padding: clamp(1rem, 8vw, 1.4rem);
+        }
       }
 
       @media (min-width: 1024px) {
@@ -3267,6 +3502,18 @@
         backdrop-filter: saturate(140%) blur(12px);
       }
 
+      .modal-surface--compact {
+        width: min(640px, 94vw);
+        height: auto;
+        max-height: min(760px, 90vh);
+      }
+
+      .modal-surface--edge-to-edge {
+        width: min(1200px, 98vw);
+        height: min(960px, 96vh);
+        border-radius: clamp(16px, 3vw, 28px);
+      }
+
       @media (max-width: 960px) {
         .category-board {
           margin-top: 1.2rem;
@@ -3292,6 +3539,17 @@
           width: 100%;
         }
         .modal-surface {
+          width: 100vw;
+          height: 100vh;
+          border-radius: 0;
+        }
+        .modal-surface--compact {
+          width: min(94vw, 520px);
+          max-height: 92vh;
+          border-radius: clamp(18px, 5vw, 26px);
+          height: auto;
+        }
+        .modal-surface--edge-to-edge {
           width: 100vw;
           height: 100vh;
           border-radius: 0;
@@ -3327,6 +3585,13 @@
         margin: 0;
         font-weight: 700;
         color: var(--muted-dark);
+      }
+
+      .modal-title-subtitle {
+        margin: 0;
+        font-size: 0.95rem;
+        color: rgba(15, 23, 42, 0.68);
+        max-width: 520px;
       }
 
       .modal-body {
@@ -3367,6 +3632,76 @@
         padding: clamp(1.2rem, 3vw, 1.8rem);
         display: grid;
         gap: clamp(1rem, 2.5vw, 1.5rem);
+      }
+
+      .modal-body--selector {
+        gap: clamp(1.2rem, 3vw, 1.8rem);
+      }
+
+      .sell-selector-intro {
+        display: grid;
+        gap: 0.45rem;
+        text-align: center;
+      }
+
+      .sell-selector-intro p {
+        margin: 0;
+        color: rgba(15, 23, 42, 0.68);
+        font-size: 0.95rem;
+      }
+
+      .sell-selector-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: clamp(0.85rem, 2.5vw, 1.4rem);
+      }
+
+      .sell-option-card {
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        border-radius: clamp(18px, 3vw, 28px);
+        background: rgba(255, 255, 255, 0.92);
+        padding: clamp(1.2rem, 3vw, 1.6rem);
+        display: grid;
+        gap: 0.75rem;
+        justify-items: center;
+        text-align: center;
+        cursor: pointer;
+        transition: transform var(--transition), box-shadow var(--transition), border var(--transition),
+          background var(--transition);
+      }
+
+      .sell-option-card i {
+        font-size: clamp(2.2rem, 6vw, 2.8rem);
+        color: #0f172a;
+      }
+
+      .sell-option-card strong {
+        font-size: 1.05rem;
+        color: #0b0f19;
+      }
+
+      .sell-option-card span {
+        font-size: 0.9rem;
+        color: rgba(15, 23, 42, 0.62);
+      }
+
+      .sell-option-card:hover,
+      .sell-option-card:focus-visible {
+        transform: translateY(-4px);
+        background: rgba(255, 255, 255, 0.98);
+        border-color: rgba(250, 204, 21, 0.75);
+        box-shadow: 0 40px 90px -48px rgba(15, 23, 42, 0.4);
+        outline: none;
+      }
+
+      .sell-option-card.is-active {
+        border-color: rgba(250, 204, 21, 0.9);
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(255, 214, 10, 0.2));
+        box-shadow: 0 45px 100px -54px rgba(250, 204, 21, 0.6);
+      }
+
+      .sell-option-card.is-active i {
+        color: #f59e0b;
       }
 
       .modal-section-header {
@@ -3447,6 +3782,79 @@
         margin-top: 0.2rem;
         width: 18px;
         height: 18px;
+      }
+
+      .toggle-field {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+
+      .toggle-field-copy {
+        display: grid;
+        gap: 0.25rem;
+      }
+
+      .toggle-field-copy span {
+        font-size: 0.92rem;
+        font-weight: 600;
+        color: var(--muted-dark);
+        letter-spacing: 0.02em;
+      }
+
+      .toggle-field-copy small {
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+
+      .toggle {
+        position: relative;
+        width: 56px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .toggle input {
+        opacity: 0;
+        position: absolute;
+        inset: 0;
+        cursor: pointer;
+        margin: 0;
+      }
+
+      .toggle-track {
+        width: 100%;
+        height: 100%;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.18);
+        position: relative;
+        transition: background var(--transition), box-shadow var(--transition);
+      }
+
+      .toggle-track::after {
+        content: "";
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 8px 16px -8px rgba(15, 23, 42, 0.55);
+        transition: transform var(--transition), background var(--transition);
+      }
+
+      .toggle input:checked + .toggle-track {
+        background: linear-gradient(135deg, rgba(76, 81, 255, 0.8), rgba(0, 184, 148, 0.72));
+        box-shadow: 0 18px 30px -18px rgba(76, 81, 255, 0.6);
+      }
+
+      .toggle input:checked + .toggle-track::after {
+        transform: translateX(24px);
+        background: #fff;
       }
 
       .modal-actions {
@@ -3764,6 +4172,10 @@
           </div>
           <nav class="app-sidebar__nav" aria-label="Secciones del panel">
             <span class="app-sidebar__nav-label">Navegación principal</span>
+            <button type="button" id="open-sell" data-role="sell">
+              <span class="nav-icon"><i class="fa-solid fa-store" aria-hidden="true"></i></span>
+              <span>Vender</span>
+            </button>
             <button type="button" data-target="feed-section" data-nav="primary">
               <span class="nav-icon"><i class="fa-solid fa-house" aria-hidden="true"></i></span>
               <span>Explorar</span>
@@ -4089,110 +4501,131 @@
             </div>
         </section>
 
-        <section class="panel page-hidden" id="profile" data-page-group="profile">
-            <div class="section-header">
-              <div class="section-title">
-                <span class="section-icon"><i class="fa-solid fa-user-shield"></i></span>
+        <section class="panel page-hidden profile-panel" id="profile" data-page-group="profile">
+          <div class="profile-container">
+            <div class="profile-layout">
+              <div class="profile-hero">
+                <div class="profile-hero__icon" aria-hidden="true">
+                  <i class="fa-solid fa-user-shield"></i>
+                </div>
                 <div>
                   <h3>Perfil verificado de Cambalaches</h3>
                   <p>Controla la información que compartes con la comunidad y gestiona tu cuenta.</p>
                 </div>
               </div>
-            </div>
-            <div class="profile-card" id="profile-form-card">
-              <div class="profile-form-heading">
-                <h4 id="profile-form-heading">Crea tu perfil verificado</h4>
-                <p id="profile-form-helper">
-                  Completa la información para operar con la comunidad Cambalaches.
-                </p>
-              </div>
-              <form id="profile-form" class="profile-form" novalidate>
-                <div class="form-grid two-column">
-                  <label class="field">
-                    <span>Nombre completo</span>
-                    <input type="text" id="profile-name" name="profile-name" placeholder="Tu nombre" required />
-                  </label>
-                  <label class="field">
-                    <span>Correo electrónico</span>
-                    <input type="email" id="profile-email" name="profile-email" placeholder="nombre@correo.com" required />
-                  </label>
-                  <label class="field">
-                    <span>Teléfono verificado</span>
-                    <input type="tel" id="profile-phone" name="profile-phone" placeholder="300 000 0000" required />
-                  </label>
-                  <label class="field">
-                    <span>Ciudad y país</span>
-                    <input type="text" id="profile-location" name="profile-location" placeholder="Bogotá, Colombia" required />
-                  </label>
+              <div class="profile-stage profile-stage--form" id="profile-form-card">
+                <div class="profile-stage__header">
+                  <h4 class="profile-stage__title" id="profile-form-heading">Crea tu perfil verificado</h4>
+                  <p class="profile-stage__helper" id="profile-form-helper">
+                    Completa la información para operar con la comunidad Cambalaches.
+                  </p>
                 </div>
-                <label class="field">
-                  <span>Biografía corta</span>
-                  <textarea
-                    id="profile-bio"
-                    name="profile-bio"
-                    rows="4"
-                    placeholder="Describe tu experiencia intercambiando y qué ofreces a la comunidad"
-                  ></textarea>
-                </label>
-                <div class="profile-photo-field">
-                  <span>Foto de perfil</span>
-                  <div class="profile-photo-upload">
-                    <div class="profile-photo-preview" id="profile-photo-preview">
-                      <i class="fa-regular fa-user" aria-hidden="true"></i>
-                    </div>
-                    <label class="field" style="margin: 0">
-                      <span>Sube una imagen reciente</span>
-                      <small>Formatos JPG o PNG hasta 5 MB.</small>
-                      <input type="file" id="profile-photo" name="profile-photo" accept="image/*" />
+                <form id="profile-form" class="profile-form" novalidate>
+                  <div class="profile-grid" data-columns="two">
+                    <label class="profile-field">
+                      <span>Nombre completo</span>
+                      <input type="text" id="profile-name" name="profile-name" placeholder="Tu nombre" required />
+                    </label>
+                    <label class="profile-field">
+                      <span>Correo electrónico</span>
+                      <input type="email" id="profile-email" name="profile-email" placeholder="nombre@correo.com" required />
+                    </label>
+                    <label class="profile-field">
+                      <span>Teléfono verificado</span>
+                      <input type="tel" id="profile-phone" name="profile-phone" placeholder="300 000 0000" required />
+                    </label>
+                    <label class="profile-field">
+                      <span>Departamento</span>
+                      <select id="profile-department" name="profile-department" required>
+                        <option value="" disabled selected>Selecciona un departamento</option>
+                      </select>
+                    </label>
+                    <label class="profile-field">
+                      <span>Municipio</span>
+                      <select id="profile-city" name="profile-city" required disabled>
+                        <option value="" disabled selected>Selecciona un municipio</option>
+                      </select>
                     </label>
                   </div>
+                  <label class="profile-field profile-field--full">
+                    <span>Biografía corta</span>
+                    <textarea
+                      id="profile-bio"
+                      name="profile-bio"
+                      rows="4"
+                      placeholder="Describe tu experiencia intercambiando y qué ofreces a la comunidad"
+                    ></textarea>
+                  </label>
+                  <div class="profile-field profile-field--full">
+                    <span>Foto de perfil</span>
+                    <div class="profile-photo-control">
+                      <div class="profile-avatar" id="profile-photo-preview">
+                        <i class="fa-regular fa-user" aria-hidden="true"></i>
+                      </div>
+                      <div class="profile-photo-actions">
+                        <input
+                          type="file"
+                          id="profile-photo"
+                          name="profile-photo"
+                          accept="image/*"
+                          class="visually-hidden"
+                        />
+                        <label class="profile-upload btn btn-outline" for="profile-photo" role="button" tabindex="0">
+                          <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>
+                          <span>Elegir imagen</span>
+                        </label>
+                        <p class="profile-photo-hint">Formatos JPG o PNG hasta 5 MB.</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="profile-form-actions">
+                    <button type="button" class="btn btn-ghost hidden" id="profile-cancel">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="profile-submit">Crear perfil</button>
+                  </div>
+                </form>
+              </div>
+              <div class="profile-stage profile-stage--summary profile-summary hidden" id="profile-summary">
+                <div class="profile-summary-header">
+                  <div class="profile-avatar profile-avatar--summary" id="profile-summary-avatar">
+                    <i class="fa-regular fa-user" aria-hidden="true"></i>
+                  </div>
+                  <div class="profile-summary-identity">
+                    <h3 id="profile-summary-name">Invitado</h3>
+                    <p id="profile-summary-meta">Completa tu perfil para que otros te conozcan.</p>
+                  </div>
                 </div>
-                <div class="profile-form-actions">
-                  <button type="button" class="btn btn-ghost hidden" id="profile-cancel">Cancelar</button>
-                  <button type="submit" class="btn btn-primary" id="profile-submit">Crear perfil</button>
-                </div>
-              </form>
-            </div>
-            <div class="profile-card profile-summary hidden" id="profile-summary">
-              <div class="profile-summary-header">
-                <div class="profile-photo-preview" id="profile-summary-avatar">
-                  <i class="fa-regular fa-user" aria-hidden="true"></i>
-                </div>
-                <div>
-                  <h3 id="profile-summary-name">Invitado</h3>
-                  <span id="profile-summary-meta">Completa tu perfil para que otros te conozcan.</span>
+                <dl class="profile-summary-list">
+                  <div class="profile-summary-item">
+                    <dt>Correo</dt>
+                    <dd id="profile-summary-email">—</dd>
+                  </div>
+                  <div class="profile-summary-item">
+                    <dt>Teléfono</dt>
+                    <dd id="profile-summary-phone">—</dd>
+                  </div>
+                  <div class="profile-summary-item">
+                    <dt>Ubicación</dt>
+                    <dd id="profile-summary-location">—</dd>
+                  </div>
+                  <div class="profile-summary-item profile-summary-item--full">
+                    <dt>Biografía</dt>
+                    <dd id="profile-summary-bio">—</dd>
+                  </div>
+                  <div class="profile-summary-item">
+                    <dt>Reputación base</dt>
+                    <dd id="profile-summary-rating">—</dd>
+                  </div>
+                </dl>
+                <div class="profile-summary-footer">
+                  <span id="profile-summary-updated">Perfil sin verificar</span>
+                  <div class="profile-summary-actions">
+                    <button type="button" class="btn btn-outline" id="profile-edit">Editar perfil</button>
+                    <button type="button" class="btn btn-ghost" id="profile-logout">Cerrar sesión</button>
+                  </div>
                 </div>
               </div>
-              <dl class="profile-summary-list">
-                <div>
-                  <dt>Correo</dt>
-                  <dd id="profile-summary-email">—</dd>
-                </div>
-                <div>
-                  <dt>Teléfono</dt>
-                  <dd id="profile-summary-phone">—</dd>
-                </div>
-                <div>
-                  <dt>Ubicación</dt>
-                  <dd id="profile-summary-location">—</dd>
-                </div>
-                <div>
-                  <dt>Biografía</dt>
-                  <dd id="profile-summary-bio">—</dd>
-                </div>
-                <div>
-                  <dt>Reputación base</dt>
-                  <dd id="profile-summary-rating">—</dd>
-                </div>
-              </dl>
-              <div class="profile-summary-footer">
-                <span id="profile-summary-updated">Perfil sin verificar</span>
-                <div class="profile-summary-actions">
-                  <button type="button" class="btn btn-outline" id="profile-edit">Editar perfil</button>
-                  <button type="button" class="btn btn-ghost" id="profile-logout">Cerrar sesión</button>
-                </div>
-              </div>
             </div>
+          </div>
         </section>
         </div>
       </div>
@@ -4289,6 +4722,158 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <div class="modal-backdrop" id="modal-backdrop" aria-hidden="true"></div>
 
+    <dialog id="sell-selector-modal" aria-labelledby="sell-selector-title">
+      <div class="modal-surface modal-surface--compact">
+        <div class="modal-toolbar">
+          <div class="modal-title-block">
+            <span class="modal-eyebrow">Ventas</span>
+            <h3 class="modal-title" id="sell-selector-title">¿Qué deseas vender?</h3>
+          </div>
+          <button type="button" class="modal-close" data-close="sell-selector-modal">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="modal-body modal-body--selector">
+          <div class="sell-selector-intro">
+            <p>Selecciona la categoría principal para personalizar tu publicación de venta.</p>
+          </div>
+          <div class="sell-selector-grid" role="group" aria-label="Opciones de venta">
+            <button type="button" class="sell-option-card" data-sell-type="productos" aria-pressed="false">
+              <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>
+              <strong>Productos</strong>
+              <span>Ideal para tecnología, moda, hogar y artículos de colección.</span>
+            </button>
+            <button type="button" class="sell-option-card" data-sell-type="vehiculos" aria-pressed="false">
+              <i class="fa-solid fa-car-side" aria-hidden="true"></i>
+              <strong>Vehículos</strong>
+              <span>Publica autos, motos o maquinaria con documentación al día.</span>
+            </button>
+            <button type="button" class="sell-option-card" data-sell-type="inmuebles" aria-pressed="false">
+              <i class="fa-solid fa-house" aria-hidden="true"></i>
+              <strong>Inmuebles</strong>
+              <span>Ofrece apartamentos, casas o locales listos para entrega.</span>
+            </button>
+            <button type="button" class="sell-option-card" data-sell-type="servicios" aria-pressed="false">
+              <i class="fa-solid fa-briefcase" aria-hidden="true"></i>
+              <strong>Servicios</strong>
+              <span>Promociona consultorías, mantenimiento o experiencias profesionales.</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="sell-modal" aria-labelledby="sell-modal-title">
+      <div class="modal-surface modal-surface--edge-to-edge">
+        <div class="modal-toolbar">
+          <div class="modal-title-block">
+            <span class="modal-eyebrow" id="sell-modal-eyebrow">Ventas · Productos</span>
+            <h3 class="modal-title" id="sell-modal-title">Publicar productos en venta</h3>
+            <p class="modal-title-subtitle" id="sell-modal-subtitle">
+              Completa la información comercial para garantizar una experiencia de compra confiable.
+            </p>
+          </div>
+          <button type="button" class="modal-close" data-close="sell-modal">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <form method="dialog" class="modal-body" id="sell-form">
+          <input type="hidden" id="sell-intent" value="productos" />
+          <div class="modal-section">
+            <div class="modal-section-header">
+              <div>
+                <h4 class="modal-section-title">Galería del anuncio</h4>
+                <p class="modal-section-subtitle" id="sell-gallery-subtitle">
+                  Añade entre 3 y 10 fotografías reales y nítidas de lo que ofreces.
+                </p>
+              </div>
+              <span class="modal-chip" id="sell-image-counter">0/10 fotos</span>
+            </div>
+            <div class="media-upload">
+              <label class="media-dropzone" for="sell-images">
+                <i class="fa-solid fa-plus"></i>
+                <strong>Agregar fotos</strong>
+                <span>Arrastra o selecciona imágenes en formato JPG o PNG.</span>
+              </label>
+              <input
+                type="file"
+                id="sell-images"
+                accept="image/*"
+                multiple
+                required
+                data-preview-target="sell-image-preview"
+                data-counter-target="sell-image-counter"
+                data-min-files="3"
+                data-max-files="10"
+              />
+              <div class="image-preview-grid" id="sell-image-preview"></div>
+            </div>
+          </div>
+          <div class="modal-section">
+            <div class="modal-section-header">
+              <div>
+                <h4 class="modal-section-title">Detalles comerciales</h4>
+                <p class="modal-section-subtitle" id="sell-details-subtitle">
+                  Describe beneficios, entrega y cualquier condición especial para compradores.
+                </p>
+              </div>
+              <span class="modal-chip" id="sell-type-chip">Productos</span>
+            </div>
+            <div class="form-grid two-column">
+              <label class="field">
+                <span>Nombre del anuncio</span>
+                <input type="text" id="sell-name" required placeholder="Título claro y atractivo" />
+              </label>
+              <label class="field">
+                <span>Categoría</span>
+                <select id="sell-category" required>
+                  <option value="">Selecciona</option>
+                  <option value="tecnologia">Tecnología</option>
+                  <option value="agricultura">Agricultura</option>
+                  <option value="hogar">Hogar</option>
+                  <option value="vehiculos">Vehículos</option>
+                  <option value="inmuebles">Inmuebles</option>
+                  <option value="servicios">Servicios</option>
+                  <option value="moda">Moda</option>
+                  <option value="coleccionables">Coleccionables</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Precio de venta (COP)</span>
+                <input type="number" id="sell-price" min="0" step="500" required />
+              </label>
+              <label class="field">
+                <span>Ubicación</span>
+                <input type="text" id="sell-location" required placeholder="Ciudad, barrio o zona" />
+              </label>
+            </div>
+            <label class="field">
+              <span>Descripción</span>
+              <textarea
+                id="sell-description"
+                required
+                placeholder="Incluye estado, garantías, tiempos de entrega y medios de pago aceptados."
+              ></textarea>
+            </label>
+            <div class="toggle-field">
+              <div class="toggle-field-copy">
+                <span>Publicar en el Feed</span>
+                <small>Activa para que tu anuncio sea visible inmediatamente en Cambalaches.</small>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="sell-feed-toggle" checked />
+                <span class="toggle-track" aria-hidden="true"></span>
+              </label>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-outline" data-close="sell-modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary" id="sell-submit">Publicar anuncio</button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+
     <dialog id="auth-modal">
       <div class="modal-surface">
         <div class="modal-toolbar">
@@ -4375,7 +4960,17 @@
                 <strong>Agregar fotos</strong>
                 <span>Selecciona entre 3 y 10 imágenes en formato JPG o PNG.</span>
               </label>
-              <input type="file" id="product-images" accept="image/*" multiple required />
+              <input
+                type="file"
+                id="product-images"
+                accept="image/*"
+                multiple
+                required
+                data-preview-target="image-preview"
+                data-counter-target="image-counter"
+                data-min-files="3"
+                data-max-files="10"
+              />
               <div class="image-preview-grid" id="image-preview"></div>
             </div>
           </div>
@@ -4398,6 +4993,7 @@
                   <option value="agricultura">Agricultura</option>
                   <option value="hogar">Hogar</option>
                   <option value="vehiculos">Vehículos</option>
+                  <option value="inmuebles">Inmuebles</option>
                   <option value="servicios">Servicios</option>
                   <option value="moda">Moda</option>
                   <option value="coleccionables">Coleccionables</option>
@@ -4562,6 +5158,293 @@
           return null;
         }
       })();
+
+      const COLOMBIAN_DEPARTMENTS = [
+        {
+          name: "Amazonas",
+          municipalities: ["Leticia", "Puerto Nariño", "La Chorrera", "La Pedrera", "Tarapacá"],
+        },
+        {
+          name: "Antioquia",
+          municipalities: ["Medellín", "Bello", "Itagüí", "Envigado", "Rionegro", "Apartadó"],
+        },
+        {
+          name: "Arauca",
+          municipalities: ["Arauca", "Saravena", "Tame", "Arauquita", "Fortul"],
+        },
+        {
+          name: "Atlántico",
+          municipalities: ["Barranquilla", "Soledad", "Malambo", "Puerto Colombia", "Sabanalarga"],
+        },
+        {
+          name: "Bogotá D.C.",
+          municipalities: ["Bogotá D.C."],
+        },
+        {
+          name: "Bolívar",
+          municipalities: ["Cartagena de Indias", "Magangué", "Turbaco", "Arjona", "El Carmen de Bolívar"],
+        },
+        {
+          name: "Boyacá",
+          municipalities: ["Tunja", "Duitama", "Sogamoso", "Chiquinquirá", "Paipa"],
+        },
+        {
+          name: "Caldas",
+          municipalities: ["Manizales", "Villamaría", "La Dorada", "Chinchiná", "Riosucio"],
+        },
+        {
+          name: "Caquetá",
+          municipalities: ["Florencia", "San Vicente del Caguán", "Cartagena del Chairá", "Puerto Rico", "Belén de los Andaquíes"],
+        },
+        {
+          name: "Casanare",
+          municipalities: ["Yopal", "Aguazul", "Tauramena", "Villanueva", "Paz de Ariporo"],
+        },
+        {
+          name: "Cauca",
+          municipalities: ["Popayán", "Santander de Quilichao", "Puerto Tejada", "Guachené", "Caloto"],
+        },
+        {
+          name: "Cesar",
+          municipalities: ["Valledupar", "Aguachica", "Bosconia", "La Jagua de Ibirico", "Curumaní"],
+        },
+        {
+          name: "Chocó",
+          municipalities: ["Quibdó", "Istmina", "Tadó", "Condoto", "Bahía Solano"],
+        },
+        {
+          name: "Córdoba",
+          municipalities: ["Montería", "Lorica", "Sahagún", "Cereté", "Tierralta"],
+        },
+        {
+          name: "Cundinamarca",
+          municipalities: ["Soacha", "Zipaquirá", "Chía", "Fusagasugá", "Girardot"],
+        },
+        {
+          name: "Guainía",
+          municipalities: ["Inírida", "Barrancominas", "Mapiripana", "San Felipe", "Cacahual"],
+        },
+        {
+          name: "Guaviare",
+          municipalities: ["San José del Guaviare", "El Retorno", "Calamar", "Miraflores"],
+        },
+        {
+          name: "Huila",
+          municipalities: ["Neiva", "Pitalito", "Garzón", "La Plata", "Campoalegre"],
+        },
+        {
+          name: "La Guajira",
+          municipalities: ["Riohacha", "Maicao", "Uribia", "Fonseca", "Villanueva"],
+        },
+        {
+          name: "Magdalena",
+          municipalities: ["Santa Marta", "Ciénaga", "Fundación", "Aracataca", "El Banco"],
+        },
+        {
+          name: "Meta",
+          municipalities: ["Villavicencio", "Granada", "Acacías", "Puerto López", "Restrepo"],
+        },
+        {
+          name: "Nariño",
+          municipalities: ["Pasto", "Tumaco", "Ipiales", "Túquerres", "La Unión"],
+        },
+        {
+          name: "Norte de Santander",
+          municipalities: ["Cúcuta", "Ocaña", "Pamplona", "Los Patios", "Villa del Rosario"],
+        },
+        {
+          name: "Putumayo",
+          municipalities: ["Mocoa", "Puerto Asís", "Villagarzón", "Orito", "Sibundoy"],
+        },
+        {
+          name: "Quindío",
+          municipalities: ["Armenia", "Calarcá", "Montenegro", "La Tebaida", "Quimbaya"],
+        },
+        {
+          name: "Risaralda",
+          municipalities: ["Pereira", "Dosquebradas", "Santa Rosa de Cabal", "La Virginia", "Belén de Umbría"],
+        },
+        {
+          name: "San Andrés y Providencia",
+          municipalities: ["San Andrés", "Providencia", "Santa Catalina"],
+        },
+        {
+          name: "Santander",
+          municipalities: ["Bucaramanga", "Floridablanca", "Girón", "Piedecuesta", "Barrancabermeja"],
+        },
+        {
+          name: "Sucre",
+          municipalities: ["Sincelejo", "Corozal", "Tolú", "Coveñas", "Sampués"],
+        },
+        {
+          name: "Tolima",
+          municipalities: ["Ibagué", "El Espinal", "Melgar", "Honda", "Chaparral"],
+        },
+        {
+          name: "Valle del Cauca",
+          municipalities: ["Cali", "Palmira", "Buenaventura", "Tuluá", "Buga"],
+        },
+        {
+          name: "Vaupés",
+          municipalities: ["Mitú", "Carurú", "Taraira", "Pacoa", "Yavaraté"],
+        },
+        {
+          name: "Vichada",
+          municipalities: ["Puerto Carreño", "La Primavera", "Santa Rosalía", "Cumaribo"],
+        },
+      ];
+
+      function getMunicipalitiesByDepartment(department) {
+        if (!department) {
+          return [];
+        }
+        const entry = COLOMBIAN_DEPARTMENTS.find((item) => item.name === department);
+        return entry ? entry.municipalities : [];
+      }
+
+      function parseLocationString(value) {
+        if (!value) {
+          return { city: "", department: "" };
+        }
+        const segments = value
+          .split(",")
+          .map((part) => part.trim())
+          .filter(Boolean);
+        if (!segments.length) {
+          return { city: "", department: "" };
+        }
+        if (segments.length === 1) {
+          return { city: segments[0], department: "" };
+        }
+        return { city: segments[0], department: segments[segments.length - 1] };
+      }
+
+      function resetCitySelect(select) {
+        if (!select) {
+          return;
+        }
+        select.innerHTML = "";
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent = "Selecciona un municipio";
+        placeholder.disabled = true;
+        placeholder.selected = true;
+        select.appendChild(placeholder);
+        select.disabled = true;
+      }
+
+      function populateCitySelect(select, department, { selectedCity = "" } = {}) {
+        if (!select) {
+          return;
+        }
+        const cities = getMunicipalitiesByDepartment(department);
+        select.innerHTML = "";
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent = "Selecciona un municipio";
+        placeholder.disabled = true;
+        placeholder.selected = !selectedCity;
+        select.appendChild(placeholder);
+
+        if (!cities.length) {
+          select.disabled = true;
+          return;
+        }
+
+        cities.forEach((city) => {
+          const option = document.createElement("option");
+          option.value = city;
+          option.textContent = city;
+          if (city === selectedCity) {
+            option.selected = true;
+          }
+          select.appendChild(option);
+        });
+
+        select.disabled = false;
+
+        if (selectedCity && !cities.includes(selectedCity)) {
+          const placeholderOption = select.querySelector('option[value=""]');
+          if (placeholderOption) {
+            placeholderOption.selected = true;
+          }
+          select.value = "";
+        }
+      }
+
+      function ensureLocationSelectorsInitialized() {
+        const departmentSelect = $("#profile-department");
+        const citySelect = $("#profile-city");
+        if (!departmentSelect || !citySelect) {
+          return;
+        }
+
+        if (!departmentSelect.dataset.enhanced) {
+          departmentSelect.innerHTML = "";
+          const placeholder = document.createElement("option");
+          placeholder.value = "";
+          placeholder.textContent = "Selecciona un departamento";
+          placeholder.disabled = true;
+          placeholder.selected = true;
+          departmentSelect.appendChild(placeholder);
+
+          COLOMBIAN_DEPARTMENTS.forEach(({ name }) => {
+            const option = document.createElement("option");
+            option.value = name;
+            option.textContent = name;
+            departmentSelect.appendChild(option);
+          });
+
+          departmentSelect.dataset.enhanced = "true";
+        }
+
+        if (!citySelect.dataset.enhanced) {
+          resetCitySelect(citySelect);
+          citySelect.dataset.enhanced = "true";
+        }
+
+        if (!departmentSelect.dataset.listenerAttached) {
+          departmentSelect.addEventListener("change", (event) => {
+            const value = event.target.value;
+            populateCitySelect(citySelect, value);
+          });
+          departmentSelect.dataset.listenerAttached = "true";
+        }
+      }
+
+      function applyLocationToForm({ department = "", city = "" } = {}) {
+        const departmentSelect = $("#profile-department");
+        const citySelect = $("#profile-city");
+        if (!departmentSelect || !citySelect) {
+          return;
+        }
+
+        ensureLocationSelectorsInitialized();
+
+        if (department && getMunicipalitiesByDepartment(department).length) {
+          departmentSelect.value = department;
+          populateCitySelect(citySelect, department, { selectedCity: city });
+        } else {
+          const placeholder = departmentSelect.querySelector('option[value=""]');
+          if (placeholder) {
+            placeholder.selected = true;
+          } else {
+            departmentSelect.selectedIndex = 0;
+          }
+          departmentSelect.value = "";
+          resetCitySelect(citySelect);
+        }
+      }
+
+      function getUserLocationData(user) {
+        if (!user) {
+          return { department: "", city: "" };
+        }
+        if (user.department || user.city) {
+          return { department: user.department || "", city: user.city || "" };
+        }
+        return parseLocationString(user.location || "");
+      }
 
       const loadStoredUser = () => {
         if (!storage) {
@@ -5040,12 +5923,54 @@
         tecnologia: "Tecnología",
         hogar: "Hogar",
         vehiculos: "Vehículos",
+        inmuebles: "Inmuebles",
         servicios: "Servicios",
         moda: "Moda",
         coleccionables: "Coleccionables",
       };
 
       const getCategoryLabel = (key) => categoryLabels[key] || titleize(key || "");
+
+      const SELL_INTENTS = {
+        productos: {
+          label: "Productos",
+          description: "Publica inventario nuevo o de segunda con información precisa y verificada.",
+          gallery: "Añade diferentes ángulos, accesorios incluidos y empaques si aplica.",
+          details: "Describe estado, garantía y disponibilidad inmediata para concretar la venta.",
+          defaultCategory: "",
+          namePlaceholder: "Título claro y atractivo",
+          locationPlaceholder: "Ciudad, barrio o zona",
+        },
+        vehiculos: {
+          label: "Vehículos",
+          description: "Presenta datos técnicos, kilometraje y estado legal del vehículo.",
+          gallery: "Incluye fotos del exterior, interior y documentos relevantes.",
+          details: "Indica modelo, año, kilometraje y condiciones de entrega.",
+          defaultCategory: "vehiculos",
+          namePlaceholder: "Modelo, año y versión",
+          locationPlaceholder: "Ciudad o municipio del vehículo",
+        },
+        inmuebles: {
+          label: "Inmuebles",
+          description: "Comparte información clara sobre el espacio, administración y tiempos de entrega.",
+          gallery: "Agrega fotografías luminosas de cada ambiente y amenidades.",
+          details: "Indica área, estrato, disponibilidad y requisitos de negociación.",
+          defaultCategory: "inmuebles",
+          namePlaceholder: "Tipo de inmueble y ubicación clave",
+          locationPlaceholder: "Barrio, ciudad o conjunto",
+        },
+        servicios: {
+          label: "Servicios",
+          description: "Explica el alcance, modalidad y requisitos de tu servicio profesional.",
+          gallery: "Comparte evidencias visuales o piezas de tu portafolio.",
+          details: "Detalla entregables, tiempos estimados y condiciones de pago.",
+          defaultCategory: "servicios",
+          namePlaceholder: "Servicio y especialidad",
+          locationPlaceholder: "Cobertura o zona de atención",
+        },
+      };
+
+      const getSellIntent = (key = "productos") => SELL_INTENTS[key] || SELL_INTENTS.productos;
 
       const FALLBACK_IMAGE =
         "https://images.unsplash.com/photo-1522199995590-980c4e48eb63?auto=format&fit=crop&w=900&q=80";
@@ -5111,12 +6036,20 @@
       };
 
       const storedUser = loadStoredUser();
+      const storedLocation = getUserLocationData(storedUser);
       const initialUser = storedUser
         ? {
             ...storedUser,
             id: storedUser.id || generateId("user"),
             rating: Number(storedUser.rating || 5),
             bio: storedUser.bio || "",
+            department: storedLocation.department,
+            city: storedLocation.city,
+            location:
+              storedUser.location ||
+              (storedLocation.city && storedLocation.department
+                ? `${storedLocation.city}, ${storedLocation.department}`
+                : ""),
             createdAt: storedUser.createdAt || new Date().toISOString(),
             updatedAt: storedUser.updatedAt || storedUser.createdAt || new Date().toISOString(),
           }
@@ -5133,6 +6066,7 @@
         reports: 0,
         modals: {},
         bannerImages: [],
+        pendingSales: [],
       };
 
       let activePage = "feed-section";
@@ -5142,6 +6076,7 @@
       let sidebarElement = null;
       let sidebarToggleButton = null;
       let sidebarBackdropElement = null;
+      let activeSellIntent = "productos";
       const mobileSidebarQuery = window.matchMedia("(max-width: 1023px)");
 
       const isMobileSidebar = () => mobileSidebarQuery.matches;
@@ -5515,6 +6450,144 @@
         toastTimeout = setTimeout(() => toastEl.classList.remove("show"), 3800);
       }
 
+      function getMediaConstraints(input) {
+        if (!input) {
+          return { min: 0, max: 10 };
+        }
+        const min = Number.isFinite(Number(input.dataset.minFiles))
+          ? Number(input.dataset.minFiles)
+          : 0;
+        const max = Number.isFinite(Number(input.dataset.maxFiles)) && Number(input.dataset.maxFiles) > 0
+          ? Number(input.dataset.maxFiles)
+          : 10;
+        return { min, max };
+      }
+
+      function resetMediaInput(input) {
+        if (!input) {
+          return;
+        }
+        const { max } = getMediaConstraints(input);
+        const previewId = input.dataset.previewTarget;
+        const counterId = input.dataset.counterTarget;
+        if (previewId) {
+          const preview = document.getElementById(previewId);
+          if (preview) {
+            preview.innerHTML = "";
+          }
+        }
+        if (counterId) {
+          const counter = document.getElementById(counterId);
+          if (counter) {
+            const limit = Number.isFinite(max) ? max : 10;
+            counter.textContent = `0/${limit} fotos`;
+          }
+        }
+        input.value = "";
+      }
+
+      function syncSellOptions(intentKey = activeSellIntent) {
+        const buttons = $$(".sell-option-card");
+        buttons.forEach((button) => {
+          const sellType = button.dataset.sellType || "";
+          const isActive = sellType === intentKey;
+          button.classList.toggle("is-active", isActive);
+          button.setAttribute("aria-pressed", isActive ? "true" : "false");
+        });
+      }
+
+      function configureSellModal(intentKey = activeSellIntent, { resetForm = true } = {}) {
+        const intent = getSellIntent(intentKey);
+        const form = $("#sell-form");
+        const imagesInput = $("#sell-images");
+
+        if (resetForm && form) {
+          form.reset();
+        }
+        if (resetForm && imagesInput) {
+          resetMediaInput(imagesInput);
+        }
+
+        activeSellIntent = intentKey;
+
+        const hidden = $("#sell-intent");
+        if (hidden) {
+          hidden.value = intentKey;
+          hidden.setAttribute("value", intentKey);
+        }
+
+        const eyebrow = $("#sell-modal-eyebrow");
+        if (eyebrow) {
+          eyebrow.textContent = `Ventas · ${intent.label}`;
+        }
+
+        const title = $("#sell-modal-title");
+        if (title) {
+          title.textContent = `Publicar ${intent.label.toLowerCase()} en venta`;
+        }
+
+        const subtitle = $("#sell-modal-subtitle");
+        if (subtitle) {
+          subtitle.textContent = intent.description;
+        }
+
+        const gallerySubtitle = $("#sell-gallery-subtitle");
+        if (gallerySubtitle) {
+          gallerySubtitle.textContent = intent.gallery;
+        }
+
+        const detailsSubtitle = $("#sell-details-subtitle");
+        if (detailsSubtitle) {
+          detailsSubtitle.textContent = intent.details;
+        }
+
+        const typeChip = $("#sell-type-chip");
+        if (typeChip) {
+          typeChip.textContent = intent.label;
+        }
+
+        const nameField = $("#sell-name");
+        if (nameField && intent.namePlaceholder) {
+          nameField.placeholder = intent.namePlaceholder;
+        }
+
+        const locationField = $("#sell-location");
+        if (locationField && intent.locationPlaceholder) {
+          locationField.placeholder = intent.locationPlaceholder;
+        }
+
+        const categoryField = $("#sell-category");
+        if (categoryField && resetForm) {
+          categoryField.value = intent.defaultCategory || "";
+        }
+
+        const feedToggle = $("#sell-feed-toggle");
+        if (feedToggle && resetForm) {
+          feedToggle.checked = true;
+        }
+
+        syncSellOptions(intentKey);
+      }
+
+      function openSellSelector() {
+        syncSellOptions(activeSellIntent);
+        openModal("sell-selector-modal");
+      }
+
+      function handleSellOptionSelect(event) {
+        const target = event.currentTarget;
+        const intentKey = target?.dataset?.sellType || activeSellIntent;
+        configureSellModal(intentKey);
+        closeModal("sell-selector-modal");
+        openModal("sell-modal");
+        requestAnimationFrame(() => {
+          const focusField = $("#sell-name");
+          if (focusField) {
+            focusField.focus();
+          }
+        });
+      }
+
       function updateBannerCount() {
         const pill = $("#banner-count-text");
         if (!pill) return;
@@ -5798,7 +6871,7 @@
         const nameInput = $("#profile-name");
         const emailInput = $("#profile-email");
         const phoneInput = $("#profile-phone");
-        const locationInput = $("#profile-location");
+        ensureLocationSelectorsInitialized();
         const bioInput = $("#profile-bio");
         const photoInput = $("#profile-photo");
 
@@ -5836,7 +6909,7 @@
               if (nameInput) nameInput.value = user.name || "";
               if (emailInput) emailInput.value = user.email || "";
               if (phoneInput) phoneInput.value = user.phone || "";
-              if (locationInput) locationInput.value = user.location || "";
+              applyLocationToForm(getUserLocationData(user));
               if (bioInput) bioInput.value = user.bio || "";
               if (photoInput) photoInput.value = "";
               if (photoPreview) {
@@ -5849,7 +6922,7 @@
             if (nameInput) nameInput.value = "";
             if (emailInput) emailInput.value = "";
             if (phoneInput) phoneInput.value = "";
-            if (locationInput) locationInput.value = "";
+            applyLocationToForm({ department: "", city: "" });
             if (bioInput) bioInput.value = "";
             if (photoInput) photoInput.value = "";
             if (photoPreview) {
@@ -5948,18 +7021,21 @@
         const nameInput = $("#profile-name");
         const emailInput = $("#profile-email");
         const phoneInput = $("#profile-phone");
-        const locationInput = $("#profile-location");
+        const departmentSelect = $("#profile-department");
+        const citySelect = $("#profile-city");
         const bioInput = $("#profile-bio");
         const photoInput = $("#profile-photo");
         const name = nameInput ? nameInput.value.trim() : "";
         const email = emailInput ? emailInput.value.trim() : "";
         const phone = phoneInput ? phoneInput.value.trim() : "";
-        const location = locationInput ? locationInput.value.trim() : "";
+        const department = departmentSelect ? departmentSelect.value : "";
+        const city = citySelect ? citySelect.value : "";
+        const location = department && city ? `${city}, ${department}` : "";
         const bio = bioInput ? bioInput.value.trim() : "";
         const file = photoInput && photoInput.files ? photoInput.files[0] : null;
         const existingAvatar = state.currentUser && state.currentUser.avatar;
 
-        if (!name || !email || !phone || !location) {
+        if (!name || !email || !phone || !department || !city) {
           showToast("Completa todos los campos obligatorios del perfil.", "danger");
           return;
         }
@@ -5974,6 +7050,8 @@
             email,
             phone,
             location,
+            department,
+            city,
             bio,
             avatar: avatar || previous.avatar || "",
             rating: Number(previous.rating || 5),
@@ -5988,6 +7066,7 @@
           if (form && typeof form.reset === "function") {
             form.reset();
           }
+          applyLocationToForm({ department: "", city: "" });
           showToast(previous && previous.id ? "Perfil actualizado correctamente." : "Perfil creado correctamente.", "success");
           switchToPage("profile", { scroll: false });
         };
@@ -7174,6 +8253,7 @@
         const priceField = $("#product-price");
         const locationField = $("#product-location");
         const imagesInput = $("#product-images");
+        const { min: minFiles, max: maxFiles } = getMediaConstraints(imagesInput);
         const title = titleField ? titleField.value.trim() : "";
         const category = categoryField ? categoryField.value : "";
         const description = descriptionField ? descriptionField.value.trim() : "";
@@ -7185,8 +8265,11 @@
           showToast("Completa todos los campos obligatorios.", "danger");
           return;
         }
-        if (files.length < 3 || files.length > 10) {
-          showToast("Adjunta entre 3 y 10 imágenes reales.", "danger");
+        if (files.length < minFiles || files.length > maxFiles) {
+          showToast(
+            `Adjunta entre ${minFiles} y ${maxFiles} imágenes reales.`,
+            "danger"
+          );
           return;
         }
 
@@ -7206,11 +8289,90 @@
           closeModal("publish-modal");
           showToast("Producto publicado en el feed.", "success");
           event.target.reset();
-          $("#image-preview").innerHTML = "";
-          const counter = $("#image-counter");
-          if (counter) counter.textContent = "0/10 fotos";
+          if (imagesInput) {
+            resetMediaInput(imagesInput);
+          }
           updateUI();
           setTimeout(() => simulateIncomingOffer(product), 5500);
+        });
+      }
+
+      function handleSell(event) {
+        event.preventDefault();
+        const intentField = $("#sell-intent");
+        const nameField = $("#sell-name");
+        const categoryField = $("#sell-category");
+        const descriptionField = $("#sell-description");
+        const priceField = $("#sell-price");
+        const locationField = $("#sell-location");
+        const imagesInput = $("#sell-images");
+        const feedToggle = $("#sell-feed-toggle");
+        const { min: minFiles, max: maxFiles } = getMediaConstraints(imagesInput);
+
+        if (!state.currentUser) {
+          showToast("Debes crear tu perfil verificado para vender en Cambalaches.", "danger");
+          closeModal("sell-modal");
+          openModal("auth-modal");
+          return;
+        }
+
+        const intentKey = intentField ? intentField.value || activeSellIntent : activeSellIntent;
+        const intent = getSellIntent(intentKey);
+        const title = nameField ? nameField.value.trim() : "";
+        const category = categoryField ? categoryField.value : "";
+        const description = descriptionField ? descriptionField.value.trim() : "";
+        const price = priceField ? Number(priceField.value || 0) : 0;
+        const location = locationField ? locationField.value.trim() : "";
+        const files = Array.from((imagesInput && imagesInput.files) || []);
+        const publishToFeed = feedToggle ? Boolean(feedToggle.checked) : true;
+
+        if (!title || !category || !description || !price || !location) {
+          showToast("Completa todos los campos obligatorios.", "danger");
+          return;
+        }
+
+        if (files.length < minFiles || files.length > maxFiles) {
+          showToast(
+            `Adjunta entre ${minFiles} y ${maxFiles} imágenes reales.`,
+            "danger"
+          );
+          return;
+        }
+
+        Promise.all(files.map((file) => readFile(file))).then((images) => {
+          const product = {
+            id: generateId("sale"),
+            title,
+            description,
+            category,
+            price,
+            location,
+            images,
+            views: 0,
+            owner: state.currentUser,
+            listingType: "venta",
+            sellIntent: intentKey,
+            publishedToFeed,
+            createdAt: new Date().toISOString(),
+          };
+
+          if (publishToFeed) {
+            state.products.unshift(product);
+            showToast(`Anuncio de ${intent.label.toLowerCase()} publicado en el feed.`, "success");
+            updateUI();
+            setTimeout(() => simulateIncomingOffer(product), 5500);
+          } else {
+            state.pendingSales.unshift(product);
+            showToast("Borrador guardado. Podrás publicarlo cuando quieras.", "info");
+          }
+
+          closeModal("sell-modal");
+          event.target.reset();
+          if (imagesInput) {
+            resetMediaInput(imagesInput);
+          }
+          activeSellIntent = intentKey;
+          configureSellModal(intentKey, { resetForm: false });
         });
       }
 
@@ -7226,28 +8388,43 @@
       }
 
       function updatePreview(event) {
-        const files = Array.from((event && event.target && event.target.files) || []);
-        const container = $("#image-preview");
-        if (!container) {
+        const input = event?.target;
+        if (!input) {
           return;
         }
-        container.innerHTML = "";
+        const files = Array.from(input.files || []);
+        const previewId = input.dataset.previewTarget;
+        const counterId = input.dataset.counterTarget;
+        const { max } = getMediaConstraints(input);
+        const limit = Number.isFinite(max) ? max : 10;
+        const container = previewId ? document.getElementById(previewId) : null;
+        if (container) {
+          container.innerHTML = "";
+        }
         let count = 0;
         files.forEach((file) => {
-          if (!file.type.startsWith("image") || count >= 10) return;
+          if (!file.type.startsWith("image") || count >= limit) {
+            return;
+          }
           count += 1;
-          const preview = document.createElement("div");
-          preview.className = "image-preview";
-          const img = document.createElement("img");
-          preview.appendChild(img);
-          container.appendChild(preview);
-          const reader = new FileReader();
-          reader.onload = () => (img.src = reader.result);
-          reader.readAsDataURL(file);
+          if (container) {
+            const preview = document.createElement("div");
+            preview.className = "image-preview";
+            const img = document.createElement("img");
+            preview.appendChild(img);
+            container.appendChild(preview);
+            const reader = new FileReader();
+            reader.onload = () => {
+              img.src = reader.result;
+            };
+            reader.readAsDataURL(file);
+          }
         });
-        const counter = $("#image-counter");
-        if (counter) {
-          counter.textContent = `${count}/10 fotos`;
+        if (counterId) {
+          const counter = document.getElementById(counterId);
+          if (counter) {
+            counter.textContent = `${count}/${limit} fotos`;
+          }
         }
       }
 
@@ -7332,6 +8509,7 @@
         }
 
         registerNavigation();
+        ensureLocationSelectorsInitialized();
         updateUI();
 
         on("#cta-register", "click", () => {
@@ -7358,8 +8536,24 @@
           closeSidebar();
         });
 
+        on("#open-sell", "click", () => {
+          closeSidebar();
+          if (!state.currentUser) {
+            showToast("Debes verificar tu cuenta para comenzar a vender.", "danger");
+            openModal("auth-modal");
+            return;
+          }
+          openSellSelector();
+        });
+
+        onAll(".sell-option-card", "click", handleSellOptionSelect);
+
+        on("#sell-form", "submit", handleSell);
+
         on("#publish-form", "submit", handlePublish);
-        on("#product-images", "change", updatePreview);
+        onAll('input[data-preview-target]', 'change', updatePreview);
+
+        configureSellModal(activeSellIntent, { resetForm: false });
 
         on("#banner-upload", "change", handleBannerUpload);
 
