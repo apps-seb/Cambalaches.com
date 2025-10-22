@@ -1667,6 +1667,470 @@
         color: var(--muted);
       }
 
+      .coupon-panel {
+        display: grid;
+        gap: clamp(1.8rem, 2.6vw, 2.4rem);
+      }
+
+      .coupon-management {
+        display: grid;
+        grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+        gap: clamp(1.5rem, 2.8vw, 2.4rem);
+        align-items: start;
+      }
+
+      .coupon-management__list,
+      .coupon-management__editor {
+        display: grid;
+        gap: clamp(1.1rem, 2.4vw, 1.6rem);
+      }
+
+      .coupon-list-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+
+      .coupon-list-header h4 {
+        margin: 0;
+        font-size: 1.05rem;
+        letter-spacing: -0.01em;
+      }
+
+      .coupon-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      .coupon-counter-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.55rem 0.95rem;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        background: rgba(76, 81, 255, 0.12);
+        color: var(--primary-700);
+        border: 1px solid rgba(76, 81, 255, 0.22);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .coupon-list {
+        display: grid;
+        gap: clamp(1.1rem, 2.4vw, 1.6rem);
+      }
+
+      .coupon-card {
+        position: relative;
+        border-radius: clamp(22px, 2.8vw, 28px);
+        overflow: hidden;
+        background: var(--surface-strong);
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        box-shadow: 0 45px 80px -60px rgba(15, 23, 42, 0.65);
+        display: grid;
+        grid-template-rows: minmax(0, auto) minmax(0, 1fr);
+        transition: transform var(--transition), box-shadow var(--transition), border var(--transition);
+      }
+
+      .coupon-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 55px 95px -60px rgba(15, 23, 42, 0.75);
+        border-color: rgba(76, 81, 255, 0.35);
+      }
+
+      .coupon-card.is-selected {
+        border-color: rgba(76, 81, 255, 0.55);
+        box-shadow: 0 55px 95px -55px rgba(76, 81, 255, 0.45);
+      }
+
+      .coupon-card[data-status="paused"] .coupon-card__status-badge {
+        background: rgba(239, 68, 68, 0.18);
+        color: #b91c1c;
+      }
+
+      .coupon-card__cover {
+        position: relative;
+        padding: clamp(1.4rem, 2.6vw, 1.9rem);
+        background: var(--coupon-gradient, linear-gradient(135deg, #4c51ff 0%, #00b894 100%));
+        color: white;
+        display: grid;
+        gap: clamp(0.7rem, 1.8vw, 1rem);
+        align-content: space-between;
+        min-height: clamp(150px, 28vw, 190px);
+        isolation: isolate;
+      }
+
+      .coupon-card__cover::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: var(--coupon-cover-image, none);
+        background-size: cover;
+        background-position: center;
+        mix-blend-mode: screen;
+        opacity: 0.55;
+        pointer-events: none;
+        border-radius: inherit;
+      }
+
+      .coupon-card__top-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        position: relative;
+        z-index: 1;
+      }
+
+      .coupon-card__status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.45rem 0.85rem;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.22);
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        backdrop-filter: blur(10px);
+      }
+
+      .coupon-card__delete {
+        border: none;
+        background: rgba(15, 23, 42, 0.22);
+        color: white;
+        width: 34px;
+        height: 34px;
+        border-radius: 12px;
+        display: inline-grid;
+        place-items: center;
+        cursor: pointer;
+        transition: background var(--transition), transform var(--transition);
+      }
+
+      .coupon-card__delete:hover,
+      .coupon-card__delete:focus-visible {
+        background: rgba(239, 68, 68, 0.9);
+        transform: translateY(-2px);
+      }
+
+      .coupon-card__discount {
+        display: grid;
+        gap: 0.2rem;
+        position: relative;
+        z-index: 1;
+      }
+
+      .coupon-card__discount span {
+        font-size: 0.85rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        opacity: 0.8;
+        font-weight: 600;
+      }
+
+      .coupon-card__discount strong {
+        font-size: clamp(1.8rem, 4vw, 2.4rem);
+        letter-spacing: -0.04em;
+        line-height: 1.05;
+      }
+
+      .coupon-card__discount small {
+        font-size: 0.9rem;
+        font-weight: 500;
+        opacity: 0.9;
+      }
+
+      .coupon-card__body {
+        padding: clamp(1.3rem, 2.4vw, 1.8rem);
+        display: grid;
+        gap: clamp(0.9rem, 2.2vw, 1.2rem);
+      }
+
+      .coupon-card__meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        font-weight: 600;
+        color: var(--muted-dark);
+      }
+
+      .coupon-card__code {
+        font-size: 0.95rem;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+      }
+
+      .coupon-card__availability {
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+
+      .coupon-card__description {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.9rem;
+        line-height: 1.6;
+      }
+
+      .coupon-card__stats {
+        display: grid;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        color: var(--muted-dark);
+      }
+
+      .coupon-card__stats span {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+      }
+
+      .coupon-card__progress {
+        display: grid;
+        gap: 0.4rem;
+      }
+
+      .coupon-card__progress-track {
+        width: 100%;
+        height: 6px;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.08);
+        overflow: hidden;
+      }
+
+      .coupon-card__progress-bar {
+        height: 100%;
+        background: linear-gradient(135deg, rgba(76, 81, 255, 0.85), rgba(0, 184, 148, 0.85));
+        border-radius: 999px;
+      }
+
+      .coupon-card__footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+      }
+
+      .coupon-card__footer .btn {
+        flex: 1 1 0;
+        justify-content: center;
+      }
+
+      .coupon-empty {
+        border: 1px dashed rgba(148, 163, 184, 0.35);
+        border-radius: var(--radius-lg);
+        padding: clamp(1.8rem, 3vw, 2.2rem);
+        background: rgba(255, 255, 255, 0.72);
+        display: grid;
+        gap: 0.65rem;
+        text-align: center;
+      }
+
+      .coupon-empty h5 {
+        margin: 0;
+        font-size: 1.1rem;
+      }
+
+      .coupon-empty p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .coupon-editor-card {
+        background: rgba(255, 255, 255, 0.82);
+        border-radius: clamp(22px, 2.8vw, 28px);
+        padding: clamp(1.6rem, 2.8vw, 2.2rem);
+        border: 1px solid rgba(99, 102, 241, 0.16);
+        box-shadow: 0 45px 90px -65px rgba(15, 23, 42, 0.65);
+        display: grid;
+        gap: clamp(1rem, 2.2vw, 1.4rem);
+      }
+
+      .coupon-editor-card h4 {
+        margin: 0;
+        font-size: 1.25rem;
+        letter-spacing: -0.01em;
+      }
+
+      .coupon-editor-subtitle {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .coupon-form {
+        display: grid;
+        gap: clamp(1rem, 2.2vw, 1.4rem);
+      }
+
+      .coupon-form .form-grid {
+        display: grid;
+        gap: clamp(0.75rem, 1.8vw, 1rem);
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+
+      .coupon-form textarea {
+        min-height: 96px;
+        resize: vertical;
+      }
+
+      .coupon-cover-control {
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      .coupon-cover-preview {
+        position: relative;
+        border-radius: clamp(18px, 2.4vw, 22px);
+        padding: clamp(1.2rem, 2.4vw, 1.8rem);
+        background: var(--coupon-preview-gradient, linear-gradient(135deg, rgba(76, 81, 255, 0.85), rgba(0, 184, 148, 0.85)));
+        color: white;
+        min-height: clamp(140px, 26vw, 180px);
+        display: grid;
+        align-content: space-between;
+        gap: 0.6rem;
+        overflow: hidden;
+        isolation: isolate;
+      }
+
+      .coupon-cover-preview::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: var(--coupon-preview-cover, none);
+        background-size: cover;
+        background-position: center;
+        opacity: 0.55;
+        mix-blend-mode: screen;
+        pointer-events: none;
+      }
+
+      .coupon-preview-status {
+        justify-self: flex-start;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.4rem 0.85rem;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.22);
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 600;
+        position: relative;
+        z-index: 1;
+      }
+
+      .coupon-preview-status.is-paused {
+        background: rgba(239, 68, 68, 0.22);
+      }
+
+      .coupon-preview-discount {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        gap: 0.2rem;
+      }
+
+      .coupon-preview-discount span {
+        font-size: 0.82rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        opacity: 0.8;
+      }
+
+      .coupon-preview-discount strong {
+        font-size: clamp(1.6rem, 3.8vw, 2.2rem);
+        letter-spacing: -0.03em;
+      }
+
+      .coupon-preview-meta {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        font-size: 0.82rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .coupon-cover-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      .coupon-cover-actions .btn {
+        flex: 0 0 auto;
+      }
+
+      .coupon-form-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        justify-content: flex-end;
+      }
+
+      .coupon-form-actions .btn {
+        min-width: 140px;
+      }
+
+      @media (max-width: 1100px) {
+        .coupon-management {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .coupon-management__editor {
+          order: -1;
+        }
+      }
+
+      @media (max-width: 860px) {
+        .coupon-card {
+          grid-template-rows: auto auto;
+        }
+
+        .coupon-card__body {
+          padding: 1.1rem 1.3rem 1.4rem;
+        }
+
+        .coupon-card__cover {
+          min-height: 160px;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .coupon-card__meta {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .coupon-card__footer {
+          flex-direction: column;
+        }
+
+        .coupon-cover-actions {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .coupon-cover-actions .btn {
+          width: 100%;
+        }
+      }
+
       .category-board {
         position: relative;
         background: linear-gradient(125deg, rgba(255, 255, 255, 0.92) 0%, rgba(225, 233, 255, 0.86) 100%);
@@ -4397,6 +4861,10 @@
               <span class="nav-icon"><i class="fa-solid fa-house" aria-hidden="true"></i></span>
               <span>Explorar</span>
             </button>
+            <button type="button" data-target="coupons" data-nav="primary">
+              <span class="nav-icon"><i class="fa-solid fa-ticket" aria-hidden="true"></i></span>
+              <span>Cupones</span>
+            </button>
             <button type="button" data-target="my-items" data-nav="primary">
               <span class="nav-icon"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
               <span>Mis artículos</span>
@@ -4601,6 +5069,160 @@
             <div class="empty-state hidden" id="feed-empty">
               <h4>No encontramos resultados con los filtros seleccionados</h4>
               <p>Intenta ajustar los filtros o elimina alguno para ampliar la búsqueda.</p>
+            </div>
+          </section>
+
+        <section class="panel page-hidden coupon-panel" id="coupons" data-page-group="coupons">
+            <div class="section-header">
+              <div class="section-title">
+                <span class="section-icon"><i class="fa-solid fa-ticket"></i></span>
+                <div>
+                  <h3>Gestión de cupones inteligentes</h3>
+                  <p>Personaliza descuentos dinámicos y mantén campañas impecables para tus clientes.</p>
+                </div>
+              </div>
+              <div class="coupon-header-actions">
+                <button class="btn btn-outline" type="button" id="coupon-new">
+                  <i class="fa-solid fa-plus"></i>
+                  <span>Nuevo cupón</span>
+                </button>
+              </div>
+            </div>
+            <div class="coupon-management">
+              <div class="coupon-management__list">
+                <div class="coupon-list-header">
+                  <h4>Campañas activas</h4>
+                  <span class="coupon-counter-pill" id="coupon-counter">
+                    <i class="fa-solid fa-circle-notch" aria-hidden="true"></i>
+                    <span>0</span>
+                  </span>
+                </div>
+                <div class="coupon-list" id="coupon-list"></div>
+                <div class="coupon-empty hidden" id="coupon-empty">
+                  <h5>Sin cupones por ahora</h5>
+                  <p>Crea tu primer cupón para impulsar la conversión de tus campañas.</p>
+                  <button class="btn btn-primary" type="button" id="coupon-empty-create">Crear cupón</button>
+                </div>
+              </div>
+              <div class="coupon-management__editor">
+                <div class="coupon-editor-card">
+                  <div>
+                    <h4 id="coupon-editor-title">Crear nuevo cupón</h4>
+                    <p class="coupon-editor-subtitle" id="coupon-editor-subtitle">
+                      Define condiciones, personaliza la portada y sorprende a tu comunidad con beneficios únicos.
+                    </p>
+                  </div>
+                  <div class="coupon-cover-control">
+                    <div class="coupon-cover-preview" id="coupon-cover-preview">
+                      <span class="coupon-preview-status" id="coupon-preview-status">
+                        <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
+                        Activo
+                      </span>
+                      <div class="coupon-preview-discount">
+                        <span>Hasta</span>
+                        <strong id="coupon-preview-discount">0% OFF</strong>
+                        <small id="coupon-preview-name">Nuevo cupón</small>
+                      </div>
+                      <div class="coupon-preview-meta" id="coupon-preview-meta">
+                        <span>#CUPON</span>
+                        <span>Mínimo $0</span>
+                      </div>
+                    </div>
+                    <div class="coupon-cover-actions">
+                      <input type="file" id="coupon-cover" accept="image/*" class="visually-hidden" />
+                      <label for="coupon-cover" class="btn btn-outline" role="button" tabindex="0">
+                        <i class="fa-solid fa-image" aria-hidden="true"></i>
+                        <span>Subir portada</span>
+                      </label>
+                      <button type="button" class="btn btn-ghost" id="coupon-cover-remove">
+                        <i class="fa-solid fa-ban" aria-hidden="true"></i>
+                        <span>Quitar imagen</span>
+                      </button>
+                    </div>
+                  </div>
+                  <form class="coupon-form" id="coupon-form" novalidate>
+                    <div class="form-grid two-column">
+                      <label class="field">
+                        <span>Nombre interno</span>
+                        <input type="text" id="coupon-name" name="coupon-name" required placeholder="Campaña de bienvenida" />
+                      </label>
+                      <label class="field">
+                        <span>Código</span>
+                        <input type="text" id="coupon-code" name="coupon-code" required placeholder="CB-WELCOME" />
+                        <small>Se genera de forma automática para el cliente.</small>
+                      </label>
+                    </div>
+                    <div class="form-grid two-column">
+                      <label class="field">
+                        <span>Porcentaje de descuento</span>
+                        <input
+                          type="number"
+                          id="coupon-discount"
+                          name="coupon-discount"
+                          min="1"
+                          max="95"
+                          step="1"
+                          required
+                        />
+                      </label>
+                      <label class="field">
+                        <span>Tope mínimo de compra (COP)</span>
+                        <input
+                          type="number"
+                          id="coupon-min-purchase"
+                          name="coupon-min-purchase"
+                          min="0"
+                          step="1000"
+                          required
+                        />
+                      </label>
+                    </div>
+                    <div class="form-grid two-column">
+                      <label class="field">
+                        <span>Tope máximo de cupones</span>
+                        <input
+                          type="number"
+                          id="coupon-max-redemptions"
+                          name="coupon-max-redemptions"
+                          min="0"
+                          step="1"
+                        />
+                        <small>Deja en blanco para ilimitado.</small>
+                      </label>
+                      <label class="field">
+                        <span>Vigencia</span>
+                        <input type="date" id="coupon-valid-until" name="coupon-valid-until" />
+                        <small>Define fecha de expiración para automatizar la campaña.</small>
+                      </label>
+                    </div>
+                    <div class="form-grid two-column">
+                      <label class="field">
+                        <span>Estado</span>
+                        <select id="coupon-status" name="coupon-status" required>
+                          <option value="active">Activo</option>
+                          <option value="paused">Pausado</option>
+                        </select>
+                      </label>
+                      <label class="field">
+                        <span>Estilo visual</span>
+                        <select id="coupon-theme" name="coupon-theme" required></select>
+                      </label>
+                    </div>
+                    <label class="field">
+                      <span>Descripción para usuarios</span>
+                      <textarea
+                        id="coupon-description"
+                        name="coupon-description"
+                        placeholder="Describe beneficios, restricciones y tono de la campaña."
+                      ></textarea>
+                    </label>
+                    <div class="coupon-form-actions">
+                      <button type="button" class="btn btn-ghost" id="coupon-cancel">Cancelar</button>
+                      <button type="submit" class="btn btn-primary" id="coupon-submit">Guardar cambios</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -4916,6 +5538,10 @@
         <button type="button" data-target="feed-section" data-nav="primary" class="nav-item active">
           <span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
           <span class="nav-label">Explorar</span>
+        </button>
+        <button type="button" data-target="coupons" data-nav="primary" class="nav-item">
+          <span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-ticket"></i></span>
+          <span class="nav-label">Cupones</span>
         </button>
         <button type="button" data-target="my-items" data-nav="primary" class="nav-item">
           <span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-layer-group"></i></span>
@@ -5409,6 +6035,7 @@
 
       const STORAGE_KEYS = {
         user: "cambalaches.currentUser",
+        coupons: "cambalaches.coupons",
       };
 
       const storage = (() => {
@@ -6164,6 +6791,720 @@
 
       const formatCOP = (value) =>
         new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(value);
+
+      const couponThemes = [
+        {
+          id: "aurora",
+          label: "Aurora cálida",
+          gradient: "linear-gradient(135deg, #ff5f6d 0%, #ff3f5f 48%, #ffb270 100%)",
+        },
+        {
+          id: "emerald",
+          label: "Esmeralda digital",
+          gradient: "linear-gradient(135deg, #0ba360 0%, #2eb872 40%, #4ade80 100%)",
+        },
+        {
+          id: "midnight",
+          label: "Zafiro nocturno",
+          gradient: "linear-gradient(135deg, #1e3a8a 0%, #312e81 45%, #111827 100%)",
+        },
+        {
+          id: "citrus",
+          label: "Cítrico moderno",
+          gradient: "linear-gradient(135deg, #f9d423 0%, #ff4e50 100%)",
+        },
+        {
+          id: "plasma",
+          label: "Futuro neón",
+          gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 45%, #6b8dd6 100%)",
+        },
+      ];
+
+      const randomId = () =>
+        typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+          ? crypto.randomUUID()
+          : `coupon-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+
+      const normalizeCoupon = (coupon) => {
+        if (!coupon || typeof coupon !== "object") {
+          return null;
+        }
+
+        const theme = coupon.theme && couponThemes.some((item) => item.id === coupon.theme) ? coupon.theme : couponThemes[0].id;
+
+        const discountValue = Number.parseFloat(coupon.discount);
+        const discount = Number.isFinite(discountValue)
+          ? Math.max(1, Math.min(95, Math.round(discountValue)))
+          : 10;
+
+        const minPurchaseValue = Number.parseFloat(coupon.minPurchase);
+        const minPurchase = Number.isFinite(minPurchaseValue) ? Math.max(0, Math.round(minPurchaseValue)) : 0;
+
+        const maxRedemptionsValue = coupon.maxRedemptions === null || coupon.maxRedemptions === ""
+          ? null
+          : Number.parseInt(coupon.maxRedemptions, 10);
+        const maxRedemptions = Number.isFinite(maxRedemptionsValue) && maxRedemptionsValue > 0
+          ? Math.min(5000, Math.round(maxRedemptionsValue))
+          : null;
+
+        const usageValue = Number.parseInt(coupon.usageCount, 10);
+        const usageCount = Number.isFinite(usageValue) && usageValue > 0 ? Math.max(0, usageValue) : 0;
+        const safeUsage = maxRedemptions ? Math.min(maxRedemptions, usageCount) : usageCount;
+
+        const rawStatus = coupon.status === "paused" ? "paused" : "active";
+
+        const sanitizedCode = (coupon.code || "CUPON")
+          .toString()
+          .trim()
+          .toUpperCase()
+          .replace(/[^A-Z0-9_-]/g, "");
+
+        return {
+          id: coupon.id || randomId(),
+          name: (coupon.name || "Cupón sin nombre").toString().trim(),
+          code: sanitizedCode || "CUPON",
+          discount,
+          minPurchase,
+          maxRedemptions,
+          usageCount: safeUsage,
+          theme,
+          cover: coupon.cover || "",
+          status: rawStatus,
+          description: (coupon.description || "").toString().trim(),
+          validUntil: coupon.validUntil || "",
+        };
+      };
+
+      const rawDefaultCoupons = [
+        {
+          id: "cpn-bienvenida",
+          name: "Bienvenida Premium",
+          code: "CB-BIENVENIDA25",
+          discount: 25,
+          minPurchase: 150000,
+          maxRedemptions: 500,
+          usageCount: 138,
+          theme: "aurora",
+          cover: "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80",
+          status: "active",
+          description: "Descuento de bienvenida para los primeros canjes verificados en la plataforma.",
+          validUntil: "2024-12-31T23:59:59.000Z",
+        },
+        {
+          id: "cpn-logistica",
+          name: "Logística Express",
+          code: "CB-ENVIO40",
+          discount: 40,
+          minPurchase: 250000,
+          maxRedemptions: 150,
+          usageCount: 42,
+          theme: "emerald",
+          cover: "https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=1200&q=80",
+          status: "active",
+          description: "Acelera la primera entrega de tus clientes con envíos subsidiados y seguimiento premium.",
+          validUntil: "2024-09-30T23:59:59.000Z",
+        },
+        {
+          id: "cpn-fidelidad",
+          name: "Fidelidad Estelar",
+          code: "CB-STARS15",
+          discount: 15,
+          minPurchase: 90000,
+          maxRedemptions: null,
+          usageCount: 218,
+          theme: "midnight",
+          cover: "",
+          status: "paused",
+          description: "Premia a usuarios recurrentes con un descuento escalable según su reputación.",
+          validUntil: "",
+        },
+      ];
+
+      const couponElements = {
+        list: $("#coupon-list"),
+        empty: $("#coupon-empty"),
+        counter: $("#coupon-counter"),
+        form: $("#coupon-form"),
+        coverInput: $("#coupon-cover"),
+        coverRemove: $("#coupon-cover-remove"),
+        preview: $("#coupon-cover-preview"),
+        previewStatus: $("#coupon-preview-status"),
+        previewDiscount: $("#coupon-preview-discount"),
+        previewName: $("#coupon-preview-name"),
+        previewMeta: $("#coupon-preview-meta"),
+        themeSelect: $("#coupon-theme"),
+        statusSelect: $("#coupon-status"),
+        nameInput: $("#coupon-name"),
+        codeInput: $("#coupon-code"),
+        discountInput: $("#coupon-discount"),
+        minPurchaseInput: $("#coupon-min-purchase"),
+        maxRedemptionsInput: $("#coupon-max-redemptions"),
+        validUntilInput: $("#coupon-valid-until"),
+        descriptionInput: $("#coupon-description"),
+        submitButton: $("#coupon-submit"),
+        cancelButton: $("#coupon-cancel"),
+        newButton: $("#coupon-new"),
+        emptyCreateButton: $("#coupon-empty-create"),
+        editorTitle: $("#coupon-editor-title"),
+        editorSubtitle: $("#coupon-editor-subtitle"),
+      };
+
+      if (couponElements.themeSelect) {
+        couponElements.themeSelect.innerHTML = couponThemes
+          .map((theme) => `<option value="${theme.id}">${theme.label}</option>`)
+          .join("");
+      }
+
+      const defaultCoupons = rawDefaultCoupons
+        .map((coupon) => normalizeCoupon(coupon))
+        .filter((coupon) => coupon !== null);
+
+      const loadStoredCoupons = () => {
+        if (!storage) {
+          return [];
+        }
+        try {
+          const raw = storage.getItem(STORAGE_KEYS.coupons);
+          if (!raw) {
+            return [];
+          }
+          const parsed = JSON.parse(raw);
+          if (!Array.isArray(parsed)) {
+            return [];
+          }
+          return parsed
+            .map((item) => normalizeCoupon(item))
+            .filter((item) => item !== null);
+        } catch (error) {
+          console.warn("No se pudo recuperar la configuración de cupones", error);
+          return [];
+        }
+      };
+
+      const persistCoupons = () => {
+        if (!storage) {
+          return;
+        }
+        try {
+          storage.setItem(STORAGE_KEYS.coupons, JSON.stringify(coupons));
+        } catch (error) {
+          console.warn("No se pudieron guardar los cupones", error);
+        }
+      };
+
+      let coupons = loadStoredCoupons();
+      if (!coupons.length) {
+        coupons = defaultCoupons.slice();
+      }
+
+      let editingCouponId = coupons.length ? coupons[0].id : null;
+      let couponCoverDraft = null;
+
+      const getThemeById = (id) => couponThemes.find((theme) => theme.id === id) || couponThemes[0];
+
+      const toDateInputValue = (value) => {
+        if (!value) {
+          return "";
+        }
+        const date = value instanceof Date ? value : new Date(value);
+        if (Number.isNaN(date.getTime())) {
+          return "";
+        }
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+      };
+
+      const formatCouponDate = (isoString, { prefix = "Vigente hasta" } = {}) => {
+        if (!isoString) {
+          return "Sin caducidad definida";
+        }
+        try {
+          const date = new Date(isoString);
+          if (Number.isNaN(date.getTime())) {
+            return "Sin caducidad definida";
+          }
+          const formatted = date.toLocaleDateString("es-CO", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          });
+          return `${prefix} ${formatted}`;
+        } catch (error) {
+          return "Sin caducidad definida";
+        }
+      };
+
+      const ensureEditingCoupon = () => {
+        if (!coupons.length) {
+          editingCouponId = null;
+          return null;
+        }
+        if (!editingCouponId || !coupons.some((coupon) => coupon.id === editingCouponId)) {
+          editingCouponId = coupons[0].id;
+        }
+        return coupons.find((coupon) => coupon.id === editingCouponId) || null;
+      };
+
+      const updateCouponCounter = () => {
+        if (!couponElements.counter) {
+          return;
+        }
+        const total = coupons.length;
+        const active = coupons.filter((coupon) => coupon.status === "active").length;
+        couponElements.counter.innerHTML = `
+          <i class="fa-solid fa-circle-notch" aria-hidden="true"></i>
+          <span>${active} activos · ${total} en total</span>
+        `;
+      };
+
+      const getCouponFormState = () => {
+        if (!couponElements.form) {
+          return {};
+        }
+        const formData = new FormData(couponElements.form);
+        const discount = Number.parseFloat(formData.get("coupon-discount"));
+        const minPurchase = Number.parseFloat(formData.get("coupon-min-purchase"));
+        const maxRaw = formData.get("coupon-max-redemptions");
+        const maxRedemptions = maxRaw === "" || maxRaw === null ? null : Number.parseInt(maxRaw, 10);
+        const dateRaw = formData.get("coupon-valid-until");
+        const validUntil = dateRaw ? new Date(`${dateRaw}T23:59:59`).toISOString() : "";
+
+        return {
+          id: couponElements.form.dataset.id || null,
+          name: (formData.get("coupon-name") || "").toString().trim(),
+          code: (formData.get("coupon-code") || "").toString().trim().toUpperCase().replace(/[^A-Z0-9_-]/g, ""),
+          discount: Number.isFinite(discount) ? discount : 0,
+          minPurchase: Number.isFinite(minPurchase) ? minPurchase : 0,
+          maxRedemptions: Number.isFinite(maxRedemptions) && maxRedemptions > 0 ? maxRedemptions : null,
+          validUntil,
+          description: (formData.get("coupon-description") || "").toString().trim(),
+          status: formData.get("coupon-status") === "paused" ? "paused" : "active",
+          theme: formData.get("coupon-theme") || couponThemes[0].id,
+          cover: couponCoverDraft,
+        };
+      };
+
+      const updateCouponPreview = (state = {}) => {
+        if (!couponElements.preview) {
+          return;
+        }
+        const merged = {
+          name: state.name || "Nuevo cupón",
+          code: state.code || "#CUPON",
+          discount: Number.isFinite(state.discount) ? Math.max(0, Math.round(state.discount)) : 0,
+          minPurchase: Number.isFinite(state.minPurchase) ? Math.max(0, Math.round(state.minPurchase)) : 0,
+          validUntil: state.validUntil || "",
+          status: state.status === "paused" ? "paused" : "active",
+          theme: state.theme,
+          cover: state.cover,
+        };
+
+        const theme = getThemeById(merged.theme);
+        couponElements.preview.style.setProperty("--coupon-preview-gradient", theme.gradient);
+        if (merged.cover) {
+          couponElements.preview.style.setProperty("--coupon-preview-cover", `url("${merged.cover}")`);
+        } else {
+          couponElements.preview.style.setProperty("--coupon-preview-cover", "none");
+        }
+
+        if (couponElements.previewStatus) {
+          const isActive = merged.status === "active";
+          couponElements.previewStatus.classList.toggle("is-paused", !isActive);
+          couponElements.previewStatus.innerHTML = `
+            <i class="fa-solid ${isActive ? "fa-circle-check" : "fa-circle-pause"}" aria-hidden="true"></i>
+            <span>${isActive ? "Activo" : "Pausado"}</span>
+          `;
+        }
+
+        if (couponElements.previewDiscount) {
+          couponElements.previewDiscount.textContent = `${merged.discount}% OFF`;
+        }
+
+        if (couponElements.previewName) {
+          couponElements.previewName.textContent = merged.name;
+        }
+
+        if (couponElements.previewMeta) {
+          const metaParts = [merged.code, merged.minPurchase > 0 ? `Mínimo ${formatCOP(merged.minPurchase)}` : "Sin mínimo"];
+          if (merged.validUntil) {
+            metaParts.push(formatCouponDate(merged.validUntil, { prefix: "Hasta" }));
+          }
+          couponElements.previewMeta.innerHTML = metaParts
+            .map((part) => `<span>${part}</span>`)
+            .join("");
+        }
+      };
+
+      const updateCouponPreviewFromForm = () => {
+        const state = getCouponFormState();
+        updateCouponPreview(state);
+      };
+
+      const renderCouponForm = (coupon = null, { focus = false } = {}) => {
+        if (!couponElements.form) {
+          return;
+        }
+
+        const normalized = coupon ? normalizeCoupon(coupon) : null;
+        couponElements.form.dataset.mode = normalized ? "edit" : "create";
+        couponElements.form.dataset.id = normalized ? normalized.id : "";
+
+        if (couponElements.nameInput) {
+          couponElements.nameInput.value = normalized ? normalized.name : "";
+        }
+        if (couponElements.codeInput) {
+          couponElements.codeInput.value = normalized ? normalized.code : "";
+        }
+        if (couponElements.discountInput) {
+          couponElements.discountInput.value = normalized ? normalized.discount : 10;
+        }
+        if (couponElements.minPurchaseInput) {
+          couponElements.minPurchaseInput.value = normalized ? normalized.minPurchase : 0;
+        }
+        if (couponElements.maxRedemptionsInput) {
+          couponElements.maxRedemptionsInput.value = normalized && normalized.maxRedemptions ? normalized.maxRedemptions : "";
+        }
+        if (couponElements.validUntilInput) {
+          couponElements.validUntilInput.value = normalized ? toDateInputValue(normalized.validUntil) : "";
+        }
+        if (couponElements.descriptionInput) {
+          couponElements.descriptionInput.value = normalized ? normalized.description : "";
+        }
+        if (couponElements.statusSelect) {
+          couponElements.statusSelect.value = normalized ? normalized.status : "active";
+        }
+        if (couponElements.themeSelect) {
+          const themeId = normalized ? normalized.theme : couponThemes[0].id;
+          couponElements.themeSelect.value = themeId;
+        }
+
+        couponCoverDraft = normalized ? normalized.cover : null;
+
+        if (couponElements.editorTitle) {
+          couponElements.editorTitle.textContent = normalized ? "Editar cupón" : "Crear nuevo cupón";
+        }
+
+        if (couponElements.editorSubtitle) {
+          couponElements.editorSubtitle.textContent = normalized
+            ? `Actualiza beneficios, vigencia y estilo visual de ${normalized.name}.`
+            : "Define condiciones, personaliza la portada y sorprende a tu comunidad con beneficios únicos.";
+        }
+
+        if (couponElements.submitButton) {
+          couponElements.submitButton.textContent = normalized ? "Guardar cambios" : "Crear cupón";
+        }
+
+        if (couponElements.cancelButton) {
+          couponElements.cancelButton.textContent = normalized ? "Cancelar" : "Limpiar";
+        }
+
+        updateCouponPreviewFromForm();
+
+        if (focus && couponElements.nameInput) {
+          couponElements.nameInput.focus();
+        }
+      };
+
+      const renderCouponList = () => {
+        if (!couponElements.list) {
+          return;
+        }
+
+        couponElements.list.innerHTML = "";
+
+        if (!coupons.length) {
+          couponElements.list.classList.add("hidden");
+          if (couponElements.empty) {
+            couponElements.empty.classList.remove("hidden");
+          }
+        } else {
+          couponElements.list.classList.remove("hidden");
+          if (couponElements.empty) {
+            couponElements.empty.classList.add("hidden");
+          }
+        }
+
+        coupons.forEach((coupon) => {
+          const card = document.createElement("article");
+          card.className = "coupon-card";
+          card.dataset.id = coupon.id;
+          card.dataset.status = coupon.status;
+          if (coupon.id === editingCouponId) {
+            card.classList.add("is-selected");
+          }
+
+          const hasLimit = Number.isFinite(coupon.maxRedemptions);
+          const usage = Number.isFinite(coupon.usageCount) ? coupon.usageCount : 0;
+          const remaining = hasLimit ? Math.max(0, coupon.maxRedemptions - usage) : null;
+          const progress = hasLimit && coupon.maxRedemptions > 0
+            ? Math.min(100, Math.round((usage / coupon.maxRedemptions) * 100))
+            : 0;
+
+          const coverTheme = getThemeById(coupon.theme);
+          const availabilityText = hasLimit
+            ? `${remaining} de ${coupon.maxRedemptions} disponibles`
+            : "Sin límite de canjes";
+          const validityText = formatCouponDate(coupon.validUntil);
+          const limitText = hasLimit ? `${coupon.maxRedemptions} canjes máx.` : "Canjes ilimitados";
+
+          card.innerHTML = `
+            <div class="coupon-card__cover">
+              <div class="coupon-card__top-row">
+                <span class="coupon-card__status-badge">
+                  <i class="fa-solid ${coupon.status === "active" ? "fa-circle-check" : "fa-circle-pause"}" aria-hidden="true"></i>
+                  ${coupon.status === "active" ? "Activo" : "Pausado"}
+                </span>
+                <button type="button" class="coupon-card__delete" data-action="delete" title="Eliminar ${coupon.name}">
+                  <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="coupon-card__discount">
+                <span>Hasta</span>
+                <strong>${coupon.discount}% OFF</strong>
+                <small>${coupon.name}</small>
+              </div>
+            </div>
+            <div class="coupon-card__body">
+              <div class="coupon-card__meta">
+                <span class="coupon-card__code">${coupon.code}</span>
+                <span class="coupon-card__availability">${availabilityText}</span>
+              </div>
+              <p class="coupon-card__description">${
+                coupon.description || "Añade una descripción inspiradora para tus compradores."
+              }</p>
+              <div class="coupon-card__stats">
+                <span><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>Mínimo ${formatCOP(coupon.minPurchase)}</span>
+                <span><i class="fa-solid fa-users" aria-hidden="true"></i>${limitText}</span>
+                <span><i class="fa-solid fa-calendar-day" aria-hidden="true"></i>${validityText}</span>
+              </div>
+              ${
+                hasLimit
+                  ? `<div class="coupon-card__progress">
+                      <div class="coupon-card__progress-track">
+                        <div class="coupon-card__progress-bar" style="width: ${progress}%"></div>
+                      </div>
+                      <small class="coupon-card__availability">${usage} canjes usados · ${remaining} disponibles</small>
+                    </div>`
+                  : `<div class="coupon-card__availability">Sin límite de canjes registrados</div>`
+              }
+              <div class="coupon-card__footer">
+                <button type="button" class="btn btn-outline" data-action="edit">
+                  <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+                  <span>Gestionar</span>
+                </button>
+                <button type="button" class="btn btn-ghost" data-action="toggle">
+                  <i class="fa-solid ${coupon.status === "active" ? "fa-circle-pause" : "fa-circle-play"}" aria-hidden="true"></i>
+                  <span>${coupon.status === "active" ? "Pausar" : "Reactivar"}</span>
+                </button>
+              </div>
+            </div>
+          `;
+
+          const coverEl = card.querySelector(".coupon-card__cover");
+          if (coverEl) {
+            coverEl.style.setProperty("--coupon-gradient", coverTheme.gradient);
+            if (coupon.cover) {
+              coverEl.style.setProperty("--coupon-cover-image", `url("${coupon.cover}")`);
+            } else {
+              coverEl.style.setProperty("--coupon-cover-image", "none");
+            }
+          }
+
+          const handleSelect = () => {
+            if (editingCouponId !== coupon.id) {
+              editingCouponId = coupon.id;
+              renderCouponForm(coupon);
+              renderCouponList();
+            }
+          };
+
+          card.addEventListener("click", (event) => {
+            const actionButton = event.target.closest("[data-action]");
+            if (actionButton) {
+              return;
+            }
+            handleSelect();
+          });
+
+          const editBtn = card.querySelector('[data-action="edit"]');
+          if (editBtn) {
+            editBtn.addEventListener("click", (event) => {
+              event.stopPropagation();
+              editingCouponId = coupon.id;
+              renderCouponForm(coupon, { focus: true });
+              renderCouponList();
+            });
+          }
+
+          const deleteBtn = card.querySelector('[data-action="delete"]');
+          if (deleteBtn) {
+            deleteBtn.addEventListener("click", (event) => {
+              event.stopPropagation();
+              handleCouponDelete(coupon.id);
+            });
+          }
+
+          const toggleBtn = card.querySelector('[data-action="toggle"]');
+          if (toggleBtn) {
+            toggleBtn.addEventListener("click", (event) => {
+              event.stopPropagation();
+              handleCouponToggle(coupon.id);
+            });
+          }
+
+          couponElements.list.appendChild(card);
+        });
+
+        updateCouponCounter();
+      };
+
+      const renderCoupons = () => {
+        const activeCoupon = ensureEditingCoupon();
+        renderCouponForm(activeCoupon);
+        renderCouponList();
+      };
+
+      const handleCouponCoverChange = (event) => {
+        const file = event.target.files && event.target.files[0];
+        if (!file) {
+          return;
+        }
+        if (!file.type.startsWith("image/")) {
+          showToast("Selecciona un archivo de imagen válido.", "danger");
+          event.target.value = "";
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          couponCoverDraft = reader.result;
+          updateCouponPreviewFromForm();
+          showToast("Portada actualizada.", "success");
+        };
+        reader.onerror = () => {
+          showToast("No pudimos procesar la imagen seleccionada.", "danger");
+        };
+        reader.readAsDataURL(file);
+      };
+
+      const handleCouponCoverRemove = () => {
+        if (!couponCoverDraft) {
+          return;
+        }
+        couponCoverDraft = null;
+        if (couponElements.coverInput) {
+          couponElements.coverInput.value = "";
+        }
+        updateCouponPreviewFromForm();
+        showToast("Imagen retirada del cupón.", "info");
+      };
+
+      const handleCouponSubmit = (event) => {
+        event.preventDefault();
+        const state = getCouponFormState();
+
+        if (!state.name || !state.code) {
+          showToast("Completa el nombre interno y el código del cupón.", "danger");
+          return;
+        }
+
+        if (state.discount < 1 || state.discount > 95) {
+          showToast("Define un porcentaje entre 1% y 95%.", "danger");
+          return;
+        }
+
+        const isEdit = couponElements.form.dataset.mode === "edit" && state.id;
+
+        if (isEdit) {
+          const index = coupons.findIndex((coupon) => coupon.id === state.id);
+          if (index === -1) {
+            showToast("No encontramos el cupón que deseas actualizar.", "danger");
+            return;
+          }
+          const updated = normalizeCoupon({ ...coupons[index], ...state, usageCount: coupons[index].usageCount });
+          coupons.splice(index, 1, updated);
+          editingCouponId = updated.id;
+          couponCoverDraft = updated.cover;
+          showToast("Cupón actualizado correctamente.", "success");
+        } else {
+          const created = normalizeCoupon({ ...state, id: randomId(), usageCount: 0 });
+          coupons = [created, ...coupons];
+          editingCouponId = created.id;
+          couponCoverDraft = created.cover;
+          showToast(
+            created.status === "active"
+              ? "Nuevo cupón creado y disponible para los usuarios."
+              : "Cupón creado en estado pausado.",
+            created.status === "active" ? "success" : "info"
+          );
+        }
+
+        persistCoupons();
+        renderCoupons();
+      };
+
+      const handleCouponDelete = (id) => {
+        const coupon = coupons.find((item) => item.id === id);
+        if (!coupon) {
+          showToast("No encontramos el cupón seleccionado.", "danger");
+          return;
+        }
+        if (!confirm(`¿Eliminar el cupón "${coupon.name}"?`)) {
+          return;
+        }
+        coupons = coupons.filter((item) => item.id !== id);
+        if (editingCouponId === id) {
+          editingCouponId = coupons.length ? coupons[0].id : null;
+        }
+        couponCoverDraft = null;
+        persistCoupons();
+        renderCoupons();
+        showToast("Cupón eliminado correctamente.", "info");
+      };
+
+      const handleCouponToggle = (id) => {
+        const coupon = coupons.find((item) => item.id === id);
+        if (!coupon) {
+          showToast("No encontramos el cupón seleccionado.", "danger");
+          return;
+        }
+        const nextStatus = coupon.status === "active" ? "paused" : "active";
+        coupons = coupons.map((item) =>
+          item.id === id
+            ? { ...item, status: nextStatus }
+            : item
+        );
+        if (editingCouponId === id) {
+          const current = coupons.find((item) => item.id === id);
+          renderCouponForm(current);
+        }
+        persistCoupons();
+        renderCouponList();
+        showToast(
+          nextStatus === "active" ? "Cupón reactivado correctamente." : "Cupón pausado. Ya no estará visible para los usuarios.",
+          nextStatus === "active" ? "success" : "info"
+        );
+      };
+
+      const handleCouponNew = () => {
+        editingCouponId = null;
+        couponCoverDraft = null;
+        renderCouponForm(null, { focus: true });
+        renderCouponList();
+      };
+
+      const handleCouponCancel = () => {
+        const current = ensureEditingCoupon();
+        couponCoverDraft = current ? current.cover : null;
+        renderCouponForm(current);
+      };
+
+      const handleCouponFormInput = (event) => {
+        if (event && event.target === couponElements.codeInput) {
+          const rawValue = event.target.value || "";
+          event.target.value = rawValue.toUpperCase().replace(/[^A-Z0-9_-]/g, "");
+        }
+        updateCouponPreviewFromForm();
+      };
 
       const formatViews = (value = 0) => {
         const number = Number.isFinite(Number(value)) ? Number(value) : 0;
@@ -8745,6 +10086,7 @@
         renderBannerSlider();
         renderMostViewed();
         renderFeed();
+        renderCoupons();
         renderMyItems();
         renderOffers();
         renderAgreements();
@@ -8824,6 +10166,17 @@
         on("#profile-edit", "click", startProfileEdit);
         on("#profile-cancel", "click", cancelProfileEdit);
         on("#profile-logout", "click", () => logout());
+        on("#coupon-form", "submit", handleCouponSubmit);
+        on("#coupon-cover", "change", handleCouponCoverChange);
+        on("#coupon-cover-remove", "click", handleCouponCoverRemove);
+        on("#coupon-new", "click", handleCouponNew);
+        on("#coupon-empty-create", "click", handleCouponNew);
+        on("#coupon-cancel", "click", handleCouponCancel);
+
+        if (couponElements.form) {
+          couponElements.form.addEventListener("input", handleCouponFormInput);
+          couponElements.form.addEventListener("change", handleCouponFormInput);
+        }
         on("#nav-avatar", "click", () => {
           profileMode = state.currentUser ? "view" : "create";
           switchToPage("profile");
