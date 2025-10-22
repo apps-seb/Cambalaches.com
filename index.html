@@ -436,6 +436,11 @@
         gap: clamp(1rem, 2vw, 1.6rem);
       }
 
+      .profile-form {
+        display: grid;
+        gap: clamp(1.4rem, 3vw, 2rem);
+      }
+
       .profile-form-heading {
         display: grid;
         gap: 0.5rem;
@@ -452,6 +457,121 @@
         color: var(--muted);
         font-size: 0.95rem;
         line-height: 1.55;
+      }
+
+      .profile-form-layout {
+        display: grid;
+        gap: clamp(1.2rem, 3vw, 2rem);
+      }
+
+      .profile-progress {
+        display: grid;
+        gap: 0.85rem;
+        padding: clamp(1rem, 2vw, 1.25rem);
+        border-radius: var(--radius-lg);
+        border: 1px solid rgba(76, 81, 255, 0.15);
+        background: linear-gradient(160deg, rgba(76, 81, 255, 0.12), rgba(0, 184, 148, 0.1));
+      }
+
+      .profile-progress-step {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.75rem;
+        align-items: center;
+        padding: 0.6rem 0.75rem;
+        border-radius: var(--radius-md);
+        background: rgba(255, 255, 255, 0.65);
+        border: 1px solid transparent;
+        transition: transform var(--transition), border var(--transition), box-shadow var(--transition);
+      }
+
+      .profile-progress-step.is-active {
+        border-color: rgba(76, 81, 255, 0.45);
+        box-shadow: 0 18px 42px -28px rgba(76, 81, 255, 0.65);
+        transform: translateY(-2px);
+      }
+
+      .profile-progress-index {
+        width: 34px;
+        height: 34px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+        color: var(--primary-700);
+        background: rgba(76, 81, 255, 0.18);
+      }
+
+      .profile-progress-copy {
+        display: grid;
+        gap: 0.15rem;
+      }
+
+      .profile-progress-title {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--muted-dark);
+      }
+
+      .profile-progress-meta {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.8rem;
+        line-height: 1.5;
+      }
+
+      .profile-form-body {
+        display: grid;
+        gap: clamp(1.2rem, 2.5vw, 1.8rem);
+      }
+
+      .profile-section {
+        display: grid;
+        gap: clamp(0.9rem, 2vw, 1.2rem);
+        padding: clamp(1rem, 2.4vw, 1.4rem);
+        border-radius: var(--radius-lg);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 26px 60px -48px rgba(15, 23, 42, 0.2);
+      }
+
+      .profile-section-header {
+        display: grid;
+        gap: 0.45rem;
+      }
+
+      .profile-section-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.2rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--primary-700);
+        background: rgba(76, 81, 255, 0.15);
+      }
+
+      .profile-section h5 {
+        margin: 0;
+        font-size: 1.05rem;
+        color: var(--muted-dark);
+      }
+
+      .profile-section p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.88rem;
+        line-height: 1.55;
+      }
+
+      .profile-section-grid {
+        display: grid;
+        gap: clamp(0.85rem, 2vw, 1.2rem);
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       }
 
       .profile-form-actions {
@@ -497,14 +617,20 @@
       }
 
       .profile-summary-header {
-        display: flex;
-        align-items: center;
+        display: grid;
+        grid-template-columns: auto 1fr;
         gap: 1rem;
+        align-items: center;
       }
 
       .profile-summary-header .profile-photo-preview {
         width: 100px;
         height: 100px;
+      }
+
+      .profile-summary-heading {
+        display: grid;
+        gap: 0.35rem;
       }
 
       .profile-summary-header h3 {
@@ -518,34 +644,106 @@
         font-size: 0.92rem;
       }
 
-      .profile-summary-list {
+      .profile-summary-body {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 1rem;
+        gap: clamp(1rem, 2.4vw, 1.4rem);
       }
 
-      .profile-summary-list div {
-        background: rgba(15, 23, 42, 0.03);
-        border: 1px solid rgba(15, 23, 42, 0.08);
+      .profile-summary-grid {
+        display: grid;
+        gap: clamp(0.85rem, 2vw, 1.2rem);
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+
+      .profile-summary-item {
         border-radius: var(--radius-md);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        background: rgba(248, 250, 255, 0.82);
         padding: 0.9rem 1rem;
         display: grid;
         gap: 0.35rem;
       }
 
-      .profile-summary-list dt {
-        margin: 0;
-        font-size: 0.8rem;
+      .profile-summary-label {
+        font-size: 0.78rem;
         letter-spacing: 0.08em;
         text-transform: uppercase;
         color: rgba(15, 23, 42, 0.55);
+        font-weight: 600;
       }
 
-      .profile-summary-list dd {
-        margin: 0;
-        font-size: 0.96rem;
+      .profile-summary-value {
+        font-size: 0.98rem;
         color: var(--muted-dark);
+        font-weight: 500;
         word-break: break-word;
+      }
+
+      .profile-summary-bio {
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        background: rgba(255, 255, 255, 0.86);
+        padding: 1rem 1.1rem;
+        display: grid;
+        gap: 0.45rem;
+      }
+
+      .profile-summary-bio strong {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: rgba(15, 23, 42, 0.6);
+      }
+
+      .profile-summary-bio p {
+        margin: 0;
+        font-size: 0.95rem;
+        color: var(--muted-dark);
+        line-height: 1.6;
+      }
+
+      @media (min-width: 960px) {
+        .profile-form-layout {
+          grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
+          align-items: start;
+        }
+
+        .profile-progress {
+          position: sticky;
+          top: calc(var(--header-height) + 1.5rem);
+        }
+      }
+
+      @media (max-width: 720px) {
+        .profile-progress {
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
+
+        .profile-progress-step {
+          grid-template-columns: 1fr;
+          text-align: center;
+        }
+
+        .profile-progress-copy {
+          justify-items: center;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .profile-photo-upload {
+          grid-template-columns: 1fr;
+          justify-items: center;
+          text-align: center;
+        }
+
+        .profile-photo-preview {
+          width: 96px;
+          height: 96px;
+        }
+
+        .profile-form-actions {
+          justify-content: center;
+        }
       }
 
       .profile-summary-footer {
@@ -3422,6 +3620,10 @@
         gap: 0.45rem;
       }
 
+      .field.full-width {
+        grid-column: 1 / -1;
+      }
+
       .field > span {
         font-size: 0.82rem;
         font-weight: 600;
@@ -4107,44 +4309,178 @@
                 </p>
               </div>
               <form id="profile-form" class="profile-form" novalidate>
-                <div class="form-grid two-column">
-                  <label class="field">
-                    <span>Nombre completo</span>
-                    <input type="text" id="profile-name" name="profile-name" placeholder="Tu nombre" required />
-                  </label>
-                  <label class="field">
-                    <span>Correo electrónico</span>
-                    <input type="email" id="profile-email" name="profile-email" placeholder="nombre@correo.com" required />
-                  </label>
-                  <label class="field">
-                    <span>Teléfono verificado</span>
-                    <input type="tel" id="profile-phone" name="profile-phone" placeholder="300 000 0000" required />
-                  </label>
-                  <label class="field">
-                    <span>Ciudad y país</span>
-                    <input type="text" id="profile-location" name="profile-location" placeholder="Bogotá, Colombia" required />
-                  </label>
-                </div>
-                <label class="field">
-                  <span>Biografía corta</span>
-                  <textarea
-                    id="profile-bio"
-                    name="profile-bio"
-                    rows="4"
-                    placeholder="Describe tu experiencia intercambiando y qué ofreces a la comunidad"
-                  ></textarea>
-                </label>
-                <div class="profile-photo-field">
-                  <span>Foto de perfil</span>
-                  <div class="profile-photo-upload">
-                    <div class="profile-photo-preview" id="profile-photo-preview">
-                      <i class="fa-regular fa-user" aria-hidden="true"></i>
+                <div class="profile-form-layout">
+                  <aside class="profile-progress" aria-label="Progreso del registro">
+                    <div class="profile-progress-step is-active">
+                      <span class="profile-progress-index">1</span>
+                      <div class="profile-progress-copy">
+                        <p class="profile-progress-title">Identidad segura</p>
+                        <p class="profile-progress-meta">Verifica tu nombre y correo de confianza.</p>
+                      </div>
                     </div>
-                    <label class="field" style="margin: 0">
-                      <span>Sube una imagen reciente</span>
-                      <small>Formatos JPG o PNG hasta 5 MB.</small>
-                      <input type="file" id="profile-photo" name="profile-photo" accept="image/*" />
-                    </label>
+                    <div class="profile-progress-step">
+                      <span class="profile-progress-index">2</span>
+                      <div class="profile-progress-copy">
+                        <p class="profile-progress-title">Contacto visible</p>
+                        <p class="profile-progress-meta">Comparte tu teléfono y tu presentación.</p>
+                      </div>
+                    </div>
+                    <div class="profile-progress-step">
+                      <span class="profile-progress-index">3</span>
+                      <div class="profile-progress-copy">
+                        <p class="profile-progress-title">Ubicación estratégica</p>
+                        <p class="profile-progress-meta">Selecciona tu departamento y municipio.</p>
+                      </div>
+                    </div>
+                  </aside>
+                  <div class="profile-form-body">
+                    <section class="profile-section" aria-labelledby="profile-step-identity">
+                      <div class="profile-section-header">
+                        <span class="profile-section-badge">Paso 1</span>
+                        <div>
+                          <h5 id="profile-step-identity">Identidad del perfil</h5>
+                          <p>Es la información que verán otros usuarios antes de aceptar un canje.</p>
+                        </div>
+                      </div>
+                      <div class="profile-section-grid">
+                        <label class="field">
+                          <span>Nombre completo</span>
+                          <input type="text" id="profile-name" name="profile-name" placeholder="Tu nombre" required />
+                        </label>
+                        <label class="field">
+                          <span>Correo electrónico</span>
+                          <input
+                            type="email"
+                            id="profile-email"
+                            name="profile-email"
+                            placeholder="nombre@correo.com"
+                            required
+                          />
+                        </label>
+                      </div>
+                    </section>
+                    <section class="profile-section" aria-labelledby="profile-step-contacto">
+                      <div class="profile-section-header">
+                        <span class="profile-section-badge">Paso 2</span>
+                        <div>
+                          <h5 id="profile-step-contacto">Contacto y reputación</h5>
+                          <p>Refuerza tu confiabilidad con datos verificables y una breve presentación.</p>
+                        </div>
+                      </div>
+                      <div class="profile-section-grid">
+                        <label class="field">
+                          <span>Teléfono verificado</span>
+                          <input type="tel" id="profile-phone" name="profile-phone" placeholder="300 000 0000" required />
+                        </label>
+                        <label class="field full-width">
+                          <span>Biografía corta</span>
+                          <textarea
+                            id="profile-bio"
+                            name="profile-bio"
+                            rows="4"
+                            placeholder="Describe tu experiencia intercambiando y qué ofreces a la comunidad"
+                          ></textarea>
+                        </label>
+                      </div>
+                      <div class="profile-photo-field">
+                        <span>Foto de perfil</span>
+                        <div class="profile-photo-upload">
+                          <div class="profile-photo-preview" id="profile-photo-preview">
+                            <i class="fa-regular fa-user" aria-hidden="true"></i>
+                          </div>
+                          <label class="field" style="margin: 0">
+                            <span>Sube una imagen reciente</span>
+                            <small>Formatos JPG o PNG hasta 5 MB.</small>
+                            <input type="file" id="profile-photo" name="profile-photo" accept="image/*" />
+                          </label>
+                        </div>
+                      </div>
+                    </section>
+                    <section class="profile-section" aria-labelledby="profile-step-ubicacion">
+                      <div class="profile-section-header">
+                        <span class="profile-section-badge">Paso 3</span>
+                        <div>
+                          <h5 id="profile-step-ubicacion">Ubicación principal</h5>
+                          <p>Prioriza coincidencias cercanas seleccionando tu departamento del Cauca y municipio clave.</p>
+                        </div>
+                      </div>
+                      <div class="profile-section-grid">
+                        <label class="field">
+                          <span>Departamento (Cauca)</span>
+                          <select id="profile-department" name="profile-department" required>
+                            <option value="">Selecciona un departamento</option>
+                            <option value="Almaguer">Almaguer</option>
+                            <option value="Argelia">Argelia</option>
+                            <option value="Balboa">Balboa</option>
+                            <option value="Bolívar">Bolívar</option>
+                            <option value="Buenos Aires">Buenos Aires</option>
+                            <option value="Cajibío">Cajibío</option>
+                            <option value="Caldono">Caldono</option>
+                            <option value="Caloto">Caloto</option>
+                            <option value="Corinto">Corinto</option>
+                            <option value="El Tambo">El Tambo</option>
+                            <option value="Florencia">Florencia</option>
+                            <option value="Guachené">Guachené</option>
+                            <option value="Guapí">Guapí</option>
+                            <option value="Inzá">Inzá</option>
+                            <option value="Jambaló">Jambaló</option>
+                            <option value="La Sierra">La Sierra</option>
+                            <option value="La Vega">La Vega</option>
+                            <option value="López de Micay">López de Micay</option>
+                            <option value="Mercaderes">Mercaderes</option>
+                            <option value="Miranda">Miranda</option>
+                            <option value="Morales">Morales</option>
+                            <option value="Padilla">Padilla</option>
+                            <option value="Páez (Belalcázar)">Páez (Belalcázar)</option>
+                            <option value="Patía">Patía</option>
+                            <option value="Piamonte">Piamonte</option>
+                            <option value="Piendamó - Tunía">Piendamó - Tunía</option>
+                            <option value="Popayán">Popayán</option>
+                            <option value="Puerto Tejada">Puerto Tejada</option>
+                            <option value="Puracé (Coconuco)">Puracé (Coconuco)</option>
+                            <option value="Rosas">Rosas</option>
+                            <option value="San Sebastián">San Sebastián</option>
+                            <option value="Santander de Quilichao">Santander de Quilichao</option>
+                            <option value="Santa Rosa">Santa Rosa</option>
+                            <option value="Silvia">Silvia</option>
+                            <option value="Sotará (Paispamba)">Sotará (Paispamba)</option>
+                            <option value="Suárez">Suárez</option>
+                            <option value="Sucre">Sucre</option>
+                            <option value="Timbío">Timbío</option>
+                            <option value="Timbiquí">Timbiquí</option>
+                            <option value="Toribío">Toribío</option>
+                            <option value="Totoró">Totoró</option>
+                            <option value="Villa Rica">Villa Rica</option>
+                          </select>
+                        </label>
+                        <label class="field">
+                          <span>Municipio principal</span>
+                          <select id="profile-municipality" name="profile-municipality" required>
+                            <option value="">Selecciona un municipio</option>
+                            <option value="Bogotá">Bogotá</option>
+                            <option value="Medellín">Medellín</option>
+                            <option value="Cali">Cali</option>
+                            <option value="Barranquilla">Barranquilla</option>
+                            <option value="Cartagena">Cartagena</option>
+                            <option value="Bucaramanga">Bucaramanga</option>
+                            <option value="Cúcuta">Cúcuta</option>
+                            <option value="Pereira">Pereira</option>
+                            <option value="Santa Marta">Santa Marta</option>
+                            <option value="Manizales">Manizales</option>
+                            <option value="Pasto">Pasto</option>
+                            <option value="Ibagué">Ibagué</option>
+                            <option value="Villavicencio">Villavicencio</option>
+                            <option value="Montería">Montería</option>
+                            <option value="Neiva">Neiva</option>
+                            <option value="Sincelejo">Sincelejo</option>
+                            <option value="Armenia">Armenia</option>
+                            <option value="Valledupar">Valledupar</option>
+                            <option value="Tunja">Tunja</option>
+                            <option value="Riohacha">Riohacha</option>
+                          </select>
+                        </label>
+                      </div>
+                    </section>
                   </div>
                 </div>
                 <div class="profile-form-actions">
@@ -4158,33 +4494,43 @@
                 <div class="profile-photo-preview" id="profile-summary-avatar">
                   <i class="fa-regular fa-user" aria-hidden="true"></i>
                 </div>
-                <div>
+                <div class="profile-summary-heading">
                   <h3 id="profile-summary-name">Invitado</h3>
                   <span id="profile-summary-meta">Completa tu perfil para que otros te conozcan.</span>
                 </div>
               </div>
-              <dl class="profile-summary-list">
-                <div>
-                  <dt>Correo</dt>
-                  <dd id="profile-summary-email">—</dd>
+              <div class="profile-summary-body">
+                <div class="profile-summary-grid">
+                  <div class="profile-summary-item">
+                    <span class="profile-summary-label">Correo</span>
+                    <span class="profile-summary-value" id="profile-summary-email">—</span>
+                  </div>
+                  <div class="profile-summary-item">
+                    <span class="profile-summary-label">Teléfono</span>
+                    <span class="profile-summary-value" id="profile-summary-phone">—</span>
+                  </div>
+                  <div class="profile-summary-item">
+                    <span class="profile-summary-label">Departamento (Cauca)</span>
+                    <span class="profile-summary-value" id="profile-summary-department">—</span>
+                  </div>
+                  <div class="profile-summary-item">
+                    <span class="profile-summary-label">Municipio principal</span>
+                    <span class="profile-summary-value" id="profile-summary-municipality">—</span>
+                  </div>
+                  <div class="profile-summary-item">
+                    <span class="profile-summary-label">Ubicación</span>
+                    <span class="profile-summary-value" id="profile-summary-location">—</span>
+                  </div>
+                  <div class="profile-summary-item">
+                    <span class="profile-summary-label">Reputación base</span>
+                    <span class="profile-summary-value" id="profile-summary-rating">—</span>
+                  </div>
                 </div>
-                <div>
-                  <dt>Teléfono</dt>
-                  <dd id="profile-summary-phone">—</dd>
+                <div class="profile-summary-bio">
+                  <strong>Biografía</strong>
+                  <p id="profile-summary-bio">—</p>
                 </div>
-                <div>
-                  <dt>Ubicación</dt>
-                  <dd id="profile-summary-location">—</dd>
-                </div>
-                <div>
-                  <dt>Biografía</dt>
-                  <dd id="profile-summary-bio">—</dd>
-                </div>
-                <div>
-                  <dt>Reputación base</dt>
-                  <dd id="profile-summary-rating">—</dd>
-                </div>
-              </dl>
+              </div>
               <div class="profile-summary-footer">
                 <span id="profile-summary-updated">Perfil sin verificar</span>
                 <div class="profile-summary-actions">
@@ -5798,7 +6144,8 @@
         const nameInput = $("#profile-name");
         const emailInput = $("#profile-email");
         const phoneInput = $("#profile-phone");
-        const locationInput = $("#profile-location");
+        const departmentSelect = $("#profile-department");
+        const municipalitySelect = $("#profile-municipality");
         const bioInput = $("#profile-bio");
         const photoInput = $("#profile-photo");
 
@@ -5836,7 +6183,8 @@
               if (nameInput) nameInput.value = user.name || "";
               if (emailInput) emailInput.value = user.email || "";
               if (phoneInput) phoneInput.value = user.phone || "";
-              if (locationInput) locationInput.value = user.location || "";
+              if (departmentSelect) departmentSelect.value = user.department || "";
+              if (municipalitySelect) municipalitySelect.value = user.municipality || "";
               if (bioInput) bioInput.value = user.bio || "";
               if (photoInput) photoInput.value = "";
               if (photoPreview) {
@@ -5849,7 +6197,8 @@
             if (nameInput) nameInput.value = "";
             if (emailInput) emailInput.value = "";
             if (phoneInput) phoneInput.value = "";
-            if (locationInput) locationInput.value = "";
+            if (departmentSelect) departmentSelect.value = "";
+            if (municipalitySelect) municipalitySelect.value = "";
             if (bioInput) bioInput.value = "";
             if (photoInput) photoInput.value = "";
             if (photoPreview) {
@@ -5864,6 +6213,8 @@
           const summaryMeta = $("#profile-summary-meta");
           const summaryEmail = $("#profile-summary-email");
           const summaryPhone = $("#profile-summary-phone");
+          const summaryDepartment = $("#profile-summary-department");
+          const summaryMunicipality = $("#profile-summary-municipality");
           const summaryLocation = $("#profile-summary-location");
           const summaryBio = $("#profile-summary-bio");
           const summaryRating = $("#profile-summary-rating");
@@ -5880,7 +6231,9 @@
             }
             if (summaryEmail) summaryEmail.textContent = user.email;
             if (summaryPhone) summaryPhone.textContent = user.phone;
-            if (summaryLocation) summaryLocation.textContent = user.location;
+            if (summaryDepartment) summaryDepartment.textContent = user.department || "—";
+            if (summaryMunicipality) summaryMunicipality.textContent = user.municipality || "—";
+            if (summaryLocation) summaryLocation.textContent = user.location || "—";
             if (summaryBio) {
               summaryBio.textContent = user.bio ? user.bio : "Añade una breve biografía para generar confianza.";
             }
@@ -5903,6 +6256,8 @@
             if (summaryMeta) summaryMeta.textContent = "Completa tu perfil para que otros te conozcan.";
             if (summaryEmail) summaryEmail.textContent = "—";
             if (summaryPhone) summaryPhone.textContent = "—";
+            if (summaryDepartment) summaryDepartment.textContent = "—";
+            if (summaryMunicipality) summaryMunicipality.textContent = "—";
             if (summaryLocation) summaryLocation.textContent = "—";
             if (summaryBio) summaryBio.textContent = "—";
             if (summaryRating) summaryRating.textContent = "—";
@@ -5948,18 +6303,21 @@
         const nameInput = $("#profile-name");
         const emailInput = $("#profile-email");
         const phoneInput = $("#profile-phone");
-        const locationInput = $("#profile-location");
+        const departmentSelect = $("#profile-department");
+        const municipalitySelect = $("#profile-municipality");
         const bioInput = $("#profile-bio");
         const photoInput = $("#profile-photo");
         const name = nameInput ? nameInput.value.trim() : "";
         const email = emailInput ? emailInput.value.trim() : "";
         const phone = phoneInput ? phoneInput.value.trim() : "";
-        const location = locationInput ? locationInput.value.trim() : "";
+        const department = departmentSelect ? departmentSelect.value : "";
+        const municipality = municipalitySelect ? municipalitySelect.value : "";
+        const location = [municipality, department].filter(Boolean).join(", ");
         const bio = bioInput ? bioInput.value.trim() : "";
         const file = photoInput && photoInput.files ? photoInput.files[0] : null;
         const existingAvatar = state.currentUser && state.currentUser.avatar;
 
-        if (!name || !email || !phone || !location) {
+        if (!name || !email || !phone || !department || !municipality) {
           showToast("Completa todos los campos obligatorios del perfil.", "danger");
           return;
         }
@@ -5973,6 +6331,8 @@
             name,
             email,
             phone,
+            department,
+            municipality,
             location,
             bio,
             avatar: avatar || previous.avatar || "",
