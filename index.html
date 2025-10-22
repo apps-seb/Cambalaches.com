@@ -3537,6 +3537,10 @@
         border-bottom: 1px solid rgba(15, 23, 42, 0.06);
       }
 
+      .modal-toolbar--with-nav {
+        position: relative;
+      }
+
       .modal-title-block {
         display: grid;
         gap: 0.35rem;
@@ -3595,6 +3599,27 @@
         transform: translateY(-1px);
       }
 
+      .modal-back {
+        border: none;
+        background: rgba(15, 23, 42, 0.08);
+        border-radius: 16px;
+        width: 42px;
+        height: 42px;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        color: var(--muted-dark);
+        font-size: 1rem;
+        box-shadow: 0 12px 28px -18px rgba(15, 23, 42, 0.4);
+        transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+      }
+
+      .modal-back:hover {
+        background: rgba(15, 23, 42, 0.12);
+        transform: translateY(-1px);
+      }
+
       .modal-section {
         border-radius: var(--radius-lg);
         background: transparent;
@@ -3607,6 +3632,46 @@
 
       .modal-body--selector {
         gap: clamp(1.2rem, 3vw, 1.8rem);
+      }
+
+      @media (max-width: 640px) {
+        .modal-toolbar {
+          padding: 0.85rem 1.05rem;
+        }
+
+        .modal-toolbar--with-nav {
+          display: grid;
+          grid-template-columns: auto minmax(0, 1fr) auto;
+          align-items: center;
+          gap: 0.75rem;
+        }
+
+        .modal-toolbar--with-nav .modal-back {
+          display: inline-flex;
+        }
+
+        .modal-toolbar--with-nav .modal-close {
+          width: 40px;
+          height: 40px;
+          border-radius: 14px;
+          font-size: 1rem;
+        }
+
+        .modal-toolbar--with-nav .modal-back {
+          width: 40px;
+          height: 40px;
+          border-radius: 14px;
+        }
+
+        .modal-toolbar--with-nav .modal-title-block {
+          justify-self: center;
+          text-align: center;
+          justify-items: center;
+        }
+
+        .modal-toolbar--with-nav .modal-title-subtitle {
+          font-size: 0.88rem;
+        }
       }
 
       .sell-selector-intro {
@@ -4876,7 +4941,15 @@
 
     <dialog id="sell-selector-modal" aria-labelledby="sell-selector-title">
       <div class="modal-surface modal-surface--compact">
-        <div class="modal-toolbar">
+        <div class="modal-toolbar modal-toolbar--with-nav">
+          <button
+            type="button"
+            class="modal-back"
+            data-close="sell-selector-modal"
+            aria-label="Cerrar selector de venta"
+          >
+            <i class="fa-solid fa-arrow-left"></i>
+          </button>
           <div class="modal-title-block">
             <span class="modal-eyebrow">Ventas</span>
             <h3 class="modal-title" id="sell-selector-title">¿Qué deseas vender?</h3>
@@ -4937,7 +5010,15 @@
 
     <dialog id="sell-modal" aria-labelledby="sell-modal-title">
       <div class="modal-surface modal-surface--edge-to-edge">
-        <div class="modal-toolbar">
+        <div class="modal-toolbar modal-toolbar--with-nav">
+          <button
+            type="button"
+            class="modal-back"
+            id="sell-modal-back"
+            aria-label="Volver al selector de venta"
+          >
+            <i class="fa-solid fa-arrow-left"></i>
+          </button>
           <div class="modal-title-block">
             <span class="modal-eyebrow" id="sell-modal-eyebrow">Ventas · Productos</span>
             <h3 class="modal-title" id="sell-modal-title">Publicar productos en venta</h3>
@@ -8762,6 +8843,21 @@
         onAll('[data-role="sell"]', "click", handleSellEntry);
 
         onAll(".sell-option-card", "click", handleSellOptionSelect);
+
+        on("#sell-modal-back", "click", () => {
+          closeModal("sell-modal");
+          setTimeout(() => {
+            openSellSelector();
+            requestAnimationFrame(() => {
+              const activeOption = document.querySelector(
+                ".sell-option-card.is-active"
+              );
+              if (activeOption && typeof activeOption.focus === "function") {
+                activeOption.focus();
+              }
+            });
+          }, 200);
+        });
 
         on("#sell-form", "submit", handleSell);
 
