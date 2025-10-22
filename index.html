@@ -39,6 +39,7 @@
         --radius-sm: 12px;
         --transition: 240ms cubic-bezier(0.23, 1, 0.32, 1);
         --header-height: 156px;
+        --sidebar-desktop-width: 320px;
       }
 
       *,
@@ -130,30 +131,6 @@
         grid-area: actions;
       }
 
-      .header-bottom {
-        display: flex;
-        align-items: center;
-      }
-
-      .quick-nav {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        width: 100%;
-        overflow-x: auto;
-        flex-wrap: nowrap;
-        padding-bottom: 0.25rem;
-        scrollbar-width: none;
-      }
-
-      .quick-nav::-webkit-scrollbar {
-        display: none;
-      }
-
-      .quick-nav button {
-        flex: 0 0 auto;
-      }
-
       .brand {
         display: flex;
         align-items: center;
@@ -200,18 +177,447 @@
         transition: background var(--transition), color var(--transition), transform var(--transition), box-shadow var(--transition);
       }
 
-      nav button:hover,
-      nav button:focus-visible {
-        background: rgba(17, 17, 17, 0.1);
-        color: #050505;
-        box-shadow: 0 10px 24px -18px rgba(0, 0, 0, 0.45);
-        transform: translateY(-1px);
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
       }
 
-      nav button.active {
-        background: #111;
-        color: #ffd60a;
-        box-shadow: 0 16px 30px -18px rgba(0, 0, 0, 0.5);
+      .sidebar-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        border: none;
+        border-radius: 14px;
+        background: rgba(17, 17, 17, 0.08);
+        color: #0f172a;
+        cursor: pointer;
+        transition: transform var(--transition), box-shadow var(--transition), background var(--transition), color var(--transition);
+      }
+
+      .sidebar-toggle:hover,
+      .sidebar-toggle:focus-visible {
+        transform: translateY(-1px);
+        box-shadow: 0 18px 28px -22px rgba(15, 23, 42, 0.4);
+        background: rgba(17, 17, 17, 0.14);
+        outline: none;
+      }
+
+      .sidebar-toggle i {
+        font-size: 1.05rem;
+      }
+
+      .app-shell {
+        width: min(1280px, 100%);
+        margin: 0 auto;
+        display: grid;
+        gap: clamp(1.25rem, 3vw, 2.5rem);
+        align-items: flex-start;
+      }
+
+      .app-sidebar {
+        --sidebar-blur: 22px;
+        background: linear-gradient(175deg, rgba(15, 23, 42, 0.98) 0%, rgba(17, 24, 39, 0.92) 45%, rgba(30, 41, 59, 0.9) 100%);
+        border-radius: 0 var(--radius-xl) var(--radius-xl) 0;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        box-shadow: 0 48px 80px -45px rgba(8, 13, 45, 0.85);
+        padding: clamp(1.6rem, 2.8vw, 2.2rem) clamp(1.4rem, 2.6vw, 2rem);
+        padding-bottom: calc(clamp(1.6rem, 2.8vw, 2.2rem) + env(safe-area-inset-bottom, 0px));
+        display: flex;
+        flex-direction: column;
+        gap: clamp(1.4rem, 2.6vw, 2rem);
+        width: min(92vw, var(--sidebar-desktop-width, 320px));
+        position: fixed;
+        top: var(--header-height);
+        left: 0;
+        height: calc(100vh - var(--header-height));
+        transform: translateX(calc(-100% - 24px));
+        transition: transform var(--transition), opacity var(--transition), box-shadow var(--transition);
+        z-index: 80;
+        overflow-y: auto;
+        opacity: 0;
+        color: #e2e8f0;
+        backdrop-filter: blur(var(--sidebar-blur));
+        -webkit-backdrop-filter: blur(var(--sidebar-blur));
+        scrollbar-width: thin;
+        scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+      }
+
+      .app-sidebar::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .app-sidebar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .app-sidebar::-webkit-scrollbar-thumb {
+        background: rgba(148, 163, 184, 0.35);
+        border-radius: 999px;
+      }
+
+      .app-sidebar::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.35), transparent 55%),
+          radial-gradient(circle at 80% 8%, rgba(14, 165, 233, 0.28), transparent 65%);
+        pointer-events: none;
+        opacity: 0.9;
+        border-radius: inherit;
+      }
+
+      .app-sidebar > * {
+        position: relative;
+        z-index: 1;
+      }
+
+      .app-sidebar.is-open {
+        transform: translateX(0);
+        opacity: 1;
+        box-shadow: 0 60px 120px -50px rgba(8, 13, 45, 0.88);
+      }
+
+      .app-sidebar__header {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .app-sidebar__eyebrow {
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: rgba(226, 232, 240, 0.6);
+      }
+
+      .app-sidebar__title {
+        margin: 0;
+        font-size: clamp(1.25rem, 2.4vw, 1.55rem);
+        font-weight: 700;
+        color: #f8fafc;
+        letter-spacing: -0.01em;
+      }
+
+      .app-sidebar__subtitle {
+        margin: 0;
+        color: rgba(226, 232, 240, 0.72);
+        font-size: 0.92rem;
+        line-height: 1.6;
+      }
+
+      .app-sidebar__profile {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.85rem 1rem;
+        border-radius: var(--radius-lg);
+        background: rgba(15, 23, 42, 0.45);
+        border: 1px solid rgba(99, 102, 241, 0.22);
+        box-shadow: 0 28px 55px -40px rgba(79, 70, 229, 0.75);
+      }
+
+      .app-sidebar__profile-avatar {
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(145deg, rgba(129, 140, 248, 0.2), rgba(14, 165, 233, 0.25));
+        color: #c7d2fe;
+        overflow: hidden;
+        font-weight: 700;
+        font-size: 1.1rem;
+        box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 0.12);
+      }
+
+      .app-sidebar__profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .app-sidebar__profile strong {
+        display: block;
+        color: #f1f5f9;
+        font-size: 1rem;
+      }
+
+      .app-sidebar__profile span {
+        display: block;
+        color: rgba(226, 232, 240, 0.68);
+        font-size: 0.85rem;
+      }
+
+      .app-sidebar__nav {
+        display: grid;
+        gap: 0.6rem;
+        flex: 1 1 auto;
+        align-content: flex-start;
+      }
+
+      .app-sidebar__nav-label {
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: rgba(226, 232, 240, 0.45);
+        padding-left: 0.4rem;
+      }
+
+      .app-sidebar__nav button {
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        border-radius: var(--radius-lg);
+        padding: 0.85rem 1.05rem;
+        display: flex;
+        align-items: center;
+        gap: 0.9rem;
+        background: rgba(15, 23, 42, 0.35);
+        color: rgba(226, 232, 240, 0.88);
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform var(--transition), box-shadow var(--transition), background var(--transition), border var(--transition), color var(--transition);
+        backdrop-filter: blur(calc(var(--sidebar-blur) / 2));
+        -webkit-backdrop-filter: blur(calc(var(--sidebar-blur) / 2));
+        width: 100%;
+      }
+
+      .app-sidebar__nav button .nav-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        background: rgba(79, 70, 229, 0.22);
+        color: #c7d2fe;
+        font-size: 1rem;
+        box-shadow: inset 0 0 0 1px rgba(129, 140, 248, 0.25);
+      }
+
+      .app-sidebar__nav button:hover,
+      .app-sidebar__nav button:focus-visible {
+        transform: translateX(6px);
+        background: rgba(79, 70, 229, 0.32);
+        border-color: rgba(129, 140, 248, 0.45);
+        color: #f8fafc;
+        outline: none;
+        box-shadow: 0 26px 60px -40px rgba(99, 102, 241, 0.75);
+      }
+
+      .app-sidebar__nav button:hover .nav-icon,
+      .app-sidebar__nav button:focus-visible .nav-icon {
+        background: rgba(99, 102, 241, 0.35);
+        color: #e0e7ff;
+        box-shadow: inset 0 0 0 1px rgba(165, 180, 252, 0.4);
+      }
+
+      .app-sidebar__nav button.active {
+        background: rgba(79, 70, 229, 0.42);
+        color: #f8fafc;
+        border-color: rgba(129, 140, 248, 0.65);
+        box-shadow: 0 35px 85px -45px rgba(79, 70, 229, 0.85);
+      }
+
+      .app-sidebar__nav button.active .nav-icon {
+        background: rgba(129, 140, 248, 0.45);
+        color: #fff;
+        box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 0.25);
+      }
+
+      .sidebar-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.45);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--transition);
+        z-index: 55;
+      }
+
+      .sidebar-backdrop.is-visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      body.sidebar-open {
+        overflow: hidden;
+      }
+
+      .profile-card {
+        background: var(--surface-strong);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border-strong);
+        box-shadow: var(--shadow-sm);
+        padding: clamp(1.4rem, 2.6vw, 2rem);
+        display: grid;
+        gap: clamp(1rem, 2vw, 1.6rem);
+      }
+
+      .profile-form-heading {
+        display: grid;
+        gap: 0.5rem;
+      }
+
+      .profile-form-heading h4 {
+        margin: 0;
+        font-size: 1.3rem;
+        color: var(--muted-dark);
+      }
+
+      .profile-form-heading p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+        line-height: 1.55;
+      }
+
+      .profile-form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      .profile-photo-field {
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      .profile-photo-upload {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .profile-photo-preview {
+        width: 88px;
+        height: 88px;
+        border-radius: 50%;
+        background: rgba(76, 81, 255, 0.12);
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        box-shadow: 0 18px 30px -22px rgba(15, 23, 42, 0.35);
+        border: 3px solid rgba(255, 214, 10, 0.45);
+      }
+
+      .profile-photo-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .profile-summary {
+        display: grid;
+        gap: clamp(1rem, 2vw, 1.6rem);
+      }
+
+      .profile-summary-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .profile-summary-header .profile-photo-preview {
+        width: 100px;
+        height: 100px;
+      }
+
+      .profile-summary-header h3 {
+        margin: 0;
+        font-size: 1.4rem;
+        color: var(--muted-dark);
+      }
+
+      .profile-summary-header span {
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .profile-summary-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+      }
+
+      .profile-summary-list div {
+        background: rgba(15, 23, 42, 0.03);
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        border-radius: var(--radius-md);
+        padding: 0.9rem 1rem;
+        display: grid;
+        gap: 0.35rem;
+      }
+
+      .profile-summary-list dt {
+        margin: 0;
+        font-size: 0.8rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(15, 23, 42, 0.55);
+      }
+
+      .profile-summary-list dd {
+        margin: 0;
+        font-size: 0.96rem;
+        color: var(--muted-dark);
+        word-break: break-word;
+      }
+
+      .profile-summary-footer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid rgba(15, 23, 42, 0.08);
+        padding-top: 0.85rem;
+      }
+
+      .profile-summary-footer span {
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      .profile-summary-actions {
+        display: flex;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+      }
+
+      @media (min-width: 1024px) {
+        main {
+          padding-left: calc(var(--sidebar-desktop-width) + clamp(1.8rem, 3vw, 2.8rem));
+          padding-right: clamp(2rem, 3vw, 3rem);
+        }
+
+        .app-shell {
+          width: min(1200px, 100%);
+          margin: 0;
+        }
+
+        .app-sidebar {
+          transform: none;
+          opacity: 1;
+          width: var(--sidebar-desktop-width);
+        }
+
+        .sidebar-toggle {
+          display: none;
+        }
+
+        .sidebar-backdrop {
+          display: none !important;
+        }
       }
 
       .header-actions {
@@ -425,6 +831,19 @@
       .btn-outline:hover {
         background: rgba(17, 17, 17, 0.18);
         transform: translateY(-2px);
+      }
+
+      .btn-ghost {
+        background: transparent;
+        color: var(--muted-dark);
+        border: 1px solid transparent;
+      }
+
+      .btn-ghost:hover,
+      .btn-ghost:focus-visible {
+        background: rgba(15, 23, 42, 0.08);
+        transform: translateY(-2px);
+        outline: none;
       }
 
       .avatar-thumb {
@@ -657,12 +1076,13 @@
       main {
         width: 100%;
         margin: 0;
-        padding: clamp(0.5rem, 1.8vw, 1rem);
+        padding: clamp(0.75rem, 2vw, 1.25rem) clamp(1rem, 3vw, 1.8rem) clamp(2.5rem, 4vw, 3.5rem);
         display: block;
       }
 
       .dashboard-grid {
-        display: block;
+        display: grid;
+        gap: clamp(1.8rem, 3vw, 2.6rem);
         margin: 0;
         padding: 0;
       }
@@ -700,12 +1120,6 @@
         }
         .header-actions {
           width: 100%;
-          justify-content: center;
-        }
-        .header-bottom {
-          justify-content: center;
-        }
-        .quick-nav {
           justify-content: center;
         }
         .banner-header {
@@ -810,6 +1224,13 @@
           gap: 0.5rem;
         }
         .brand {
+          width: 100%;
+          justify-content: space-between;
+        }
+        .brand h1 {
+          font-size: 1.35rem;
+        }
+        .brand span {
           display: none;
         }
         .header-actions {
@@ -930,25 +1351,6 @@
         }
         .header-notification {
           display: none;
-        }
-        .header-bottom {
-          padding-top: 0.2rem;
-          border-top: 1px solid rgba(17, 17, 17, 0.1);
-        }
-        .quick-nav {
-          gap: 0.35rem;
-          padding: 0.1rem 0.35rem 0;
-          justify-content: center;
-        }
-        .quick-nav button {
-          padding: 0.32rem 0.6rem;
-          font-size: 0.72rem;
-          color: rgba(17, 17, 17, 0.72);
-          background: rgba(17, 17, 17, 0.05);
-        }
-        .quick-nav button.active {
-          background: rgba(17, 17, 17, 0.9);
-          color: #ffd60a;
         }
         main {
           padding: clamp(0.45rem, 5vw, 0.85rem);
@@ -3289,6 +3691,16 @@
       <div class="header-shell">
         <div class="header-top">
           <div class="brand">
+            <button
+              class="sidebar-toggle"
+              id="sidebar-toggle"
+              type="button"
+              aria-expanded="false"
+              aria-controls="app-sidebar"
+            >
+              <span class="visually-hidden">Abrir menú de navegación</span>
+              <i class="fa-solid fa-bars" aria-hidden="true"></i>
+            </button>
             <div class="brand-mark">CB</div>
             <div>
               <h1>Cambalaches</h1>
@@ -3339,15 +3751,6 @@
             <div class="avatar-thumb hidden" id="nav-avatar"></div>
           </div>
         </div>
-        <div class="header-bottom">
-          <nav class="quick-nav">
-            <button type="button" data-target="feed-section" data-nav="primary">Explorar</button>
-            <button type="button" data-target="my-items" data-nav="primary">Mis artículos</button>
-            <button type="button" data-target="active-exchanges" data-nav="primary">Canjes activos</button>
-            <button type="button" data-target="history" data-nav="primary">Historial</button>
-            <button type="button" data-target="reputation" data-nav="primary">Reputación</button>
-          </nav>
-        </div>
       </div>
     </header>
 
@@ -3371,151 +3774,203 @@
     </section>
 
     <main>
-      <div class="dashboard-grid">
-        <section class="panel" id="feed-section" data-page-group="feed-section">
-          <input type="hidden" id="filter-category" value="" />
-          <input type="hidden" id="filter-keyword" />
-          <input type="hidden" id="filter-style" value="marketplace" />
-          <div class="category-board">
-            <div class="category-board-header">
-              <div class="category-board-title">
-                <span>Categorías premium</span>
-                <h4>Selecciona la experiencia que buscas</h4>
+      <div class="app-shell">
+        <aside class="app-sidebar" id="app-sidebar" aria-label="Navegación principal">
+          <div class="app-sidebar__header">
+            <div>
+              <span class="app-sidebar__eyebrow">Panel Cambalaches</span>
+              <h2 class="app-sidebar__title">Gestiona tus canjes</h2>
+              <p class="app-sidebar__subtitle">
+                Administra tus publicaciones, propuestas y reputación desde un único lugar.
+              </p>
+            </div>
+            <div class="app-sidebar__profile">
+              <div class="app-sidebar__profile-avatar" id="sidebar-user-avatar">
+                <i class="fa-regular fa-user" aria-hidden="true"></i>
               </div>
-              <div class="category-board-actions">
-                <button class="category-filters" type="button" id="filters-inline">
-                  <i class="fa-solid fa-sliders" aria-hidden="true"></i>
-                  <span>Filtros avanzados</span>
-                </button>
+              <div>
+                <strong id="sidebar-user-name">Invitado</strong>
+                <span id="sidebar-user-meta">Crea tu perfil para comenzar a intercambiar.</span>
               </div>
             </div>
-          <div class="category-list" role="list">
-            <button class="category-card active" type="button" data-category="">
-              <span class="category-icon"><i class="fa-solid fa-shapes" aria-hidden="true"></i></span>
-              <span class="category-label">Todo</span>
+          </div>
+          <nav class="app-sidebar__nav" aria-label="Secciones del panel">
+            <span class="app-sidebar__nav-label">Navegación principal</span>
+            <button type="button" data-target="feed-section" data-nav="primary">
+              <span class="nav-icon"><i class="fa-solid fa-house" aria-hidden="true"></i></span>
+              <span>Explorar</span>
             </button>
-              <button class="category-card" type="button" data-category="tecnologia">
-                <span class="category-icon"><i class="fa-solid fa-laptop-code" aria-hidden="true"></i></span>
-                <span class="category-label">Tecnología</span>
-              </button>
-              <button class="category-card" type="button" data-category="agricultura">
-                <span class="category-icon"><i class="fa-solid fa-seedling" aria-hidden="true"></i></span>
-                <span class="category-label">Agricultura</span>
-              </button>
-              <button class="category-card" type="button" data-category="servicios">
-                <span class="category-icon"><i class="fa-solid fa-briefcase" aria-hidden="true"></i></span>
-                <span class="category-label">Servicios</span>
-              </button>
-              <button class="category-card" type="button" data-category="vehiculos">
-                <span class="category-icon"><i class="fa-solid fa-car-side" aria-hidden="true"></i></span>
-                <span class="category-label">Vehículos</span>
-              </button>
-              <button class="category-card" type="button" data-category="hogar">
-                <span class="category-icon"><i class="fa-solid fa-couch" aria-hidden="true"></i></span>
-                <span class="category-label">Hogar</span>
-              </button>
-              <button class="category-card" type="button" data-category="moda">
-                <span class="category-icon"><i class="fa-solid fa-shirt" aria-hidden="true"></i></span>
-                <span class="category-label">Moda</span>
-              </button>
-              <button class="category-card" type="button" data-category="coleccionables">
-                <span class="category-icon"><i class="fa-solid fa-chess-queen" aria-hidden="true"></i></span>
-                <span class="category-label">Coleccionables</span>
-              </button>
-            </div>
-          </div>
-          <div class="category-board most-viewed-board">
-            <div class="category-board-header">
-              <div class="category-board-title">
-                <span>Los más vistos</span>
-                <h4>Artículos que cautivan al marketplace</h4>
-              </div>
-              <div class="category-board-actions">
-                <button class="category-filters" type="button" id="most-viewed-explore">
-                  <i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i>
-                  <span>Ver todos</span>
-                </button>
-              </div>
-            </div>
-            <div class="most-viewed-list" id="most-viewed-list" role="list"></div>
-          </div>
-          <div class="card-grid mode-marketplace" id="feed-grid"></div>
-          <div class="filters-overlay" id="filters-overlay" aria-hidden="true">
-            <div class="filters-sheet" role="dialog" aria-modal="true" aria-labelledby="filters-title">
-              <aside class="filters-panel">
-                <div class="filters-panel-inner">
-                  <span class="filters-panel-eyebrow">Búsqueda guiada</span>
-                  <h2>Configura tu experiencia ideal</h2>
-                  <p>
-                    Ajusta los parámetros clave de tu marketplace y obtén resultados alineados a la inversión,
-                    ubicación y estilo de vitrina que prefieres.
-                  </p>
-                  <ul class="filters-panel-list">
-                    <li>
-                      <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
-                      <span>Prioriza canjes cercanos o estratégicos</span>
-                    </li>
-                    <li>
-                      <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
-                      <span>Combina estilos de vitrina en segundos</span>
-                    </li>
-                    <li>
-                      <i class="fa-solid fa-coins" aria-hidden="true"></i>
-                      <span>Controla los rangos de inversión con precisión</span>
-                    </li>
-                  </ul>
+            <button type="button" data-target="my-items" data-nav="primary">
+              <span class="nav-icon"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
+              <span>Mis artículos</span>
+            </button>
+            <button type="button" data-target="active-exchanges" data-nav="primary">
+              <span class="nav-icon"><i class="fa-solid fa-right-left" aria-hidden="true"></i></span>
+              <span>Canjes activos</span>
+            </button>
+            <button type="button" data-target="history" data-nav="primary">
+              <span class="nav-icon"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i></span>
+              <span>Historial</span>
+            </button>
+            <button type="button" data-target="reputation" data-nav="primary">
+              <span class="nav-icon"><i class="fa-solid fa-gem" aria-hidden="true"></i></span>
+              <span>Reputación</span>
+            </button>
+            <button type="button" data-target="support" data-nav="primary">
+              <span class="nav-icon"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></span>
+              <span>Soporte</span>
+            </button>
+            <button type="button" data-target="profile" data-nav="primary">
+              <span class="nav-icon"><i class="fa-solid fa-user" aria-hidden="true"></i></span>
+              <span>Perfil</span>
+            </button>
+          </nav>
+        </aside>
+        <div class="dashboard-grid">
+          <section class="panel" id="feed-section" data-page-group="feed-section">
+            <input type="hidden" id="filter-category" value="" />
+            <input type="hidden" id="filter-keyword" />
+            <input type="hidden" id="filter-style" value="marketplace" />
+            <div class="category-board">
+              <div class="category-board-header">
+                <div class="category-board-title">
+                  <span>Categorías premium</span>
+                  <h4>Selecciona la experiencia que buscas</h4>
                 </div>
-              </aside>
-              <div class="filters-content">
-                <div class="filters-sheet-header">
-                  <div class="title-block">
-                    <span>Filtrado avanzado</span>
-                    <h3 id="filters-title">Personaliza tu exploración</h3>
-                  </div>
-                  <button class="filters-close" type="button" id="filters-close" aria-label="Cerrar filtros">
-                    <i class="fa-solid fa-xmark"></i>
+                <div class="category-board-actions">
+                  <button class="category-filters" type="button" id="filters-inline">
+                    <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+                    <span>Filtros avanzados</span>
                   </button>
                 </div>
-                <form class="filters-form" id="filters-form">
-                  <div class="filters-grid">
-                    <label class="field">
-                      <span>Ubicación preferida</span>
-                      <input
-                        type="search"
-                        id="filter-location"
-                        placeholder="Ciudad o región"
-                        autocomplete="off"
-                      />
-                    </label>
-                    <div class="field price-range-field" role="group" aria-labelledby="price-range-label">
-                      <div class="field-heading">
-                        <span id="price-range-label">Rango de inversión</span>
-                        <small>Desliza las perillas para definir el mínimo y máximo deseado.</small>
-                      </div>
-                      <div class="price-slider" id="price-slider">
+              </div>
+              <div class="category-list" role="list">
+                <button class="category-card active" type="button" data-category="">
+                  <span class="category-icon"><i class="fa-solid fa-shapes" aria-hidden="true"></i></span>
+                  <span class="category-label">Todo</span>
+                </button>
+                <button class="category-card" type="button" data-category="tecnologia">
+                  <span class="category-icon"><i class="fa-solid fa-laptop-code" aria-hidden="true"></i></span>
+                  <span class="category-label">Tecnología</span>
+                </button>
+                <button class="category-card" type="button" data-category="agricultura">
+                  <span class="category-icon"><i class="fa-solid fa-seedling" aria-hidden="true"></i></span>
+                  <span class="category-label">Agricultura</span>
+                </button>
+                <button class="category-card" type="button" data-category="servicios">
+                  <span class="category-icon"><i class="fa-solid fa-briefcase" aria-hidden="true"></i></span>
+                  <span class="category-label">Servicios</span>
+                </button>
+                <button class="category-card" type="button" data-category="vehiculos">
+                  <span class="category-icon"><i class="fa-solid fa-car-side" aria-hidden="true"></i></span>
+                  <span class="category-label">Vehículos</span>
+                </button>
+                <button class="category-card" type="button" data-category="hogar">
+                  <span class="category-icon"><i class="fa-solid fa-couch" aria-hidden="true"></i></span>
+                  <span class="category-label">Hogar</span>
+                </button>
+                <button class="category-card" type="button" data-category="moda">
+                  <span class="category-icon"><i class="fa-solid fa-shirt" aria-hidden="true"></i></span>
+                  <span class="category-label">Moda</span>
+                </button>
+                <button class="category-card" type="button" data-category="coleccionables">
+                  <span class="category-icon"><i class="fa-solid fa-chess-queen" aria-hidden="true"></i></span>
+                  <span class="category-label">Coleccionables</span>
+                </button>
+              </div>
+            </div>
+            <div class="category-board most-viewed-board">
+              <div class="category-board-header">
+                <div class="category-board-title">
+                  <span>Los más vistos</span>
+                  <h4>Artículos que cautivan al marketplace</h4>
+                </div>
+                <div class="category-board-actions">
+                  <button class="category-filters" type="button" id="most-viewed-explore">
+                    <i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i>
+                    <span>Ver todos</span>
+                  </button>
+                </div>
+              </div>
+              <div class="most-viewed-list" id="most-viewed-list" role="list"></div>
+            </div>
+            <div class="card-grid mode-marketplace" id="feed-grid"></div>
+            <div class="filters-overlay" id="filters-overlay" aria-hidden="true">
+              <div class="filters-sheet" role="dialog" aria-modal="true" aria-labelledby="filters-title">
+                <aside class="filters-panel">
+                  <div class="filters-panel-inner">
+                    <span class="filters-panel-eyebrow">Búsqueda guiada</span>
+                    <h2>Configura tu experiencia ideal</h2>
+                    <p>
+                      Ajusta los parámetros clave de tu marketplace y obtén resultados alineados a la inversión,
+                      ubicación y estilo de vitrina que prefieres.
+                    </p>
+                    <ul class="filters-panel-list">
+                      <li>
+                        <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                        <span>Prioriza canjes cercanos o estratégicos</span>
+                      </li>
+                      <li>
+                        <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
+                        <span>Combina estilos de vitrina en segundos</span>
+                      </li>
+                      <li>
+                        <i class="fa-solid fa-coins" aria-hidden="true"></i>
+                        <span>Controla los rangos de inversión con precisión</span>
+                      </li>
+                    </ul>
+                  </div>
+                </aside>
+                <div class="filters-content">
+                  <div class="filters-sheet-header">
+                    <div class="title-block">
+                      <span>Filtrado avanzado</span>
+                      <h3 id="filters-title">Personaliza tu exploración</h3>
+                    </div>
+                    <button class="filters-close" type="button" id="filters-close" aria-label="Cerrar filtros">
+                      <i class="fa-solid fa-xmark"></i>
+                    </button>
+                  </div>
+                  <form class="filters-form" id="filters-form">
+                    <div class="filters-grid">
+                      <label class="field">
+                        <span>Ubicación preferida</span>
                         <input
-                          type="range"
-                          id="filter-min"
-                          class="price-range-input"
-                          data-handle="min"
-                          min="0"
-                          max="20000000"
-                          step="50000"
-                          value="0"
-                          aria-label="Precio mínimo"
+                          type="search"
+                          id="filter-location"
+                          placeholder="Ciudad o región"
+                          autocomplete="off"
                         />
-                        <input
-                          type="range"
-                          id="filter-max"
-                          class="price-range-input"
-                          data-handle="max"
-                          min="0"
-                          max="20000000"
-                          step="50000"
-                          value="20000000"
-                          aria-label="Precio máximo"
-                        />
-                      </div>
+                      </label>
+                      <div class="field price-range-field" role="group" aria-labelledby="price-range-label">
+                        <div class="field-heading">
+                          <span id="price-range-label">Rango de inversión</span>
+                          <small>Desliza las perillas para definir el mínimo y máximo deseado.</small>
+                        </div>
+                        <div class="price-slider" id="price-slider">
+                          <input
+                            type="range"
+                            id="filter-min"
+                            class="price-range-input"
+                            data-handle="min"
+                            min="0"
+                            max="20000000"
+                            step="50000"
+                            value="0"
+                            aria-label="Precio mínimo"
+                          />
+                          <input
+                            type="range"
+                            id="filter-max"
+                            class="price-range-input"
+                            data-handle="max"
+                            min="0"
+                            max="20000000"
+                            step="50000"
+                            value="20000000"
+                            aria-label="Precio máximo"
+                          />
+                        </div>
                       <div class="price-values" aria-live="polite">
                         <span><strong>Mín.</strong> <span id="filter-min-display"></span></span>
                         <span><strong>Máx.</strong> <span id="filter-max-display"></span></span>
@@ -3665,8 +4120,116 @@
               <button class="btn btn-outline" id="open-report">Denunciar una publicación</button>
             </div>
         </section>
+
+        <section class="panel page-hidden" id="profile" data-page-group="profile">
+            <div class="section-header">
+              <div class="section-title">
+                <span class="section-icon"><i class="fa-solid fa-user-shield"></i></span>
+                <div>
+                  <h3>Perfil verificado de Cambalaches</h3>
+                  <p>Controla la información que compartes con la comunidad y gestiona tu cuenta.</p>
+                </div>
+              </div>
+            </div>
+            <div class="profile-card" id="profile-form-card">
+              <div class="profile-form-heading">
+                <h4 id="profile-form-heading">Crea tu perfil verificado</h4>
+                <p id="profile-form-helper">
+                  Completa la información para operar con la comunidad Cambalaches.
+                </p>
+              </div>
+              <form id="profile-form" class="profile-form" novalidate>
+                <div class="form-grid two-column">
+                  <label class="field">
+                    <span>Nombre completo</span>
+                    <input type="text" id="profile-name" name="profile-name" placeholder="Tu nombre" required />
+                  </label>
+                  <label class="field">
+                    <span>Correo electrónico</span>
+                    <input type="email" id="profile-email" name="profile-email" placeholder="nombre@correo.com" required />
+                  </label>
+                  <label class="field">
+                    <span>Teléfono verificado</span>
+                    <input type="tel" id="profile-phone" name="profile-phone" placeholder="300 000 0000" required />
+                  </label>
+                  <label class="field">
+                    <span>Ciudad y país</span>
+                    <input type="text" id="profile-location" name="profile-location" placeholder="Bogotá, Colombia" required />
+                  </label>
+                </div>
+                <label class="field">
+                  <span>Biografía corta</span>
+                  <textarea
+                    id="profile-bio"
+                    name="profile-bio"
+                    rows="4"
+                    placeholder="Describe tu experiencia intercambiando y qué ofreces a la comunidad"
+                  ></textarea>
+                </label>
+                <div class="profile-photo-field">
+                  <span>Foto de perfil</span>
+                  <div class="profile-photo-upload">
+                    <div class="profile-photo-preview" id="profile-photo-preview">
+                      <i class="fa-regular fa-user" aria-hidden="true"></i>
+                    </div>
+                    <label class="field" style="margin: 0">
+                      <span>Sube una imagen reciente</span>
+                      <small>Formatos JPG o PNG hasta 5 MB.</small>
+                      <input type="file" id="profile-photo" name="profile-photo" accept="image/*" />
+                    </label>
+                  </div>
+                </div>
+                <div class="profile-form-actions">
+                  <button type="button" class="btn btn-ghost hidden" id="profile-cancel">Cancelar</button>
+                  <button type="submit" class="btn btn-primary" id="profile-submit">Crear perfil</button>
+                </div>
+              </form>
+            </div>
+            <div class="profile-card profile-summary hidden" id="profile-summary">
+              <div class="profile-summary-header">
+                <div class="profile-photo-preview" id="profile-summary-avatar">
+                  <i class="fa-regular fa-user" aria-hidden="true"></i>
+                </div>
+                <div>
+                  <h3 id="profile-summary-name">Invitado</h3>
+                  <span id="profile-summary-meta">Completa tu perfil para que otros te conozcan.</span>
+                </div>
+              </div>
+              <dl class="profile-summary-list">
+                <div>
+                  <dt>Correo</dt>
+                  <dd id="profile-summary-email">—</dd>
+                </div>
+                <div>
+                  <dt>Teléfono</dt>
+                  <dd id="profile-summary-phone">—</dd>
+                </div>
+                <div>
+                  <dt>Ubicación</dt>
+                  <dd id="profile-summary-location">—</dd>
+                </div>
+                <div>
+                  <dt>Biografía</dt>
+                  <dd id="profile-summary-bio">—</dd>
+                </div>
+                <div>
+                  <dt>Reputación base</dt>
+                  <dd id="profile-summary-rating">—</dd>
+                </div>
+              </dl>
+              <div class="profile-summary-footer">
+                <span id="profile-summary-updated">Perfil sin verificar</span>
+                <div class="profile-summary-actions">
+                  <button type="button" class="btn btn-outline" id="profile-edit">Editar perfil</button>
+                  <button type="button" class="btn btn-ghost" id="profile-logout">Cerrar sesión</button>
+                </div>
+              </div>
+            </div>
+        </section>
+        </div>
       </div>
     </main>
+    <div class="sidebar-backdrop" id="sidebar-backdrop" aria-hidden="true"></div>
 
     <div class="product-detail" id="product-detail" aria-hidden="true">
       <div class="product-detail-backdrop" data-close-detail></div>
@@ -3749,7 +4312,7 @@
           <span class="nav-label">Reputación</span>
         </button>
         <button type="button" data-target="support" data-nav="primary" class="nav-item">
-          <span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-bars"></i></span>
+          <span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></span>
           <span class="nav-label">Soporte</span>
         </button>
       </div>
@@ -4014,6 +4577,72 @@
       const isDialogSupported = typeof HTMLDialogElement === "function";
       const openModals = new Set();
       const horizontalScrollRegistry = new WeakMap();
+
+      const STORAGE_KEYS = {
+        user: "cambalaches.currentUser",
+      };
+
+      const storage = (() => {
+        try {
+          const ls = window.localStorage;
+          const testKey = "__cambalaches-test__";
+          ls.setItem(testKey, testKey);
+          ls.removeItem(testKey);
+          return ls;
+        } catch (error) {
+          console.warn("Almacenamiento local no disponible", error);
+          return null;
+        }
+      })();
+
+      const loadStoredUser = () => {
+        if (!storage) {
+          return null;
+        }
+        try {
+          const raw = storage.getItem(STORAGE_KEYS.user);
+          if (!raw) {
+            return null;
+          }
+          const parsed = JSON.parse(raw);
+          if (!parsed || typeof parsed !== "object") {
+            return null;
+          }
+          return parsed;
+        } catch (error) {
+          console.warn("No se pudo recuperar el perfil almacenado", error);
+          return null;
+        }
+      };
+
+      const persistUser = (user) => {
+        if (!storage) {
+          return;
+        }
+        try {
+          if (user) {
+            storage.setItem(STORAGE_KEYS.user, JSON.stringify(user));
+          } else {
+            storage.removeItem(STORAGE_KEYS.user);
+          }
+        } catch (error) {
+          console.warn("No se pudo persistir el perfil", error);
+        }
+      };
+
+      const formatDateTime = (isoString) => {
+        if (!isoString) {
+          return "";
+        }
+        try {
+          return new Date(isoString).toLocaleString("es-CO", {
+            dateStyle: "medium",
+            timeStyle: "short",
+          });
+        } catch (error) {
+          return "";
+        }
+      };
 
       const enhanceHorizontalScroll = (container, options = {}) => {
         if (!container) {
@@ -4513,8 +5142,20 @@
         }
       };
 
+      const storedUser = loadStoredUser();
+      const initialUser = storedUser
+        ? {
+            ...storedUser,
+            id: storedUser.id || generateId("user"),
+            rating: Number(storedUser.rating || 5),
+            bio: storedUser.bio || "",
+            createdAt: storedUser.createdAt || new Date().toISOString(),
+            updatedAt: storedUser.updatedAt || storedUser.createdAt || new Date().toISOString(),
+          }
+        : null;
+
       const state = {
-        currentUser: null,
+        currentUser: initialUser,
         products: [],
         offersSent: [],
         offersReceived: [],
@@ -4529,6 +5170,82 @@
       let activePage = "feed-section";
       let primaryNavButtons = [];
       let activeProductDetail = null;
+      let profileMode = initialUser ? "view" : "create";
+      let sidebarElement = null;
+      let sidebarToggleButton = null;
+      let sidebarBackdropElement = null;
+      const mobileSidebarQuery = window.matchMedia("(max-width: 1023px)");
+
+      const isMobileSidebar = () => mobileSidebarQuery.matches;
+
+      function setSidebarAriaHidden(hidden) {
+        if (sidebarElement) {
+          sidebarElement.setAttribute("aria-hidden", hidden ? "true" : "false");
+        }
+      }
+
+      function openSidebar() {
+        if (!sidebarElement) {
+          return;
+        }
+        sidebarElement.classList.add("is-open");
+        document.body.classList.add("sidebar-open");
+        setSidebarAriaHidden(false);
+        if (sidebarBackdropElement) {
+          sidebarBackdropElement.classList.add("is-visible");
+          sidebarBackdropElement.setAttribute("aria-hidden", "false");
+        }
+        if (sidebarToggleButton) {
+          sidebarToggleButton.setAttribute("aria-expanded", "true");
+        }
+      }
+
+      function closeSidebar() {
+        if (!sidebarElement) {
+          return;
+        }
+        sidebarElement.classList.remove("is-open");
+        document.body.classList.remove("sidebar-open");
+        setSidebarAriaHidden(isMobileSidebar());
+        if (sidebarBackdropElement) {
+          sidebarBackdropElement.classList.remove("is-visible");
+          sidebarBackdropElement.setAttribute("aria-hidden", "true");
+        }
+        if (sidebarToggleButton) {
+          sidebarToggleButton.setAttribute("aria-expanded", "false");
+        }
+      }
+
+      function toggleSidebar() {
+        if (!sidebarElement) {
+          return;
+        }
+        if (sidebarElement.classList.contains("is-open")) {
+          closeSidebar();
+        } else {
+          openSidebar();
+        }
+      }
+
+      function syncSidebarWithViewport() {
+        if (!sidebarElement) {
+          return;
+        }
+        if (isMobileSidebar()) {
+          setSidebarAriaHidden(!sidebarElement.classList.contains("is-open"));
+        } else {
+          sidebarElement.classList.remove("is-open");
+          document.body.classList.remove("sidebar-open");
+          setSidebarAriaHidden(false);
+          if (sidebarBackdropElement) {
+            sidebarBackdropElement.classList.remove("is-visible");
+            sidebarBackdropElement.setAttribute("aria-hidden", "true");
+          }
+          if (sidebarToggleButton) {
+            sidebarToggleButton.setAttribute("aria-expanded", "false");
+          }
+        }
+      }
 
       function switchToPage(targetId, options = {}) {
         const sections = $$("[data-page-group]");
@@ -4564,6 +5281,41 @@
         }
 
         return true;
+      }
+
+      function focusProfileForm() {
+        requestAnimationFrame(() => {
+          const nameInput = $("#profile-name");
+          if (nameInput) {
+            nameInput.focus();
+          }
+        });
+      }
+
+      function setCurrentUser(user, { silent } = {}) {
+        state.currentUser = user;
+        persistUser(user);
+        profileMode = user ? "view" : "create";
+        if (!silent) {
+          updateUI();
+        }
+      }
+
+      function logout({ toast = true } = {}) {
+        setCurrentUser(null, { silent: true });
+        state.offersSent = [];
+        state.offersReceived = [];
+        state.activeAgreements = [];
+        state.history = [];
+        state.reviews = [];
+        profileMode = "create";
+        updateUI();
+        if (toast) {
+          showToast("Sesión cerrada. Hasta pronto.", "info");
+        }
+        switchToPage("profile", { scroll: false });
+        closeSidebar();
+        focusProfileForm();
       }
 
       const sampleUsers = [
@@ -5052,27 +5804,284 @@
 
       function ensureAuthenticated(callback) {
         if (!state.currentUser) {
-          showToast("Debes crear tu cuenta verificada para continuar.", "danger");
-          openModal("auth-modal");
+          showToast("Debes crear tu perfil verificado para continuar.", "danger");
+          profileMode = "create";
+          switchToPage("profile");
+          closeSidebar();
+          focusProfileForm();
           return false;
         }
         if (typeof callback === "function") callback();
         return true;
       }
 
-      function updateProfileCard() {
-        const navAvatar = $("#nav-avatar");
-
-        if (!navAvatar) {
+      function updateProfileSection() {
+        const formCard = $("#profile-form-card");
+        const summaryCard = $("#profile-summary");
+        if (!formCard || !summaryCard) {
           return;
         }
 
-        if (!state.currentUser) {
-          navAvatar.classList.add("hidden");
-          navAvatar.innerHTML = "";
+        const formHeading = $("#profile-form-heading");
+        const formHelper = $("#profile-form-helper");
+        const submitBtn = $("#profile-submit");
+        const cancelBtn = $("#profile-cancel");
+        const photoPreview = $("#profile-photo-preview");
+        const nameInput = $("#profile-name");
+        const emailInput = $("#profile-email");
+        const phoneInput = $("#profile-phone");
+        const locationInput = $("#profile-location");
+        const bioInput = $("#profile-bio");
+        const photoInput = $("#profile-photo");
+
+        const user = state.currentUser;
+        const mode = profileMode || (user ? "view" : "create");
+        const previousMode = formCard.dataset.renderedMode || "";
+        const modeChanged = previousMode !== mode;
+        formCard.dataset.renderedMode = mode;
+
+        const showForm = mode === "create" || mode === "edit" || !user;
+
+        if (showForm) {
+          formCard.classList.remove("hidden");
+          summaryCard.classList.add("hidden");
+
+          if (formHeading) {
+            formHeading.textContent =
+              user && mode === "edit" ? "Actualiza tu perfil verificado" : "Crea tu perfil verificado";
+          }
+          if (formHelper) {
+            formHelper.textContent =
+              user && mode === "edit"
+                ? "Actualiza la información visible para otros usuarios en tus canjes."
+                : "Completa la información para operar con la comunidad Cambalaches.";
+          }
+          if (submitBtn) {
+            submitBtn.textContent = user && mode === "edit" ? "Guardar cambios" : "Crear perfil";
+          }
+          if (cancelBtn) {
+            cancelBtn.classList.toggle("hidden", !(user && mode === "edit"));
+          }
+
+          if (mode === "edit" && user) {
+            if (modeChanged) {
+              if (nameInput) nameInput.value = user.name || "";
+              if (emailInput) emailInput.value = user.email || "";
+              if (phoneInput) phoneInput.value = user.phone || "";
+              if (locationInput) locationInput.value = user.location || "";
+              if (bioInput) bioInput.value = user.bio || "";
+              if (photoInput) photoInput.value = "";
+              if (photoPreview) {
+                photoPreview.innerHTML = user.avatar
+                  ? `<img src="${user.avatar}" alt="Foto de ${user.name}" />`
+                  : '<i class="fa-regular fa-user" aria-hidden="true"></i>';
+              }
+            }
+          } else if (modeChanged) {
+            if (nameInput) nameInput.value = "";
+            if (emailInput) emailInput.value = "";
+            if (phoneInput) phoneInput.value = "";
+            if (locationInput) locationInput.value = "";
+            if (bioInput) bioInput.value = "";
+            if (photoInput) photoInput.value = "";
+            if (photoPreview) {
+              photoPreview.innerHTML = '<i class="fa-regular fa-user" aria-hidden="true"></i>';
+            }
+          }
         } else {
-          navAvatar.innerHTML = `<img src="${state.currentUser.avatar}" alt="${state.currentUser.name}" />`;
-          navAvatar.classList.remove("hidden");
+          formCard.classList.add("hidden");
+          summaryCard.classList.remove("hidden");
+
+          const summaryName = $("#profile-summary-name");
+          const summaryMeta = $("#profile-summary-meta");
+          const summaryEmail = $("#profile-summary-email");
+          const summaryPhone = $("#profile-summary-phone");
+          const summaryLocation = $("#profile-summary-location");
+          const summaryBio = $("#profile-summary-bio");
+          const summaryRating = $("#profile-summary-rating");
+          const summaryUpdated = $("#profile-summary-updated");
+          const summaryAvatar = $("#profile-summary-avatar");
+
+          if (user) {
+            if (summaryName) summaryName.textContent = user.name;
+            if (summaryMeta) {
+              const joined = user.createdAt
+                ? new Date(user.createdAt).toLocaleDateString("es-CO", { month: "long", year: "numeric" })
+                : "fecha desconocida";
+              summaryMeta.textContent = `Miembro desde ${joined}`;
+            }
+            if (summaryEmail) summaryEmail.textContent = user.email;
+            if (summaryPhone) summaryPhone.textContent = user.phone;
+            if (summaryLocation) summaryLocation.textContent = user.location;
+            if (summaryBio) {
+              summaryBio.textContent = user.bio ? user.bio : "Añade una breve biografía para generar confianza.";
+            }
+            if (summaryRating) {
+              const ratingValue = Number(user.rating || 5);
+              summaryRating.innerHTML = `<i class="fa-solid fa-star" aria-hidden="true"></i> ${ratingValue.toFixed(1)}`;
+            }
+            if (summaryUpdated) {
+              summaryUpdated.textContent = user.updatedAt
+                ? `Actualizado el ${formatDateTime(user.updatedAt)}`
+                : "Perfil creado recientemente";
+            }
+            if (summaryAvatar) {
+              summaryAvatar.innerHTML = user.avatar
+                ? `<img src="${user.avatar}" alt="Foto de ${user.name}" />`
+                : '<i class="fa-regular fa-user" aria-hidden="true"></i>';
+            }
+          } else {
+            if (summaryName) summaryName.textContent = "Invitado";
+            if (summaryMeta) summaryMeta.textContent = "Completa tu perfil para que otros te conozcan.";
+            if (summaryEmail) summaryEmail.textContent = "—";
+            if (summaryPhone) summaryPhone.textContent = "—";
+            if (summaryLocation) summaryLocation.textContent = "—";
+            if (summaryBio) summaryBio.textContent = "—";
+            if (summaryRating) summaryRating.textContent = "—";
+            if (summaryUpdated) summaryUpdated.textContent = "Perfil sin verificar";
+            if (summaryAvatar) {
+              summaryAvatar.innerHTML = '<i class="fa-regular fa-user" aria-hidden="true"></i>';
+            }
+          }
+        }
+      }
+
+      function handleProfilePhotoChange(event) {
+        const input = event?.target;
+        const preview = $("#profile-photo-preview");
+        if (!input || !preview) {
+          return;
+        }
+        const file = input.files && input.files[0];
+        if (!file) {
+          preview.innerHTML = '<i class="fa-regular fa-user" aria-hidden="true"></i>';
+          return;
+        }
+        if (file.type && !file.type.startsWith("image")) {
+          showToast("Selecciona una imagen válida para tu perfil.", "danger");
+          input.value = "";
+          preview.innerHTML = '<i class="fa-regular fa-user" aria-hidden="true"></i>';
+          return;
+        }
+        readFile(file)
+          .then((data) => {
+            preview.innerHTML = `<img src="${data}" alt="Previsualización de foto de perfil" />`;
+          })
+          .catch(() => {
+            showToast("No pudimos previsualizar la imagen seleccionada.", "danger");
+            input.value = "";
+            preview.innerHTML = '<i class="fa-regular fa-user" aria-hidden="true"></i>';
+          });
+      }
+
+      function handleProfileSubmit(event) {
+        event.preventDefault();
+        const form = event?.currentTarget;
+        const nameInput = $("#profile-name");
+        const emailInput = $("#profile-email");
+        const phoneInput = $("#profile-phone");
+        const locationInput = $("#profile-location");
+        const bioInput = $("#profile-bio");
+        const photoInput = $("#profile-photo");
+        const name = nameInput ? nameInput.value.trim() : "";
+        const email = emailInput ? emailInput.value.trim() : "";
+        const phone = phoneInput ? phoneInput.value.trim() : "";
+        const location = locationInput ? locationInput.value.trim() : "";
+        const bio = bioInput ? bioInput.value.trim() : "";
+        const file = photoInput && photoInput.files ? photoInput.files[0] : null;
+        const existingAvatar = state.currentUser && state.currentUser.avatar;
+
+        if (!name || !email || !phone || !location) {
+          showToast("Completa todos los campos obligatorios del perfil.", "danger");
+          return;
+        }
+
+        const finalize = (avatar) => {
+          const now = new Date().toISOString();
+          const previous = state.currentUser || {};
+          const user = {
+            ...previous,
+            id: previous.id || generateId("user"),
+            name,
+            email,
+            phone,
+            location,
+            bio,
+            avatar: avatar || previous.avatar || "",
+            rating: Number(previous.rating || 5),
+            createdAt: previous.createdAt || now,
+            updatedAt: now,
+          };
+          profileMode = "view";
+          setCurrentUser(user);
+          if (photoInput) {
+            photoInput.value = "";
+          }
+          if (form && typeof form.reset === "function") {
+            form.reset();
+          }
+          showToast(previous && previous.id ? "Perfil actualizado correctamente." : "Perfil creado correctamente.", "success");
+          switchToPage("profile", { scroll: false });
+        };
+
+        if (file) {
+          if (file.type && !file.type.startsWith("image")) {
+            showToast("Selecciona una imagen válida para tu perfil.", "danger");
+            return;
+          }
+          readFile(file)
+            .then((data) => finalize(data))
+            .catch(() => {
+              showToast("No pudimos procesar la imagen seleccionada.", "danger");
+            });
+        } else if (existingAvatar) {
+          finalize(existingAvatar);
+        } else {
+          showToast("Agrega una foto de perfil para completar tu registro.", "danger");
+        }
+      }
+
+      function startProfileEdit() {
+        profileMode = state.currentUser ? "edit" : "create";
+        updateProfileSection();
+        focusProfileForm();
+      }
+
+      function cancelProfileEdit() {
+        profileMode = state.currentUser ? "view" : "create";
+        updateProfileSection();
+      }
+
+      function updateProfileCard() {
+        const navAvatar = $("#nav-avatar");
+        const sidebarAvatar = $("#sidebar-user-avatar");
+        const sidebarName = $("#sidebar-user-name");
+        const sidebarMeta = $("#sidebar-user-meta");
+
+        if (navAvatar) {
+          if (!state.currentUser) {
+            navAvatar.classList.add("hidden");
+            navAvatar.innerHTML = "";
+          } else {
+            navAvatar.innerHTML = `<img src="${state.currentUser.avatar}" alt="${state.currentUser.name}" />`;
+            navAvatar.classList.remove("hidden");
+          }
+        }
+
+        if (sidebarAvatar && sidebarName && sidebarMeta) {
+          if (!state.currentUser) {
+            sidebarAvatar.innerHTML = '<i class="fa-regular fa-user" aria-hidden="true"></i>';
+            sidebarName.textContent = "Invitado";
+            sidebarMeta.textContent = "Crea tu perfil para comenzar a intercambiar.";
+          } else {
+            sidebarAvatar.innerHTML = state.currentUser.avatar
+              ? `<img src="${state.currentUser.avatar}" alt="${state.currentUser.name}" />`
+              : '<i class="fa-regular fa-user" aria-hidden="true"></i>';
+            sidebarName.textContent = state.currentUser.name;
+            sidebarMeta.textContent = state.currentUser.location
+              ? `Ubicación: ${state.currentUser.location}`
+              : "Perfil verificado";
+          }
         }
       }
 
@@ -6162,20 +7171,30 @@
           showToast("Completa todos los campos de verificación.", "danger");
           return;
         }
-        readFile(file).then((avatar) => {
-          state.currentUser = {
-            id: generateId("user"),
-            name,
-            email,
-            phone,
-            location,
-            avatar,
-            rating: 5,
-          };
-          closeModal("auth-modal");
-          showToast("Cuenta verificada creada. ¡Ya puedes publicar!", "success");
-          updateUI();
-        });
+        readFile(file)
+          .then((avatar) => {
+            const now = new Date().toISOString();
+            const user = {
+              id: generateId("user"),
+              name,
+              email,
+              phone,
+              location,
+              bio: "",
+              avatar,
+              rating: 5,
+              createdAt: now,
+              updatedAt: now,
+            };
+            closeModal("auth-modal");
+            profileMode = "view";
+            setCurrentUser(user);
+            showToast("Cuenta verificada creada. ¡Ya puedes publicar!", "success");
+            switchToPage("profile", { scroll: false });
+          })
+          .catch(() => {
+            showToast("No pudimos procesar la imagen seleccionada.", "danger");
+          });
       }
 
       function handlePublish(event) {
@@ -6269,23 +7288,20 @@
         if (!authBtn) return;
         if (state.currentUser) {
           authBtn.textContent = "Cerrar sesión";
-          authBtn.onclick = () => {
-            state.currentUser = null;
-            state.offersSent = [];
-            state.offersReceived = [];
-            state.activeAgreements = [];
-            state.history = [];
-            state.reviews = [];
-            showToast("Sesión cerrada. Hasta pronto.", "info");
-            updateUI();
-          };
+          authBtn.onclick = () => logout();
         } else {
-          authBtn.textContent = "Ingresar";
-          authBtn.onclick = () => openModal("auth-modal");
+          authBtn.textContent = "Crear perfil";
+          authBtn.onclick = () => {
+            profileMode = "create";
+            switchToPage("profile");
+            closeSidebar();
+            focusProfileForm();
+          };
         }
       }
 
       function updateUI() {
+        updateProfileSection();
         updateProfileCard();
         updateAuthButton();
         renderBannerSlider();
@@ -6309,6 +7325,9 @@
           btn.addEventListener("click", (event) => {
             const target = event.currentTarget.getAttribute("data-target");
             const handled = switchToPage(target);
+            if (handled && isMobileSidebar()) {
+              closeSidebar();
+            }
             if (!handled) {
               const section = document.getElementById(target);
               if (section) {
@@ -6322,10 +7341,37 @@
       }
 
       document.addEventListener("DOMContentLoaded", () => {
+        sidebarElement = $("#app-sidebar");
+        sidebarToggleButton = $("#sidebar-toggle");
+        sidebarBackdropElement = $("#sidebar-backdrop");
+
+        const syncHandler = () => syncSidebarWithViewport();
+        syncSidebarWithViewport();
+        if (typeof mobileSidebarQuery.addEventListener === "function") {
+          mobileSidebarQuery.addEventListener("change", syncHandler);
+        } else if (typeof mobileSidebarQuery.addListener === "function") {
+          mobileSidebarQuery.addListener(syncHandler);
+        }
+
+        if (sidebarToggleButton) {
+          sidebarToggleButton.addEventListener("click", toggleSidebar);
+        }
+        if (sidebarBackdropElement) {
+          sidebarBackdropElement.addEventListener("click", closeSidebar);
+        }
+        if (sidebarElement) {
+          setSidebarAriaHidden(isMobileSidebar() ? !sidebarElement.classList.contains("is-open") : false);
+        }
+
         registerNavigation();
         updateUI();
 
-        on("#cta-register", "click", () => openModal("auth-modal"));
+        on("#cta-register", "click", () => {
+          profileMode = state.currentUser ? "view" : "create";
+          switchToPage("profile");
+          closeSidebar();
+          focusProfileForm();
+        });
         on("#profile-publish", "click", () => ensureAuthenticated(() => openModal("publish-modal")));
         on("#quick-publish", "click", () => ensureAuthenticated(() => openModal("publish-modal")));
         on("#feed-publish", "click", () => ensureAuthenticated(() => openModal("publish-modal")));
@@ -6333,6 +7379,17 @@
         on("#add-product-secondary", "click", () => ensureAuthenticated(() => openModal("publish-modal")));
 
         on("#auth-form", "submit", handleAuth);
+        on("#profile-form", "submit", handleProfileSubmit);
+        on("#profile-photo", "change", handleProfilePhotoChange);
+        on("#profile-edit", "click", startProfileEdit);
+        on("#profile-cancel", "click", cancelProfileEdit);
+        on("#profile-logout", "click", () => logout());
+        on("#nav-avatar", "click", () => {
+          profileMode = state.currentUser ? "view" : "create";
+          switchToPage("profile");
+          closeSidebar();
+        });
+
         on("#publish-form", "submit", handlePublish);
         on("#product-images", "change", updatePreview);
 
@@ -6535,6 +7592,10 @@
 
         document.addEventListener("keydown", (event) => {
           if (event.key === "Escape") {
+            if (sidebarElement && sidebarElement.classList.contains("is-open")) {
+              closeSidebar();
+              return;
+            }
             const overlay = $("#filters-overlay");
             if (overlay && overlay.classList.contains("active")) {
               closeFiltersOverlay({ restore: true });
