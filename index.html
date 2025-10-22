@@ -230,15 +230,16 @@
         border: 1px solid rgba(148, 163, 184, 0.18);
         box-shadow: 0 48px 80px -45px rgba(8, 13, 45, 0.85);
         padding: clamp(1.6rem, 2.8vw, 2.2rem) clamp(1.4rem, 2.6vw, 2rem);
+        padding-top: calc(clamp(1.6rem, 2.8vw, 2.2rem) + env(safe-area-inset-top, 0px));
         padding-bottom: calc(clamp(1.6rem, 2.8vw, 2.2rem) + env(safe-area-inset-bottom, 0px));
         display: flex;
         flex-direction: column;
         gap: clamp(1.4rem, 2.6vw, 2rem);
         width: min(92vw, var(--sidebar-desktop-width, 320px));
         position: fixed;
-        top: var(--header-height);
+        top: 0;
         left: 0;
-        height: calc(100vh - var(--header-height));
+        height: 100vh;
         transform: translateX(calc(-100% - 24px));
         transition: transform var(--transition), opacity var(--transition), box-shadow var(--transition);
         z-index: 80;
