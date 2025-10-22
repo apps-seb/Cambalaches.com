@@ -225,28 +225,27 @@
 
       .app-sidebar {
         --sidebar-blur: 22px;
-        background: linear-gradient(175deg, rgba(15, 23, 42, 0.98) 0%, rgba(17, 24, 39, 0.92) 45%, rgba(30, 41, 59, 0.9) 100%);
+        background: #ffffff;
         border-radius: 0 var(--radius-xl) var(--radius-xl) 0;
-        border: 1px solid rgba(148, 163, 184, 0.18);
-        box-shadow: 0 48px 80px -45px rgba(8, 13, 45, 0.85);
-        padding: clamp(1.6rem, 2.8vw, 2.2rem) clamp(1.4rem, 2.6vw, 2rem);
-        padding-bottom: calc(clamp(1.6rem, 2.8vw, 2.2rem) + env(safe-area-inset-bottom, 0px));
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        box-shadow: 0 32px 70px -50px rgba(15, 23, 42, 0.45);
+        padding: clamp(1.4rem, 2.4vw, 2rem) clamp(1.2rem, 2.2vw, 1.8rem);
+        padding-top: calc(clamp(1.4rem, 2.4vw, 2rem) + env(safe-area-inset-top, 0px));
+        padding-bottom: calc(clamp(1.4rem, 2.4vw, 2rem) + env(safe-area-inset-bottom, 0px));
         display: flex;
         flex-direction: column;
-        gap: clamp(1.4rem, 2.6vw, 2rem);
-        width: min(92vw, var(--sidebar-desktop-width, 320px));
+        gap: clamp(1.2rem, 2.1vw, 1.7rem);
+        width: min(90vw, var(--sidebar-desktop-width, 280px));
         position: fixed;
-        top: var(--header-height);
+        top: 0;
         left: 0;
-        height: calc(100vh - var(--header-height));
+        height: 100vh;
         transform: translateX(calc(-100% - 24px));
         transition: transform var(--transition), opacity var(--transition), box-shadow var(--transition);
         z-index: 80;
         overflow-y: auto;
         opacity: 0;
-        color: #e2e8f0;
-        backdrop-filter: blur(var(--sidebar-blur));
-        -webkit-backdrop-filter: blur(var(--sidebar-blur));
+        color: #0f172a;
         scrollbar-width: thin;
         scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
       }
@@ -264,17 +263,6 @@
         border-radius: 999px;
       }
 
-      .app-sidebar::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.35), transparent 55%),
-          radial-gradient(circle at 80% 8%, rgba(14, 165, 233, 0.28), transparent 65%);
-        pointer-events: none;
-        opacity: 0.9;
-        border-radius: inherit;
-      }
-
       .app-sidebar > * {
         position: relative;
         z-index: 1;
@@ -283,46 +271,35 @@
       .app-sidebar.is-open {
         transform: translateX(0);
         opacity: 1;
-        box-shadow: 0 60px 120px -50px rgba(8, 13, 45, 0.88);
+        box-shadow: 0 60px 120px -50px rgba(15, 23, 42, 0.45);
       }
 
       .app-sidebar__header {
-        display: grid;
-        gap: 1rem;
-      }
-
-      .app-sidebar__eyebrow {
-        text-transform: uppercase;
-        letter-spacing: 0.14em;
-        font-size: 0.7rem;
-        font-weight: 700;
-        color: rgba(226, 232, 240, 0.6);
-      }
-
-      .app-sidebar__title {
-        margin: 0;
-        font-size: clamp(1.25rem, 2.4vw, 1.55rem);
-        font-weight: 700;
-        color: #f8fafc;
-        letter-spacing: -0.01em;
-      }
-
-      .app-sidebar__subtitle {
-        margin: 0;
-        color: rgba(226, 232, 240, 0.72);
-        font-size: 0.92rem;
-        line-height: 1.6;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        position: sticky;
+        top: calc(env(safe-area-inset-top, 0px));
+        margin-top: calc(-1 * clamp(1.4rem, 2.4vw, 2rem));
+        padding-top: calc(clamp(1.4rem, 2.4vw, 2rem) + env(safe-area-inset-top, 0px));
+        padding-bottom: 0.5rem;
+        margin-bottom: 0.75rem;
+        background: #ffffff;
+        border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+        z-index: 2;
       }
 
       .app-sidebar__profile {
         display: flex;
         align-items: center;
         gap: 1rem;
-        padding: 0.85rem 1rem;
+        padding: 0.9rem 1rem;
         border-radius: var(--radius-lg);
-        background: rgba(15, 23, 42, 0.45);
-        border: 1px solid rgba(99, 102, 241, 0.22);
-        box-shadow: 0 28px 55px -40px rgba(79, 70, 229, 0.75);
+        background: linear-gradient(150deg, rgba(255, 255, 255, 0.96), rgba(241, 245, 249, 0.88));
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        box-shadow: 0 28px 55px -45px rgba(15, 23, 42, 0.42);
+        backdrop-filter: blur(22px);
+        -webkit-backdrop-filter: blur(22px);
       }
 
       .app-sidebar__profile-avatar {
@@ -331,12 +308,12 @@
         border-radius: 16px;
         display: grid;
         place-items: center;
-        background: linear-gradient(145deg, rgba(129, 140, 248, 0.2), rgba(14, 165, 233, 0.25));
-        color: #c7d2fe;
+        background: linear-gradient(145deg, rgba(255, 214, 10, 0.32), rgba(255, 255, 255, 0.6));
+        color: #111827;
         overflow: hidden;
         font-weight: 700;
         font-size: 1.1rem;
-        box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 0.12);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.65);
       }
 
       .app-sidebar__profile-avatar img {
@@ -347,13 +324,13 @@
 
       .app-sidebar__profile strong {
         display: block;
-        color: #f1f5f9;
+        color: #0b0f19;
         font-size: 1rem;
       }
 
       .app-sidebar__profile span {
         display: block;
-        color: rgba(226, 232, 240, 0.68);
+        color: rgba(15, 23, 42, 0.58);
         font-size: 0.85rem;
       }
 
@@ -369,24 +346,22 @@
         letter-spacing: 0.18em;
         font-size: 0.72rem;
         font-weight: 700;
-        color: rgba(226, 232, 240, 0.45);
+        color: rgba(15, 23, 42, 0.45);
         padding-left: 0.4rem;
       }
 
       .app-sidebar__nav button {
-        border: 1px solid rgba(148, 163, 184, 0.12);
+        border: 1px solid rgba(15, 23, 42, 0.08);
         border-radius: var(--radius-lg);
         padding: 0.85rem 1.05rem;
         display: flex;
         align-items: center;
         gap: 0.9rem;
-        background: rgba(15, 23, 42, 0.35);
-        color: rgba(226, 232, 240, 0.88);
+        background: #ffffff;
+        color: rgba(15, 23, 42, 0.85);
         font-weight: 600;
         cursor: pointer;
         transition: transform var(--transition), box-shadow var(--transition), background var(--transition), border var(--transition), color var(--transition);
-        backdrop-filter: blur(calc(var(--sidebar-blur) / 2));
-        -webkit-backdrop-filter: blur(calc(var(--sidebar-blur) / 2));
         width: 100%;
       }
 
@@ -396,40 +371,40 @@
         border-radius: 12px;
         display: grid;
         place-items: center;
-        background: rgba(79, 70, 229, 0.22);
-        color: #c7d2fe;
+        background: rgba(17, 24, 39, 0.05);
+        color: #111827;
         font-size: 1rem;
-        box-shadow: inset 0 0 0 1px rgba(129, 140, 248, 0.25);
+        box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.05);
       }
 
       .app-sidebar__nav button:hover,
       .app-sidebar__nav button:focus-visible {
         transform: translateX(6px);
-        background: rgba(79, 70, 229, 0.32);
-        border-color: rgba(129, 140, 248, 0.45);
-        color: #f8fafc;
+        background: rgba(255, 214, 10, 0.16);
+        border-color: rgba(255, 214, 10, 0.5);
+        color: #0b0f19;
         outline: none;
-        box-shadow: 0 26px 60px -40px rgba(99, 102, 241, 0.75);
+        box-shadow: 0 26px 60px -48px rgba(15, 23, 42, 0.35);
       }
 
       .app-sidebar__nav button:hover .nav-icon,
       .app-sidebar__nav button:focus-visible .nav-icon {
-        background: rgba(99, 102, 241, 0.35);
-        color: #e0e7ff;
-        box-shadow: inset 0 0 0 1px rgba(165, 180, 252, 0.4);
+        background: rgba(255, 214, 10, 0.35);
+        color: #0f172a;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
       }
 
       .app-sidebar__nav button.active {
-        background: rgba(79, 70, 229, 0.42);
-        color: #f8fafc;
-        border-color: rgba(129, 140, 248, 0.65);
-        box-shadow: 0 35px 85px -45px rgba(79, 70, 229, 0.85);
+        background: #ffd60a;
+        color: #ffffff;
+        border-color: #facc15;
+        box-shadow: 0 35px 85px -45px rgba(250, 204, 21, 0.8);
       }
 
       .app-sidebar__nav button.active .nav-icon {
-        background: rgba(129, 140, 248, 0.45);
-        color: #fff;
-        box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 0.25);
+        background: rgba(255, 255, 255, 0.3);
+        color: #ffffff;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
       }
 
       .sidebar-backdrop {
@@ -3777,13 +3752,6 @@
       <div class="app-shell">
         <aside class="app-sidebar" id="app-sidebar" aria-label="Navegación principal">
           <div class="app-sidebar__header">
-            <div>
-              <span class="app-sidebar__eyebrow">Panel Cambalaches</span>
-              <h2 class="app-sidebar__title">Gestiona tus canjes</h2>
-              <p class="app-sidebar__subtitle">
-                Administra tus publicaciones, propuestas y reputación desde un único lugar.
-              </p>
-            </div>
             <div class="app-sidebar__profile">
               <div class="app-sidebar__profile-avatar" id="sidebar-user-avatar">
                 <i class="fa-regular fa-user" aria-hidden="true"></i>
