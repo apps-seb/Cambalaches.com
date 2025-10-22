@@ -1387,9 +1387,184 @@
         }
       }
 
+      @media (max-width: 540px) {
+        body {
+          font-size: 0.95rem;
+          line-height: 1.55;
+          padding-bottom: 120px;
+        }
+
+        .header-shell {
+          padding: 0.8rem clamp(0.75rem, 6vw, 1.1rem) 1rem;
+          gap: 0.6rem;
+        }
+
+        .brand {
+          gap: 0.6rem;
+        }
+
+        .brand-mark {
+          width: 42px;
+          height: 42px;
+          border-radius: 14px;
+          font-size: 1rem;
+        }
+
+        .brand h1 {
+          font-size: 1.28rem;
+        }
+
+        nav {
+          gap: 0.45rem;
+        }
+
+        nav button {
+          padding: 0.55rem 0.95rem;
+          font-size: 0.9rem;
+        }
+
+        .header-search input {
+          font-size: 0.9rem;
+        }
+
+        .btn {
+          padding: 0.65rem 1.1rem;
+          font-size: 0.9rem;
+        }
+
+        .panel {
+          padding: 1.2rem;
+        }
+
+        .panel h3 {
+          font-size: 1.2rem;
+          margin-bottom: 0.9rem;
+        }
+
+        .section-header {
+          gap: 0.75rem;
+          margin-bottom: 1.3rem;
+        }
+
+        .section-title {
+          gap: 0.7rem;
+        }
+
+        .section-icon {
+          width: 52px;
+          height: 52px;
+          border-radius: 18px;
+        }
+
+        .dashboard-grid {
+          gap: clamp(1.2rem, 5vw, 1.6rem);
+        }
+
+        .category-board,
+        .most-viewed-board {
+          padding: 0.95rem 1rem;
+        }
+
+        .product-card-body {
+          padding: 0.85rem;
+          gap: 0.48rem;
+        }
+
+        .product-card-title {
+          font-size: 0.92rem;
+        }
+
+        .product-card-category,
+        .product-card-owner .owner-meta,
+        .product-card-rating {
+          font-size: 0.68rem;
+        }
+
+        .product-detail-dialog {
+          width: min(96vw, 520px);
+          grid-template-columns: 1fr;
+          max-height: 88vh;
+        }
+
+        .product-detail-gallery {
+          grid-template-rows: minmax(0, 220px) auto;
+        }
+
+        .product-detail-close {
+          width: 40px;
+          height: 40px;
+        }
+
+        .product-detail-price {
+          padding: 0.5rem 1rem;
+          font-size: 0.9rem;
+        }
+
+        .product-detail-thumbs {
+          padding: 0.8rem 1rem;
+          gap: 0.5rem;
+        }
+
+        .product-detail-thumb {
+          width: 70px;
+          height: 58px;
+          border-radius: 14px;
+        }
+
+        .product-detail-body {
+          padding: 1rem;
+          gap: 0.75rem;
+        }
+
+        .product-detail-body h2 {
+          font-size: 1.35rem;
+        }
+
+        .product-detail-actions {
+          gap: 0.55rem;
+        }
+
+        .product-detail-actions .btn {
+          width: 100%;
+        }
+
+        .premium-bottom-nav__card {
+          padding: 0.08rem 0.35rem calc(0.45rem + env(safe-area-inset-bottom, 0px));
+          border-radius: 16px;
+          min-height: 62px;
+        }
+
+        .premium-bottom-nav button {
+          font-size: 0.68rem;
+          padding: 0.38rem 0.2rem 0.48rem;
+          gap: 0.2rem;
+        }
+
+        .premium-bottom-nav button .nav-icon {
+          width: 26px;
+          height: 26px;
+          font-size: 1.05rem;
+        }
+
+        .premium-bottom-nav button.nav-item--highlight {
+          --highlight-size: 54px;
+          padding: calc(var(--highlight-size) / 2 + 0.28rem) 0.2rem 0.45rem;
+          min-width: calc(var(--highlight-size) + 8px);
+        }
+
+        .premium-bottom-nav button.nav-item--highlight .nav-icon {
+          font-size: 1.22rem;
+        }
+      }
+
       @media (max-width: 480px) {
         :root {
           --header-height: 148px;
+        }
+        body {
+          font-size: 0.92rem;
+          line-height: 1.5;
+          padding-bottom: 110px;
         }
         header {
           box-shadow: 0 12px 28px -18px rgba(0, 0, 0, 0.4);
@@ -1410,10 +1585,14 @@
           justify-content: space-between;
         }
         .brand h1 {
-          font-size: 1.35rem;
+          font-size: 1.22rem;
         }
         .brand span {
           display: none;
+        }
+        .btn {
+          padding: 0.6rem 1rem;
+          font-size: 0.88rem;
         }
         .header-actions {
           display: none;
@@ -1444,7 +1623,7 @@
           font-size: 0.88rem;
         }
         #feed-grid {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
+          grid-template-columns: minmax(0, 1fr);
           gap: clamp(0.6rem, 4vw, 0.9rem);
         }
         .category-board {
@@ -1454,7 +1633,7 @@
           padding: 1rem 1.1rem;
         }
         .category-list {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
+          grid-template-columns: minmax(0, 1fr);
         }
         .most-viewed-list {
           gap: clamp(0.5rem, 4vw, 0.85rem);
@@ -1531,15 +1710,76 @@
           font-size: 0.72rem;
           padding: 0.4rem 0.7rem;
         }
+        .panel {
+          padding: 1rem;
+        }
+        .panel h3 {
+          font-size: 1.12rem;
+          margin-bottom: 0.8rem;
+        }
+        .section-header {
+          gap: 0.6rem;
+          margin-bottom: 1rem;
+        }
+        .section-title {
+          gap: 0.6rem;
+        }
+        .section-icon {
+          width: 44px;
+          height: 44px;
+          border-radius: 14px;
+        }
         .header-notification {
           display: none;
         }
         main {
           padding: clamp(0.45rem, 5vw, 0.85rem);
         }
+        .product-detail-dialog {
+          margin: max(0.75rem, calc(var(--header-height) - 56px)) auto clamp(0.65rem, 5vw, 1.2rem);
+        }
+        .product-detail-thumbs {
+          padding: 0.7rem 0.85rem;
+        }
+        .product-detail-thumb {
+          width: 64px;
+          height: 54px;
+        }
+        .product-detail-body {
+          padding: 0.9rem;
+          gap: 0.65rem;
+        }
+        .product-detail-body h2 {
+          font-size: 1.28rem;
+        }
+        .premium-bottom-nav__card {
+          border-radius: 14px;
+          padding: 0.05rem 0.28rem calc(0.4rem + env(safe-area-inset-bottom, 0px));
+          min-height: 58px;
+        }
+        .premium-bottom-nav button {
+          font-size: 0.64rem;
+          padding: 0.34rem 0.18rem 0.45rem;
+        }
+        .premium-bottom-nav button .nav-icon {
+          width: 24px;
+          height: 24px;
+          font-size: 1rem;
+        }
+        .premium-bottom-nav button.nav-item--highlight {
+          --highlight-size: 50px;
+          min-width: calc(var(--highlight-size) + 6px);
+          padding: calc(var(--highlight-size) / 2 + 0.25rem) 0.18rem 0.42rem;
+        }
+        .premium-bottom-nav button.nav-item--highlight .nav-icon {
+          font-size: 1.15rem;
+        }
       }
 
       @media (max-width: 360px) {
+        body {
+          font-size: 0.9rem;
+        }
         #feed-grid {
           gap: clamp(0.45rem, 5vw, 0.7rem);
         }
@@ -1560,6 +1800,10 @@
         .product-card-badge {
           font-size: 0.78rem;
           padding: 0.3rem 0.6rem;
+        }
+        .btn {
+          padding: 0.55rem 0.9rem;
+          font-size: 0.84rem;
         }
         .most-viewed-card {
           width: clamp(160px, 88vw, 200px);
@@ -1591,8 +1835,60 @@
         .product-card-cta {
           display: none;
         }
+        .panel {
+          padding: 0.9rem;
+        }
+        .panel h3 {
+          font-size: 1.05rem;
+          margin-bottom: 0.7rem;
+        }
+        .section-title {
+          gap: 0.5rem;
+        }
+        .section-icon {
+          width: 40px;
+          height: 40px;
+        }
         main {
           padding: clamp(0.4rem, 6vw, 0.75rem);
+        }
+        .product-detail-dialog {
+          margin: max(0.6rem, calc(var(--header-height) - 60px)) auto clamp(0.5rem, 5vw, 1rem);
+        }
+        .product-detail-price {
+          padding: 0.45rem 0.85rem;
+          font-size: 0.84rem;
+        }
+        .product-detail-thumbs {
+          padding: 0.6rem 0.75rem;
+        }
+        .product-detail-thumb {
+          width: 60px;
+          height: 48px;
+        }
+        .product-detail-body {
+          padding: 0.8rem;
+          gap: 0.55rem;
+        }
+        .product-detail-body h2 {
+          font-size: 1.18rem;
+        }
+        .premium-bottom-nav__card {
+          min-height: 54px;
+          border-radius: 12px;
+        }
+        .premium-bottom-nav button {
+          font-size: 0.62rem;
+        }
+        .premium-bottom-nav button .nav-icon {
+          width: 22px;
+          height: 22px;
+        }
+        .premium-bottom-nav button.nav-item--highlight {
+          --highlight-size: 48px;
+        }
+        .premium-bottom-nav button.nav-item--highlight .nav-icon {
+          font-size: 1.12rem;
         }
       }
 
