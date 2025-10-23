@@ -1,0 +1,1728 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CanjeApp - Marketplace de Equivalencia</title>
+    
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Google Font: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Configuración de Tailwind y Estilos Personalizados -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'brand': {
+                            'light': '#E8F0FE',
+                            'DEFAULT': '#4285F4', // Google Blue
+                            'dark': '#1A73E8',
+                        },
+                        'brand-yellow': '#FFE600', // Color solicitado
+                        'gray': {
+                            50: '#F9FAFB',
+                            100: '#F3F4F6',
+                            200: '#E5E7EB',
+                            300: '#D1D5DB',
+                            400: '#9CA3AF',
+                            500: '#6B7280',
+                            600: '#4B5563',
+                            700: '#374151',
+                            800: '#1F2937',
+                            900: '#111827',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Estilos personalizados */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FA;
+        }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .page {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Barra lateral */
+        #desktop-sidebar { transition: width 0.3s ease-in-out; }
+        #desktop-sidebar.collapsed { width: 80px; }
+        #desktop-sidebar.collapsed .sidebar-text { display: none; }
+        #desktop-sidebar.collapsed .sidebar-title { justify-content: center; }
+        #desktop-sidebar.collapsed .sidebar-title .sidebar-text { display: none; }
+        #main-content-wrapper.sidebar-collapsed {
+            margin-left: 80px;
+            transition: margin-left 0.3s ease-in-out;
+        }
+
+        /* Input de búsqueda */
+        .search-input { transition: all 0.2s ease-in-out; }
+        .search-input:focus-within {
+            box-shadow: 0 1px 6px 0 rgba(32,33,36,0.28);
+            border-color: rgba(223,225,229,0);
+        }
+
+        /* Nav activo */
+        .nav-link-mobile.active { color: #4285F4; }
+        .nav-link-desktop.active {
+            background-color: #E8F0FE;
+            color: #1A73E8;
+            font-weight: 600;
+        }
+        .nav-link-desktop.active svg { color: #1A73E8; }
+        
+        /* Modal */
+        .modal-backdrop { transition: opacity 0.3s ease-in-out; }
+        .modal-content {
+            transition: all 0.3s ease-in-out;
+            transform: translateY(20px) scale(0.95);
+            opacity: 0;
+        }
+        .modal.open .modal-content {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+        
+        /* Carrusel */
+        .carousel-slide {
+            transition: transform 0.5s ease-in-out;
+        }
+
+        /* --- NUEVOS ESTILOS --- */
+
+        /* Estilo Glassmorphism para Timer */
+        .promo-timer {
+            background: rgba(255, 255, 255, 0.2); /* Fondo de vidrio */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Borde sutil */
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 600; /* font-semibold */
+            letter-spacing: 0.05em; /* tracking-wider */
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2); /* Sombra de texto para legibilidad */
+        }
+        
+        /* Menú Móvil */
+        #mobile-menu-panel {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        /* Icono Premium de Categoría */
+        .category-item-icon {
+            position: relative;
+        }
+        .premium-icon {
+            position: absolute;
+            top: -4px; /* Ajuste fino */
+            right: -4px; /* Ajuste fino */
+            filter: drop-shadow(0 0 3px rgba(255, 223, 0, 0.8));
+            animation: pulse-premium 2.5s infinite ease-in-out;
+        }
+        @keyframes pulse-premium {
+            0%, 100% {
+                opacity: 0.9;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.25);
+            }
+        }
+
+        /* --- ESTILOS PARA SUBIDA DE FOTOS --- */
+        /* Contenedor de vista previa de imagen */
+        .photo-preview-item {
+            position: relative;
+            width: 100%;
+            padding-top: 100%; /* 1:1 Aspect Ratio */
+            background-color: #F3F4F6;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+        .photo-preview-item img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .btn-remove-photo {
+            position: absolute;
+            top: 0.25rem;
+            right: 0.25rem;
+            padding: 0.25rem;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border-radius: 9999px;
+            transition: background-color 0.2s;
+        }
+        .btn-remove-photo:hover {
+            background-color: rgba(0, 0, 0, 0.75);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- MENÚ LATERAL (Móvil) - NUEVO -->
+    <div id="mobile-menu-backdrop" class="fixed inset-0 z-30 hidden bg-black bg-opacity-50 lg:hidden"></div>
+    <aside id="mobile-menu-panel" class="fixed top-0 left-0 z-40 flex flex-col w-64 h-screen max-w-[80vw] bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out -translate-x-full lg:hidden">
+        <!-- Título / Logo -->
+        <div class="flex items-center h-16 px-6 border-b border-gray-200">
+            <i data-lucide="arrow-right-left" class="text-brand"></i>
+            <span class="ml-3 text-lg font-semibold">CanjeApp</span>
+        </div>
+        <!-- Navegación -->
+        <nav class="flex-1 p-4 space-y-2">
+            <a href="#" class="nav-link-mobile-menu nav-link flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100" data-page="page-explorar">
+                <i data-lucide="compass" class="w-5 h-5 text-gray-500"></i>
+                <span class="ml-4">Explorar</span>
+            </a>
+            <a href="#" class="nav-link-mobile-menu nav-link flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100" data-page="page-canjes">
+                <i data-lucide="repeat" class="w-5 h-5 text-gray-500"></i>
+                <span class="ml-4">Mis Canjes</span>
+            </a>
+            <a href="#" class="nav-link-mobile-menu nav-link flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100" data-page="page-vender">
+                <i data-lucide="tag" class="w-5 h-5 text-gray-500"></i>
+                <span class="ml-4">Vender</span>
+            </a>
+            <a href="#" class="nav-link-mobile-menu nav-link flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100" data-page="page-perfil">
+                <i data-lucide="user" class="w-5 h-5 text-gray-500"></i>
+                <span class="ml-4">Perfil</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- BARRA LATERAL (Escritorio) -->
+    <aside id="desktop-sidebar" class="hidden lg:flex flex-col w-64 h-screen bg-white border-r border-gray-200 fixed top-0 left-0 z-20">
+        <!-- Título / Logo -->
+        <div class="flex items-center h-16 px-6 border-b border-gray-200 sidebar-title">
+            <i data-lucide="arrow-right-left" class="text-brand"></i>
+            <span class="ml-3 text-lg font-semibold sidebar-text">CanjeApp</span>
+        </div>
+        
+        <!-- Navegación -->
+        <nav class="flex-1 p-4 space-y-2">
+            <a href="#" class="nav-link nav-link-desktop flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 active" data-page="page-explorar">
+                <i data-lucide="compass" class="w-5 h-5 text-gray-500"></i>
+                <span class="ml-4 sidebar-text">Explorar</span>
+            </a>
+            <a href="#" class="nav-link nav-link-desktop flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100" data-page="page-canjes">
+                <i data-lucide="repeat" class="w-5 h-5 text-gray-500"></i>
+                <span class="ml-4 sidebar-text">Mis Canjes</span>
+            </a>
+            <a href="#" class="nav-link nav-link-desktop flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100" data-page="page-vender">
+                <i data-lucide="tag" class="w-5 h-5 text-gray-500"></i>
+                <span class="ml-4 sidebar-text">Vender</span>
+            </a>
+            <a href="#" class="nav-link nav-link-desktop flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100" data-page="page-perfil">
+                <i data-lucide="user" class="w-5 h-5 text-gray-500"></i>
+                <span class="ml-4 sidebar-text">Perfil</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- CONTENEDOR PRINCIPAL (se ajusta a la barra lateral) -->
+    <div id="main-content-wrapper" class="lg:ml-64 transition-all duration-300 pb-20 lg:pb-0">
+        
+        <!-- ENCABEZADO -->
+        <header class="sticky top-0 z-10 flex items-center justify-between h-16 px-4 bg-brand-yellow md:px-6">
+            <!-- Botón de menú (móvil) y Colapso (escritorio) -->
+            <div class="flex items-center">
+                <button id="sidebar-toggle-btn" class="hidden p-2 text-gray-800 rounded-full lg:block hover:bg-black/10">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                <!-- BOTÓN DE MENÚ MÓVIL (MODIFICADO) -->
+                <button id="mobile-menu-btn" class="p-2 text-gray-800 rounded-full lg:hidden hover:bg-black/10">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                <!-- Insignia de Admin (NUEVO) -->
+                <span id="admin-badge" class="hidden ml-2 px-3 py-1 text-xs font-semibold text-white bg-red-600 rounded-full">ADMIN</span>
+            </div>
+            
+            <!-- Buscador -->
+            <div class="flex-1 max-w-lg mx-4">
+                <div class="relative flex items-center w-full bg-white border border-transparent rounded-full shadow-sm search-input focus-within:bg-white">
+                    <i data-lucide="search" class="absolute w-5 h-5 text-gray-500 left-4"></i>
+                    <input type="text" placeholder="Buscar artículos, servicios y más..." class="w-full h-10 py-2 pl-12 pr-4 bg-transparent border-none rounded-full focus:outline-none focus:ring-0">
+                </div>
+            </div>
+            
+            <!-- Perfil (Móvil se maneja en nav) -->
+            <div class="items-center hidden lg:flex">
+                <button class="p-2 text-gray-800 rounded-full hover:bg-black/10">
+                    <i data-lucide="bell" class="w-6 h-6"></i>
+                </button>
+                <button class="ml-2" data-page="page-perfil">
+                    <img id="header-profile-img" src="https://placehold.co/40x40/E8F0FE/4285F4?text=U" alt="Perfil" class="w-10 h-10 rounded-full">
+                </button>
+            </div>
+        </header>
+
+        <!-- CONTENIDO DE LA PÁGINA -->
+        <main class="p-4 md:p-6">
+
+            <!-- PÁGINA: EXPLORAR (Default) -->
+            <section id="page-explorar" class="page">
+                
+                <!-- Carrusel de Banners Publicitarios -->
+                <div id="promo-carousel" class="relative w-full h-48 mb-6 overflow-hidden bg-gray-200 rounded-lg md:h-64">
+                    <!-- Contenedor de slides -->
+                    <div id="carousel-slider" class="flex h-full transition-transform duration-500 ease-in-out">
+                        
+                        <!-- Slide 1 -->
+                        <!-- NOTA: Ajusta la fecha en data-end-time al futuro para ver el temporizador funcionando -->
+                        <div class="relative flex-shrink-0 w-full h-full carousel-slide" data-end-time="2025-12-24T23:59:59">
+                            <img src="https://placehold.co/1200x300/4285F4/FFFFFF?text=¡Gran+Canjetón+Navideño!" alt="Banner 1" class="object-cover w-full h-full">
+                            <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-white bg-black bg-opacity-30">
+                                <h2 class="text-2xl font-bold md:text-4xl">¡Canjetón Navideño!</h2>
+                                <p class="mt-2 text-sm md:text-lg">Publica y gana premios</p>
+                            </div>
+                            <!-- Temporizador y Admin (MODIFICADO) -->
+                            <div class="absolute top-2 right-2 md:top-4 md:right-4 flex items-center space-x-2">
+                                <div class="promo-timer"> <!-- Solo el timer -->
+                                    <span>Cargando...</span>
+                                </div>
+                                <!-- Botón Admin Edit Timer (NUEVO) -->
+                                <button class="p-1 text-white bg-black rounded-full admin-only hidden hover:bg-opacity-70 bg-opacity-40 admin-edit-timer-btn">
+                                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Slide 2 -->
+                        <div class="relative flex-shrink-0 w-full h-full carousel-slide" data-end-time="2025-11-30T20:00:00">
+                            <img src="https://placehold.co/1200x300/34A853/FFFFFF?text=Canjea+Tecnología+Verde" alt="Banner 2" class="object-cover w-full h-full">
+                            <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-white bg-black bg-opacity-30">
+                                <h2 class="text-2xl font-bold md:text-4xl">Tecnología Verde</h2>
+                                <p class="mt-2 text-sm md:text-lg">Canjea tus aparatos electrónicos</p>
+                            </div>
+                            <!-- Temporizador y Admin (MODIFICADO) -->
+                            <div class="absolute top-2 right-2 md:top-4 md:right-4 flex items-center space-x-2">
+                                <div class="promo-timer">
+                                    <span>Cargando...</span>
+                                </div>
+                                <button class="p-1 text-white bg-black rounded-full admin-only hidden hover:bg-opacity-70 bg-opacity-40 admin-edit-timer-btn">
+                                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Slide 3 -->
+                        <div class="relative flex-shrink-0 w-full h-full carousel-slide" data-end-time="2025-10-25T18:00:00">
+                            <img src="https://placehold.co/1200x300/FBBC05/333333?text=Moda+Circular" alt="Banner 3" class="object-cover w-full h-full">
+                            <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-gray-900 bg-white bg-opacity-30">
+                                <h2 class="text-2xl font-bold md:text-4xl">Moda Circular</h2>
+                                <p class="mt-2 text-sm md:text-lg">Intercambia tu ropa favorita</p>
+                            </div>
+                            <!-- Temporizador y Admin (MODIFICADO) -->
+                            <div class="absolute top-2 right-2 md:top-4 md:right-4 flex items-center space-x-2">
+                                <div class="promo-timer">
+                                    <span>Cargando...</span>
+                                </div>
+                                <button class="p-1 text-white bg-black rounded-full admin-only hidden hover:bg-opacity-70 bg-opacity-40 admin-edit-timer-btn">
+                                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                    <!-- Controles del Carrusel -->
+                    <button id="carousel-prev" class="absolute top-1/2 left-2 md:left-4 p-2 -translate-y-1/2 text-white bg-black rounded-full bg-opacity-40 hover:bg-opacity-70">
+                        <i data-lucide="chevron-left" class="w-5 h-5 md:w-6 md:h-6"></i>
+                    </button>
+                    <button id="carousel-next" class="absolute top-1/2 right-2 md:right-4 p-2 -translate-y-1/2 text-white bg-black rounded-full bg-opacity-40 hover:bg-opacity-70">
+                        <i data-lucide="chevron-right" class="w-5 h-5 md:w-6 md:h-6"></i>
+                    </button>
+
+                    <!-- Botón Subir Portada (NUEVO) -->
+                    <input type="file" id="cover-file-input" class="hidden" accept="image/*">
+                    <button id="upload-cover-btn" class="absolute bottom-2 left-2 md:bottom-4 md:left-4 p-2 text-white bg-black rounded-full bg-opacity-40 hover:bg-opacity-70" title="Subir foto de portada (simulación)">
+                        <i data-lucide="upload-cloud" class="w-5 h-5 md:w-6 md:h-6"></i>
+                    </button>
+                </div>
+
+                <!-- Categorías (MODIFICADO) -->
+                <h3 class="mb-4 text-xl font-semibold text-gray-900">Categorías Premium</h3>
+                <div id="category-list-container" class="flex pb-4 mb-6 space-x-4 overflow-x-auto no-scrollbar">
+                    <!-- Las categorías se cargarán aquí con JS -->
+                    <div class="text-sm text-gray-500">Cargando categorías...</div>
+                </div>
+
+                <!-- Grilla de Productos -->
+                <h3 class="mb-4 text-xl font-semibold text-gray-900">Artículos Recientes</h3>
+                <div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                    <!-- Producto Card -->
+                    <div class="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
+                        <img src="https://placehold.co/300x200/D1D5DB/111827?text=PS5" alt="Producto" class="object-cover w-full h-40">
+                        <div class="p-4">
+                            <h4 class="font-semibold text-gray-900 truncate">Consola PS5 Usada</h4>
+                            <p class="text-sm text-gray-500">Busca: iPhone 13 o similar</p>
+                            <p class="mt-2 text-sm font-medium text-gray-700">Equivalente a: <span class="text-green-600">$2.000.000 COP</span></p>
+                            <button class="btn-proponer-canje w-full px-4 py-2 mt-3 text-sm font-medium text-white transition-colors bg-brand rounded-lg hover:bg-brand-dark" data-item-id="1" data-item-name="Consola PS5 Usada" data-item-value="2000000">
+                                Proponer Canje
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Producto Card -->
+                    <div class="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
+                        <img src="https://placehold.co/300x200/D1D5DB/111827?text=Bicicleta" alt="Producto" class="object-cover w-full h-40">
+                        <div class="p-4">
+                            <h4 class="font-semibold text-gray-900 truncate">Bicicleta de Montaña</h4>
+                            <p class="text-sm text-gray-500">Busca: Smartwatch</p>
+                            <p class="mt-2 text-sm font-medium text-gray-700">Equivalente a: <span class="text-green-600">$800.000 COP</span></p>
+                            <button class="btn-proponer-canje w-full px-4 py-2 mt-3 text-sm font-medium text-white transition-colors bg-brand rounded-lg hover:bg-brand-dark" data-item-id="2" data-item-name="Bicicleta de Montaña" data-item-value="800000">
+                                Proponer Canje
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Más productos... -->
+                </div>
+            </section>
+
+            <!-- PÁGINA: MIS CANJES -->
+            <section id="page-canjes" class="page hidden max-w-4xl mx-auto">
+                <div id="canjes-auth-required" class="hidden">
+                    <div class="flex flex-col items-center justify-center p-10 text-center bg-white border border-gray-200 rounded-lg shadow-sm">
+                        <i data-lucide="lock" class="w-16 h-16 text-gray-400"></i>
+                        <h2 class="mt-4 text-2xl font-semibold">Acceso Restringido</h2>
+                        <p class="mt-2 text-gray-600">Debes iniciar sesión para ver tus canjes y ofertas.</p>
+                        <button class="nav-link-btn px-6 py-2 mt-6 text-white bg-brand rounded-lg hover:bg-brand-dark" data-page="page-perfil">
+                            Iniciar Sesión
+                        </button>
+                    </div>
+                </div>
+
+                <div id="canjes-content" class="">
+                    <h2 class="mb-6 text-2xl font-semibold text-gray-900">Mis Canjes</h2>
+                    <!-- Tabs -->
+                    <div class="border-b border-gray-200">
+                        <nav class="flex -mb-px space-x-6" aria-label="Tabs">
+                            <button class="px-1 py-3 text-sm font-medium text-brand border-b-2 border-brand whitespace-nowrap canje-tab-btn" data-tab="tab-ofertas">
+                                Ofertas Recibidas (2)
+                            </button>
+                            <button class="px-1 py-3 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 whitespace-nowrap canje-tab-btn" data-tab="tab-mis-articulos">
+                                Mis Artículos (1)
+                            </button>
+                            <button class="px-1 py-3 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 whitespace-nowrap canje-tab-btn" data-tab="tab-activos">
+                                Canjes Activos (0)
+                            </button>
+                        </nav>
+                    </div>
+                    
+                    <!-- Contenido de Tabs -->
+                    <div class="mt-6">
+                        <!-- Tab: Ofertas Recibidas -->
+                        <div id="tab-ofertas" class="canje-tab-content space-y-4">
+                            <!-- Oferta Card -->
+                            <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+                                <div class="flex flex-col md:flex-row md:items-center">
+                                    <!-- Info de la oferta -->
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-500">
+                                            <span class="font-medium text-gray-900">Usuario_Bici</span> te ofrece:
+                                        </p>
+                                        <h4 class="text-lg font-semibold text-brand-dark">Bicicleta de Montaña</h4>
+                                        <p class="text-sm text-gray-500">a cambio de tu:</p>
+                                        <h4 class="text-lg font-semibold text-gray-800">Smartwatch Gama Alta</h4>
+                                    </div>
+                                    <!-- Valores -->
+                                    <div class="flex-shrink-0 mt-4 text-left md:text-right md:mt-0 md:ml-6">
+                                        <p class="text-sm text-gray-500">Valor ofrecido:</p>
+                                        <p class="text-lg font-semibold text-green-600">$800.000 COP</p>
+                                        <p class="text-sm text-gray-500">Tu valor:</p>
+                                        <p class="text-lg font-semibold text-gray-700">$750.000 COP</p>
+                                    </div>
+                                </div>
+                                <!-- Acciones -->
+                                <div class="flex flex-col mt-4 space-y-2 md:flex-row md:space-y-0 md:space-x-3">
+                                    <button class="px-4 py-2 text-sm font-medium text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700">Aceptar Canje</button>
+                                    <button class="btn-negociar px-4 py-2 text-sm font-medium text-white transition-colors bg-brand rounded-lg hover:bg-brand-dark">Negociar</button>
+                                    <button class="px-4 py-2 text-sm font-medium text-gray-700 transition-colors bg-gray-100 rounded-lg hover:bg-gray-200">Rechazar</button>
+                                </div>
+                                <!-- Formulario de Negociación (oculto) -->
+                                <div class="hidden p-4 mt-4 bg-gray-50 border border-gray-200 rounded-lg negotiation-form">
+                                    <h5 class="font-semibold">Negociar Canje</h5>
+                                    <p class="text-sm text-gray-600">Puedes proponer un artículo diferente o pedir una diferencia en dinero.</p>
+                                    <div class="mt-3">
+                                        <label for="contra-oferta-cop" class="block text-sm font-medium text-gray-700">Pedir diferencia (COP):</label>
+                                        <input type="number" id="contra-oferta-cop" class="w-full mt-1 border-gray-300 rounded-lg shadow-sm focus:border-brand focus:ring-brand" placeholder="Ej: 50000">
+                                    </div>
+                                    <div class="mt-3">
+                                        <button class="px-4 py-2 text-sm font-medium text-white bg-brand rounded-lg hover:bg-brand-dark">Enviar Contraoferta</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Más ofertas... -->
+                        </div>
+                        <!-- Tab: Mis Artículos -->
+                        <div id="tab-mis-articulos" class="canje-tab-content hidden">
+                            <!-- Artículos publicados por el usuario... -->
+                        </div>
+                        <!-- Tab: Canjes Activos -->
+                        <div id="tab-activos" class="canje-tab-content hidden">
+                            <!-- Canjes en progreso... -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PÁGINA: VENDER (MODIFICADA) -->
+            <section id="page-vender" class="page hidden max-w-2xl mx-auto">
+                <div id="vender-auth-required" class="hidden">
+                       <div class="flex flex-col items-center justify-center p-10 text-center bg-white border border-gray-200 rounded-lg shadow-sm">
+                            <i data-lucide="lock" class="w-16 h-16 text-gray-400"></i>
+                            <h2 class="mt-4 text-2xl font-semibold">Acceso Restringido</h2>
+                            <p class="mt-2 text-gray-600">Debes iniciar sesión para publicar un artículo.</p>
+                            <button class="nav-link-btn px-6 py-2 mt-6 text-white bg-brand rounded-lg hover:bg-brand-dark" data-page="page-perfil">
+                                Iniciar Sesión
+                            </button>
+                        </div>
+                </div>
+
+                <div id="vender-content" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+                    <h2 class="mb-6 text-2xl font-semibold text-gray-900">Publicar un artículo para canje</h2>
+                    <form id="form-vender" class="space-y-6">
+                        
+                        <!-- Subir Fotos (MODIFICADO) -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Fotos del artículo (Mín 2, Máx 10)</label>
+                            
+                            <!-- Zona de Drop/Click -->
+                            <label id="photo-upload-label" for="product-photo-upload" class="flex flex-col items-center justify-center w-full h-32 px-6 mt-1 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer transition-colors hover:border-brand hover:bg-brand-light">
+                                <div id="photo-upload-text" class="text-center">
+                                    <i data-lucide="upload-cloud" class="w-10 h-10 mx-auto text-gray-400"></i>
+                                    <p class="mt-1 text-sm text-gray-600">Arrastra o <span class="font-medium text-brand">selecciona</span> tus archivos</p>
+                                    <p class="text-xs text-gray-500">Hasta 10 imágenes</p>
+                                </div>
+                                <!-- Texto alternativo cuando hay fotos -->
+                                <div id="photo-upload-summary" class="hidden text-center">
+                                    <i data-lucide="check-circle" class="w-10 h-10 mx-auto text-green-500"></i>
+                                    <p class="mt-1 text-sm font-medium text-gray-700"><span id="photo-count">0</span> fotos seleccionadas</p>
+                                    <p class="mt-1 text-xs text-brand hover:underline">Añadir más fotos</p>
+                                </div>
+                            </label>
+                            <input type="file" id="product-photo-upload" class="sr-only" multiple accept="image/*">
+                            
+                            <!-- Contenedor de Vistas Previas (NUEVO) -->
+                            <div id="photo-preview-container" class="grid grid-cols-3 gap-4 mt-4 sm:grid-cols-4 md:grid-cols-5">
+                                <!-- Las vistas previas se añadirán aquí -->
+                            </div>
+                            
+                            <!-- Mensaje de Error (NUEVO) -->
+                            <p id="photo-error-msg" class="hidden mt-2 text-sm text-red-600"></p>
+                        </div>
+
+                        
+                        <!-- Título -->
+                        <div>
+                            <label for="titulo" class="block text-sm font-medium text-gray-700">Título</label>
+                            <input type="text" id="titulo" class="w-full mt-1 border-gray-300 rounded-lg shadow-sm focus:border-brand focus:ring-brand" placeholder="Ej: Smartwatch en buen estado" required>
+                        </div>
+
+                        <!-- Categoría -->
+                        <div>
+                            <label for="categoria" class="block text-sm font-medium text-gray-700">Categoría</label>
+                            <select id="categoria" class="w-full mt-1 border-gray-300 rounded-lg shadow-sm focus:border-brand focus:ring-brand" required>
+                                <option value="">Cargando categorías...</option>
+                                <!-- Opciones se cargarán aquí con JS -->
+                            </select>
+                        </div>
+                        
+                        <!-- Descripción -->
+                        <div>
+                            <label for="descripcion" class="block text-sm font-medium text-gray-700">Descripción</label>
+                            <textarea id="descripcion" rows="4" class="w-full mt-1 border-gray-300 rounded-lg shadow-sm focus:border-brand focus:ring-brand" placeholder="Describe tu artículo, estado, tiempo de uso, etc."></textarea>
+                        </div>
+
+                        <!-- Qué buscas -->
+                        <div>
+                            <label for="busco" class="block text-sm font-medium text-gray-700">¿Qué buscas a cambio?</label>
+                            <input type="text" id="busco" class="w-full mt-1 border-gray-300 rounded-lg shadow-sm focus:border-brand focus:ring-brand" placeholder="Ej: iPhone, bicicleta, monitor" required>
+                        </div>
+                        
+                        <!-- Valor Estimado -->
+                        <div>
+                            <label for="valor-cop" class="block text-sm font-medium text-gray-700">Valor de equivalencia (COP)</label>
+                            <p class="text-xs text-gray-500">Establece un valor en pesos colombianos para calcular la equivalencia.</p>
+                            <div class="relative mt-1">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">COP $</span>
+                                <input type="number" id="valor-cop" class="w-full pl-12 border-gray-300 rounded-lg shadow-sm focus:border-brand focus:ring-brand" placeholder="Ej: 750000" required>
+                            </div>
+                        </div>
+
+                        <!-- Botón Publicar -->
+                        <div class="pt-4 border-t border-gray-200">
+                            <button type="submit" class="w-full px-6 py-3 font-semibold text-white bg-brand rounded-lg shadow-sm transition-colors hover:bg-brand-dark">
+                                Publicar Artículo
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- PÁGINA: PERFIL -->
+            <section id="page-perfil" class="page hidden max-w-md mx-auto">
+                
+                <!-- Vista: Iniciar Sesión / Registrarse -->
+                <div id="perfil-auth-form" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+                    <!-- Tabs -->
+                    <div class="border-b border-gray-200">
+                        <nav class="flex -mb-px space-x-6" aria-label="Tabs">
+                            <button class="px-1 py-3 text-sm font-medium text-brand border-b-2 border-brand whitespace-nowrap auth-tab-btn" data-auth-tab="auth-login">
+                                Iniciar Sesión
+                            </button>
+                            <button class="px-1 py-3 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 whitespace-nowrap auth-tab-btn" data-auth-tab="auth-register">
+                                Registrarse
+                            </button>
+                        </nav>
+                    </div>
+
+                    <!-- Formulario Iniciar Sesión -->
+                    <form id="auth-login" class="mt-6 space-y-4 auth-tab-content">
+                        <div>
+                            <label for="email-login" class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" id="email-login" class="w-full mt-1 border-gray-300 rounded-lg shadow-sm focus:border-brand focus:ring-brand" placeholder="Usa admin@canje.app para modo admin" required>
+                        </div>
+                        <div>
+                            <label for="pass-login" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                            <input type="password" id="pass-login" class="w-full mt-1 border-gray-300 rounded-lg shadow-sm focus:border-brand focus:ring-brand" required>
+                        </div>
+                        <button type="submit" class="w-full px-4 py-2 font-medium text-white bg-brand rounded-lg hover:bg-brand-dark">
+                            Entrar
+                        </button>
+                    </form>
+
+                    <!-- Formulario Registrarse -->
+                    <form id="auth-register" class="hidden mt-6 space-y-4 auth-tab-content">
+                        <!-- Foto de Perfil -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Foto de Perfil</label>
+                            <div class="flex items-center mt-1 space-x-4">
+                                <img id="profile-pic-preview" src="https://placehold.co/80x80/E8F0FE/4285F4?text=U" class="w-16 h-16 rounded-full" alt="Vista previa">
+                                <label for="profile-pic-upload" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm cursor-pointer hover:bg-gray-50">
+                                    <span>Subir foto</span>
+                                    <input id="profile-pic-upload" name="profile-pic" type="file" class="sr-only" accept="image/*">
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="nombre-reg" class="block text-sm font-medium text-gray-700">Nombre Completo</label>
+                            <input type="text" id="nombre-reg" class="w-full mt-1 border-gray-300 rounded-lg shadow-sm focus:border-brand focus:ring-brand" required>
+                        </div>
+                        <div>
+                            <label for="doc-reg" class="block text-sm font-medium text-gray-700">Documento de Identidad (C.C.)</label>
+                            <input type="text" id="doc-reg" class="w-full mt-1 border-gray-300 rounded-lg shadow-sm focus:border-brand focus:ring-brand" placeholder="Ej: 1061..." required>
+                        </div>
+                        <div>
+                            <label for="dir-reg" class="block text-sm font-medium text-gray-700">Dirección de Residencia</label>
+                            <input type="text" id="dir-reg" class="w-full mt-1 border-gray-300 rounded-lg shadow-sm focus:border-brand focus:ring-brand" placeholder="Ej: Cra 5 # 10-20, Bogotá" required>
+                        </div>
+                        <div>
+                            <label for="email-reg" class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" id="email-reg" class="w-full mt-1 border-gray-300 rounded-lg shadow-sm focus:border-brand focus:ring-brand" required>
+                        </div>
+                        <div>
+                            <label for="pass-reg" class="block text-sm font-medium text-gray-700">Contraseña</Dlabel>
+                            <input type="password" id="pass-reg" class="w-full mt-1 border-gray-300 rounded-lg shadow-sm focus:border-brand focus:ring-brand" required>
+                        </div>
+                        <button type="submit" class="w-full px-4 py-2 font-medium text-white bg-brand rounded-lg hover:bg-brand-dark">
+                            Crear Cuenta
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Vista: Perfil Logueado -->
+                <div id="perfil-logged-in" class="hidden p-6 space-y-6">
+                    <div class="flex flex-col items-center">
+                        <img id="main-profile-img" src="https://placehold.co/100x100/E8F0FE/4285F4?text=U" alt="Foto de Perfil" class="w-24 h-24 rounded-full">
+                        <h2 id="user-name" class="mt-4 text-2xl font-semibold">Usuario de Prueba</h2>
+                        <p id="user-email" class="text-gray-600">usuario@canje.app</p>
+                    </div>
+                    
+                    <!-- Info Adicional del Perfil -->
+                    <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-500">Dirección</span>
+                            <a href="#" class="text-sm font-medium text-brand hover:underline">Editar</a>
+                        </div>
+                        <p id="user-address" class="mt-1 font-medium text-gray-900">Cra 5 # 10-20, Bogotá</p>
+                    </div>
+                    <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-500">Documento</span>
+                            <a href="#" class="text-sm font-medium text-brand hover:underline">Editar</a>
+                        </div>
+                        <p id="user-doc" class="mt-1 font-medium text-gray-900">CC 1061******</p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <a href="#" class="flex items-center justify-between w-full p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50">
+                            <span class="font-medium">Notificaciones</span>
+                            <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400"></i>
+                        </a>
+                        <a href="#" class="flex items-center justify-between w-full p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50">
+                            <span class="font-medium">Ayuda y Soporte</span>
+                            <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400"></i>
+                        </a>
+                    </div>
+
+                    <button id="btn-logout" class="w-full px-4 py-2 font-medium text-red-700 bg-red-100 rounded-lg hover:bg-red-200">
+                        Cerrar Sesión
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <!-- PIE DE PÁGINA PROFESIONAL -->
+        <footer class="p-6 mt-10 bg-white border-t border-gray-200 md:p-10">
+            <div class="grid max-w-6xl grid-cols-2 gap-8 mx-auto md:grid-cols-4 lg:grid-cols-5">
+                <!-- Columna 1: Logo -->
+                <div class="col-span-2 md:col-span-4 lg:col-span-1">
+                    <div class="flex items-center">
+                        <i data-lucide="arrow-right-left" class="text-brand"></i>
+                        <span class="ml-2 text-lg font-semibold">CanjeApp</span>
+                    </div>
+                    <p class="mt-2 text-sm text-gray-500">© 2025 CanjeApp Inc.</p>
+                </div>
+                <!-- Columna 2 -->
+                <div>
+                    <h5 class="font-semibold text-gray-800">Explorar</h5>
+                    <ul class="mt-2 space-y-1">
+                        <li><a href="#" class="text-sm text-gray-600 hover:text-brand">Categorías</a></li>
+                        <li><a href="#" class="text-sm text-gray-600 hover:text-brand">Novedades</a></li>
+                        <li><a href="#" class="text-sm text-gray-600 hover:text-brand">Populares</a></li>
+                    </ul>
+                </div>
+                <!-- Columna 3 -->
+                <div>
+                    <h5 class="font-semibold text-gray-800">Nosotros</h5>
+                    <ul class="mt-2 space-y-1">
+                        <li><a href="#" class="text-sm text-gray-600 hover:text-brand">Acerca de</a></li>
+                        <li><a href="#" class="text-sm text-gray-600 hover:text-brand">Carreras</a></li>
+                        <li><a href="#" class="text-sm text-gray-600 hover:text-brand">Prensa</a></li>
+                    </ul>
+                </div>
+                <!-- Columna 4 -->
+                <div>
+                    <h5 class="font-semibold text-gray-800">Soporte</h5>
+                    <ul class="mt-2 space-y-1">
+                        <li><a href="#" class="text-sm text-gray-600 hover:text-brand">Ayuda</a></li>
+                        <li><a href="#" class="text-sm text-gray-600 hover:text-brand">Términos</a></li>
+                        <li><a href="#" class="text-sm text-gray-600 hover:text-brand">Privacidad</a></li>
+                    </ul>
+                </div>
+                <!-- Columna 5: Redes -->
+                <div class="col-span-2 md:col-span-1">
+                    <h5 class="font-semibold text-gray-800">Síguenos</h5>
+                    <div class="flex mt-2 space-x-3">
+                        <a href="#" class="text-gray-500 hover:text-brand"><i data-lucide="facebook"></i></a>
+                        <a href="#" class="text-gray-500 hover:text-brand"><i data-lucide="instagram"></i></a>
+                        <a href="#" class="text-gray-500 hover:text-brand"><i data-lucide="twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+    </div> <!-- Fin de main-content-wrapper -->
+
+    <!-- NAVEGACIÓN INFERIOR (Móvil) -->
+    <nav class="fixed bottom-0 left-0 z-20 w-full h-16 bg-white border-t border-gray-200 shadow-inner lg:hidden">
+        <div class="flex items-center justify-around w-full h-full max-w-md px-4 mx-auto">
+            <a href="#" class="flex flex-col items-center justify-center text-center text-brand nav-link nav-link-mobile active" data-page="page-explorar">
+                <i data-lucide="compass" class="w-6 h-6"></i>
+                <span class="text-xs font-medium">Explorar</span>
+            </a>
+            <a href="#" class="flex flex-col items-center justify-center text-center text-gray-600 nav-link nav-link-mobile" data-page="page-canjes">
+                <i data-lucide="repeat" class="w-6 h-6"></i>
+                <span class="text-xs font-medium">Canjes</span>
+            </a>
+            <a href="#" class="flex flex-col items-center justify-center text-center text-gray-600 nav-link nav-link-mobile" data-page="page-vender">
+                <i data-lucide="plus-square" class="w-6 h-6"></i>
+                <span class="text-xs font-medium">Vender</span>
+            </a>
+            <a href="#" class="flex flex-col items-center justify-center text-center text-gray-600 nav-link nav-link-mobile" data-page="page-perfil">
+                <i data-lucide="user" class="w-6 h-6"></i>
+                <span class="text-xs font-medium">Perfil</span>
+            </a>
+        </div>
+    </nav>
+    
+    <!-- MODAL: PROPONER CANJE -->
+    <div id="modal-proponer-canje" class="modal hidden fixed inset-0 z-30 flex items-center justify-center p-4">
+        <!-- Fondo -->
+        <div class="modal-backdrop fixed inset-0 bg-black bg-opacity-50"></div>
+        
+        <!-- Contenido del Modal -->
+        <div class="modal-content relative w-full max-w-lg p-6 bg-white rounded-lg shadow-xl">
+            <!-- Botón de Cerrar -->
+            <button class="modal-close-btn absolute top-4 right-4 p-1 text-gray-500 rounded-full hover:bg-gray-100">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <h3 class="text-xl font-semibold text-gray-900">Proponer un Canje</h3>
+            <p class="mt-1 text-sm text-gray-600">
+                Estás proponiendo un canje por: <span id="modal-item-name" class="font-medium"></span>
+            </p>
+            <p class="text-sm text-gray-600">
+                Valor estimado: <span id="modal-item-value" class="font-medium text-green-600"></span>
+            </p>
+            <form id="form-proponer-canje" class="mt-6 space-y-4">
+                <div>
+                    <label for="tu-articulo" class="block text-sm font-medium text-gray-700">Selecciona tu artículo a ofrecer:</label>
+                    <select id="tu-articulo" class="w-full mt-1 border-gray-300 rounded-lg shadow-sm focus:border-brand focus:ring-brand" required>
+                        <option value="">Cargando mis artículos...</option>
+                    </select>
+                </div>
+                <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                    <h4 class="font-medium">Cálculo de Equivalencia</h4>
+                    <div class="mt-2 space-y-1 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Valor de tu artículo:</span>
+                            <span id="tu-valor" class="font-medium text-gray-800">$0 COP</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Valor del artículo deseado:</span>
+                            <span id="deseado-valor" class="font-medium text-gray-800">$0 COP</span>
+                        </div>
+                        <div class="flex justify-between pt-2 mt-2 border-t">
+                            <span class="font-semibold">Diferencia:</span>
+                            <span id="diferencia-valor" class="font-semibold text-brand-dark">$0 COP</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label for="agregar-dinero" class="block text-sm font-medium text-gray-700">Agregar diferencia en dinero (Opcional):</label>
+                    <div class="relative mt-1">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">COP $</span>
+                        <input type="number" id="agregar-dinero" class="w-full pl-12 border-gray-300 rounded-lg shadow-sm focus:border-brand focus:ring-brand" placeholder="0">
+                    </div>
+                </div>
+                <div class="pt-4">
+                    <button type="submit" class="w-full px-6 py-3 font-semibold text-white bg-brand rounded-lg shadow-sm hover:bg-brand-dark">
+                        Enviar Propuesta de Canje
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: EDITAR TEMPORIZADOR (ADMIN) - NUEVO -->
+    <div id="modal-edit-timer" class="modal hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="modal-backdrop fixed inset-0 bg-black bg-opacity-50"></div>
+        <div class="modal-content relative w-full max-w-sm p-6 bg-white rounded-lg shadow-xl">
+            <button class="modal-close-btn absolute top-4 right-4 p-1 text-gray-500 rounded-full hover:bg-gray-100">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <h3 class="text-xl font-semibold text-gray-900">Editar Temporizador</h3>
+            <p class="mt-1 text-sm text-gray-600">Introduce la nueva fecha y hora de finalización.</p>
+            <form id="form-edit-timer" class="mt-4 space-y-4">
+                <div>
+                    <label for="timer-datetime" class="block text-sm font-medium text-gray-700">Fecha y Hora (YYYY-MM-DDTHH:MM)</label>
+                    <input type="datetime-local" id="timer-datetime" class="w-full mt-1 border-gray-300 rounded-lg shadow-sm focus:border-brand focus:ring-brand" required>
+                </div>
+                <button type="submit" class="w-full px-4 py-2 font-medium text-white bg-brand rounded-lg hover:bg-brand-dark">
+                    Guardar
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- SCRIPT PRINCIPAL (MODIFICADO) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- ESTADO DE LA APLICACIÓN (simulado) ---
+            const state = {
+                isLoggedIn: false,
+                isAdmin: false, // NUEVO: Estado de admin
+                currentUser: {
+                    name: "Usuario de Prueba",
+                    email: "usuario@canje.app",
+                    address: "Cra 5 # 10-20, Bogotá",
+                    doc: "CC 1061...",
+                    profilePic: "https://placehold.co/100x100/E8F0FE/4285F4?text=U",
+                    items: [
+                        { id: 101, name: "Smartwatch Gama Alta", value: 750000 },
+                        { id: 102, name: "Teclado Mecánico RGB", value: 400000 },
+                    ]
+                },
+                itemToSwap: null,
+                editingTimerSlide: null, // NUEVO: Para el modal de admin
+                productFiles: [], // NUEVO: Para las fotos de "Vender"
+            };
+
+            // --- CONSTANTES DE CATEGORÍAS (NUEVO) ---
+            const categories = [
+                { name: 'Hogar', icon: 'home' },
+                { name: 'Automóviles', icon: 'car' },
+                { name: 'Inmuebles', icon: 'building' },
+                { name: 'Salud', icon: 'heart-pulse' },
+                { name: 'Cosméticos', icon: 'sparkles' },
+                { name: 'Servicios', icon: 'wrench' },
+                { name: 'Tecnología', icon: 'cpu' },
+                { name: 'Moda', icon: 'shirt' },
+                { name: 'Celulares', icon: 'smartphone' },
+                { name: 'Computación', icon: 'laptop' },
+                { name: 'Libros', icon: 'book-open' },
+                { name: 'Juegos', icon: 'gamepad-2' },
+                { name: 'Otros', icon: 'box' }
+            ];
+
+            // --- SELECTORES ---
+            const pages = document.querySelectorAll('.page');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const authTabs = document.querySelectorAll('.auth-tab-btn');
+            const authTabContents = document.querySelectorAll('.auth-tab-content');
+            const canjeTabs = document.querySelectorAll('.canje-tab-btn');
+            const canjeTabContents = document.querySelectorAll('.canje-tab-content');
+            
+            // Elementos de autenticación
+            const perfilAuthForm = document.getElementById('perfil-auth-form');
+            const perfilLoggedIn = document.getElementById('perfil-logged-in');
+            const canjesAuthRequired = document.getElementById('canjes-auth-required');
+            const canjesContent = document.getElementById('canjes-content');
+            const venderAuthRequired = document.getElementById('vender-auth-required');
+            const venderContent = document.getElementById('vender-content');
+            const btnLogout = document.getElementById('btn-logout');
+            const formLogin = document.getElementById('auth-login');
+            const formRegister = document.getElementById('auth-register');
+            const userNameEl = document.getElementById('user-name');
+            const userEmailEl = document.getElementById('user-email');
+            const userAddressEl = document.getElementById('user-address');
+            const userDocEl = document.getElementById('user-doc');
+            const mainProfileImg = document.getElementById('main-profile-img');
+            const headerProfileImg = document.getElementById('header-profile-img');
+            const profilePicUpload = document.getElementById('profile-pic-upload');
+            const profilePicPreview = document.getElementById('profile-pic-preview');
+
+            // Barra lateral
+            const sidebar = document.getElementById('desktop-sidebar');
+            const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
+            const mainContentWrapper = document.getElementById('main-content-wrapper');
+            
+            // Modal de Canje
+            const modalProponerCanje = document.getElementById('modal-proponer-canje');
+            const btnsProponerCanje = document.querySelectorAll('.btn-proponer-canje');
+            const selectTuArticulo = document.getElementById('tu-articulo');
+            const formProponerCanje = document.getElementById('form-proponer-canje');
+
+            // Carrusel
+            const carouselSlider = document.getElementById('carousel-slider');
+            const carouselSlides = document.querySelectorAll('.carousel-slide');
+            const carouselPrevBtn = document.getElementById('carousel-prev');
+            const carouselNextBtn = document.getElementById('carousel-next');
+            let currentSlide = 0;
+            const totalSlides = carouselSlides.length;
+            let carouselInterval;
+
+            // --- NUEVOS SELECTORES ---
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenuPanel = document.getElementById('mobile-menu-panel');
+            const mobileMenuBackdrop = document.getElementById('mobile-menu-backdrop');
+            const mobileMenuLinks = document.querySelectorAll('.nav-link-mobile-menu');
+            const adminBadge = document.getElementById('admin-badge');
+            
+            const uploadCoverBtn = document.getElementById('upload-cover-btn');
+            const coverFileInput = document.getElementById('cover-file-input');
+            
+            const categoryListContainer = document.getElementById('category-list-container');
+            const categorySelect = document.getElementById('categoria');
+
+            const modalEditTimer = document.getElementById('modal-edit-timer');
+            const formEditTimer = document.getElementById('form-edit-timer');
+
+            // --- NUEVOS SELECTORES (Vender Fotos) ---
+            const formVender = document.getElementById('form-vender');
+            const productPhotoInput = document.getElementById('product-photo-upload');
+            const photoUploadLabel = document.getElementById('photo-upload-label');
+            const photoPreviewContainer = document.getElementById('photo-preview-container');
+            const photoUploadText = document.getElementById('photo-upload-text');
+            const photoUploadSummary = document.getElementById('photo-upload-summary');
+            const photoCount = document.getElementById('photo-count');
+            const photoErrorMsg = document.getElementById('photo-error-msg');
+
+
+            // --- FUNCIONES ---
+
+            /**
+             * Muestra una página y oculta las demás.
+             */
+            function showPage(pageId) {
+                pages.forEach(page => page.classList.add('hidden'));
+                const activePage = document.getElementById(pageId);
+                if (activePage) {
+                    activePage.classList.remove('hidden');
+                    window.scrollTo(0, 0);
+                }
+                updateActiveNav(pageId);
+            }
+
+            /**
+             * Actualiza el estado visual "activo" en los enlaces de navegación.
+             */
+            function updateActiveNav(pageId) {
+                navLinks.forEach(link => {
+                    const isActive = link.dataset.page === pageId;
+                    link.classList.toggle('active', isActive);
+                    if (link.classList.contains('nav-link-mobile')) {
+                        link.classList.toggle('text-brand', isActive);
+                        link.classList.toggle('text-gray-600', !isActive);
+                    }
+                });
+            }
+
+            /**
+             * Actualiza la UI basada en el estado de autenticación.
+             */
+            function updateAuthUI() {
+                if (state.isLoggedIn) {
+                    // Vista Perfil
+                    perfilAuthForm.classList.add('hidden');
+                    perfilLoggedIn.classList.remove('hidden');
+                    userNameEl.textContent = state.currentUser.name;
+                    userEmailEl.textContent = state.currentUser.email;
+                    userAddressEl.textContent = state.currentUser.address;
+                    userDocEl.textContent = state.currentUser.doc.replace(/(\d{4})\d+/, '$1******'); // Ocultar parte del doc
+                    mainProfileImg.src = state.currentUser.profilePic;
+                    headerProfileImg.src = state.currentUser.profilePic;
+
+                    // Vistas restringidas
+                    canjesAuthRequired.classList.add('hidden');
+                    canjesContent.classList.remove('hidden');
+                    venderAuthRequired.classList.add('hidden');
+                    venderContent.classList.remove('hidden');
+
+                    // Lógica de Admin
+                    if (state.isAdmin) {
+                        adminBadge.classList.remove('hidden');
+                        document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+                    } else {
+                        adminBadge.classList.add('hidden');
+                        document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
+                    }
+
+                } else {
+                    // Vista Perfil
+                    perfilAuthForm.classList.remove('hidden');
+                    perfilLoggedIn.classList.add('hidden');
+                    const defaultPic = 'https://placehold.co/40x40/E8F0FE/4285F4?text=U';
+                    mainProfileImg.src = defaultPic;
+                    headerProfileImg.src = defaultPic;
+                    
+                    // Vistas restringidas
+                    canjesAuthRequired.classList.remove('hidden');
+                    canjesContent.classList.add('hidden');
+                    venderAuthRequired.classList.remove('hidden');
+                    venderContent.classList.add('hidden');
+
+                    // Ocultar elementos de admin
+                    adminBadge.classList.add('hidden');
+                    document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
+                }
+            }
+            
+            /**
+             * Formatea un número como moneda COP.
+             */
+            function formatCOP(value) {
+                return new Intl.NumberFormat('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    maximumFractionDigits: 0,
+                    minimumFractionDigits: 0,
+                }).format(value);
+            }
+            
+            /**
+             * Previsualiza la imagen de perfil al seleccionarla.
+             */
+            function handleProfilePicUpload(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        profilePicPreview.src = e.target.result;
+                        state.currentUser.profilePic = e.target.result; // Guardar para la simulación
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            // --- NUEVAS FUNCIONES ---
+
+            /**
+             * Abre el menú lateral móvil.
+             */
+            function openMobileMenu() {
+                mobileMenuPanel.classList.remove('-translate-x-full');
+                mobileMenuBackdrop.classList.remove('hidden');
+            }
+
+            /**
+             * Cierra el menú lateral móvil.
+             */
+            function closeMobileMenu() {
+                mobileMenuPanel.classList.add('-translate-x-full');
+                mobileMenuBackdrop.classList.add('hidden');
+            }
+            
+            /**
+             * Carga la lista de categorías en la sección Explorar.
+             */
+            function populateCategoryList() {
+                if (!categoryListContainer) return;
+                categoryListContainer.innerHTML = '';
+                categories.forEach(cat => {
+                    const catHtml = `
+                        <a href="#" class="flex flex-col items-center flex-shrink-0 w-24 space-y-2 group">
+                            <div class="flex items-center justify-center w-16 h-16 bg-white border border-gray-200 rounded-full shadow-sm group-hover:bg-brand-light group-hover:border-brand category-item-icon">
+                                <i data-lucide="${cat.icon}" class="w-8 h-8 text-gray-600 group-hover:text-brand-dark"></i>
+                                <!-- Icono Premium -->
+                                <i data-lucide="gem" class="w-5 h-5 text-yellow-500 premium-icon"></i>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700">${cat.name}</span>
+                        </a>
+                    `;
+                    categoryListContainer.insertAdjacentHTML('beforeend', catHtml);
+                });
+                lucide.createIcons(); // Renderizar nuevos iconos
+            }
+
+            /**
+             * Carga las categorías en el <select> del formulario Vender.
+             */
+            function populateCategorySelect() {
+                if (!categorySelect) return;
+                categorySelect.innerHTML = '<option value="">Selecciona una categoría</option>';
+                categories.forEach(cat => {
+                    const optionHtml = `<option value="${cat.name.toLowerCase().replace(' ', '-')}">${cat.name}</option>`;
+                    categorySelect.insertAdjacentHTML('beforeend', optionHtml);
+                });
+            }
+
+            /**
+             * Maneja la subida de una foto de portada (simulación).
+             */
+            function handleCoverUpload(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const activeSlide = carouselSlides[currentSlide];
+                        const img = activeSlide.querySelector('img');
+                        if (img) {
+                            img.src = e.target.result;
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            /**
+             * Abre el modal de edición de tiempo (Admin).
+             */
+            function openTimerModal(e) {
+                e.stopPropagation(); // Evitar que el clic active otra cosa
+                const slide = e.currentTarget.closest('.carousel-slide');
+                if (!slide) return;
+                
+                state.editingTimerSlide = slide;
+                const currentEndTime = slide.dataset.endTime;
+                // Formatear para datetime-local input (requiere YYYY-MM-DDTHH:MM)
+                try {
+                    const inputDateTime = new Date(currentEndTime).toISOString().slice(0, 16);
+                    document.getElementById('timer-datetime').value = inputDateTime;
+                } catch (err) {
+                    console.error("Fecha inválida:", currentEndTime);
+                }
+                
+                modalEditTimer.classList.remove('hidden');
+                modalEditTimer.classList.add('open');
+            }
+
+            /**
+             * Cierra el modal de edición de tiempo.
+             */
+            function closeTimerModal() {
+                modalEditTimer.classList.add('hidden');
+                modalEditTimer.classList.remove('open');
+                state.editingTimerSlide = null;
+            }
+
+            /**
+             * Asigna los listeners a los botones de edición de admin.
+             */
+            function assignAdminTimerListeners() {
+                document.querySelectorAll('.admin-edit-timer-btn').forEach(btn => {
+                    // Remover listener anterior para evitar duplicados
+                    btn.removeEventListener('click', openTimerModal); 
+                    btn.addEventListener('click', openTimerModal);
+                });
+            }
+
+            // --- NUEVAS FUNCIONES (Vender Fotos) ---
+
+            /**
+             * Muestra un mensaje de error en el formulario de fotos.
+             */
+            function showPhotoError(message) {
+                photoErrorMsg.textContent = message;
+                photoErrorMsg.classList.remove('hidden');
+                // Ocultar el error después de 3 segundos
+                setTimeout(() => {
+                    photoErrorMsg.classList.add('hidden');
+                }, 3000);
+            }
+
+            /**
+             * Maneja los archivos seleccionados (click o drop) y los añade al estado.
+             */
+            function handleFiles(files) {
+                const newFiles = Array.from(files);
+                let addedCount = 0;
+                photoErrorMsg.classList.add('hidden'); // Limpiar errores antiguos
+
+                if (state.productFiles.length + newFiles.length > 10) {
+                    showPhotoError(`Límite de 10 fotos. Solo puedes añadir ${10 - state.productFiles.length} más.`);
+                }
+
+                for (const file of newFiles) {
+                    if (state.productFiles.length >= 10) {
+                        break; // Límite alcanzado
+                    }
+                    if (file.type.startsWith('image/')) {
+                        // Evitar duplicados (simple check por nombre y tamaño)
+                        const isDuplicate = state.productFiles.some(
+                            f => f.name === file.name && f.size === file.size
+                        );
+                        if (!isDuplicate) {
+                            state.productFiles.push(file);
+                            addedCount++;
+                        }
+                    } else {
+                        showPhotoError(`Archivo "${file.name}" no es una imagen y fue omitido.`);
+                    }
+                }
+                
+                if (addedCount > 0) {
+                    updatePhotoPreview();
+                }
+            }
+
+            /**
+             * Actualiza el DOM para mostrar las vistas previas de las fotos.
+             */
+            function updatePhotoPreview() {
+                photoPreviewContainer.innerHTML = ''; // Limpiar vistas previas
+
+                // Actualizar el cuadro de "subir"
+                if (state.productFiles.length === 0) {
+                    photoUploadText.classList.remove('hidden');
+                    photoUploadSummary.classList.add('hidden');
+                } else {
+                    photoUploadText.classList.add('hidden');
+                    photoUploadSummary.classList.remove('hidden');
+                    photoCount.textContent = state.productFiles.length;
+                }
+
+                // Renderizar cada vista previa
+                state.productFiles.forEach((file, index) => {
+                    const reader = new FileReader();
+                    
+                    reader.onload = (e) => {
+                        const previewHtml = `
+                            <div class="photo-preview-item">
+                                <img src="${e.target.result}" alt="${file.name}" class="absolute top-0 left-0 w-full h-full object-cover">
+                                <button type="button" class="btn-remove-photo" data-index="${index}" title="Quitar imagen">
+                                    <i data-lucide="x" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        `;
+                        photoPreviewContainer.insertAdjacentHTML('beforeend', previewHtml);
+                        
+                        // Esta llamada es crucial después de añadir iconos dinámicamente
+                        lucide.createIcons(); 
+                    };
+                    
+                    reader.readAsDataURL(file);
+                });
+                
+                // Limpiar el valor del input para permitir volver a subir el mismo archivo si se borra
+                productPhotoInput.value = null;
+            }
+
+
+            // --- LÓGICA DE CARRUSEL Y TEMPORIZADOR ---
+
+            function updateCarousel() {
+                carouselSlider.style.transform = `translateX(-${currentSlide * 100}%)`;
+            }
+
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % totalSlides;
+                updateCarousel();
+            }
+
+            function prevSlide() {
+                currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+                updateCarousel();
+            }
+            
+            function startCarouselAutoPlay() {
+                if (carouselInterval) clearInterval(carouselInterval);
+                carouselInterval = setInterval(nextSlide, 5000); // Cambia cada 5 segundos
+            }
+
+            function stopCarouselAutoPlay() {
+                clearInterval(carouselInterval);
+            }
+
+            function startTimers() {
+                document.querySelectorAll('.promo-timer').forEach(timerEl => {
+                    const endTimeAttr = timerEl.closest('.carousel-slide').dataset.endTime;
+                    const endTime = new Date(endTimeAttr).getTime();
+
+                    // Limpiar intervalo anterior si existe
+                    if (timerEl.dataset.intervalId) {
+                        clearInterval(timerEl.dataset.intervalId);
+                    }
+
+                    // Función para actualizar este temporizador específico
+                    function updateTimer() {
+                        const now = new Date().getTime();
+                        const distance = endTime - now;
+
+                        if (distance < 0) {
+                            clearInterval(timerEl.dataset.intervalId);
+                            timerEl.innerHTML = "<span>¡Expirado!</span>";
+                            return;
+                        }
+
+                        // Cálculo
+                        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                        // Formato de dos dígitos
+                        const f = (n) => n.toString().padStart(2, '0');
+
+                        // Mostrar resultado
+                        timerEl.innerHTML = `
+                            <span class="font-mono">${f(days)}d</span> :
+                            <span class="font-mono">${f(hours)}h</span> :
+                            <span class="font-mono">${f(minutes)}m</span> :
+                            <span class="font-mono">${f(seconds)}s</span>
+                        `;
+                    }
+                    
+                    const intervalId = setInterval(updateTimer, 1000);
+                    timerEl.dataset.intervalId = intervalId; // Guardar ID para limpiar después
+                    updateTimer(); // Llamada inicial
+                });
+            }
+
+            // --- EVENT LISTENERS ---
+
+            // Navegación principal
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const pageId = e.currentTarget.dataset.page;
+                    if ((pageId === 'page-canjes' || pageId === 'page-vender') && !state.isLoggedIn) {
+                        showPage('page-perfil');
+                    } else {
+                        showPage(pageId);
+                    }
+                });
+            });
+
+            // --- NUEVOS LISTENERS ---
+
+            // Menú Móvil
+            mobileMenuBtn.addEventListener('click', openMobileMenu);
+            mobileMenuBackdrop.addEventListener('click', closeMobileMenu);
+            mobileMenuLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const pageId = e.currentTarget.dataset.page;
+                    // Lógica de autenticación
+                    if ((pageId === 'page-canjes' || pageId === 'page-vender') && !state.isLoggedIn) {
+                        showPage('page-perfil');
+                    } else {
+                        showPage(pageId);
+                    }
+                    closeMobileMenu(); // Cerrar menú después de clic
+                });
+            });
+
+            // Subir Portada
+            uploadCoverBtn.addEventListener('click', () => coverFileInput.click());
+            coverFileInput.addEventListener('change', handleCoverUpload);
+
+            // Modal Admin Timer
+            formEditTimer.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (!state.editingTimerSlide) return;
+                
+                const newDateTime = document.getElementById('timer-datetime').value;
+                // Convertir de YYYY-MM-DDTHH:MM a YYYY-MM-DDTHH:MM:SS (formato original)
+                const newEndTime = `${newDateTime}:00`; 
+                
+                state.editingTimerSlide.dataset.endTime = newEndTime;
+                
+                // Refrescar todos los timers
+                startTimers(); 
+                closeTimerModal();
+            });
+            // Asignar listeners a los botones de cerrar del modal de admin
+            modalEditTimer.querySelector('.modal-backdrop').addEventListener('click', closeTimerModal);
+            modalEditTimer.querySelector('.modal-close-btn').addEventListener('click', closeTimerModal);
+
+
+            // --- FIN NUEVOS LISTENERS ---
+
+            // Tabs de Autenticación
+            authTabs.forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    const targetId = e.currentTarget.dataset.authTab;
+                    authTabContents.forEach(content => content.classList.add('hidden'));
+                    authTabs.forEach(t => {
+                        t.classList.remove('text-brand', 'border-brand');
+                        t.classList.add('text-gray-500', 'border-transparent');
+                    });
+                    document.getElementById(targetId).classList.remove('hidden');
+                    e.currentTarget.classList.add('text-brand', 'border-brand');
+                    e.currentTarget.classList.remove('text-gray-500', 'border-transparent');
+                });
+            });
+
+            // Tabs de "Mis Canjes"
+            canjeTabs.forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    const targetId = e.currentTarget.dataset.tab;
+                    canjeTabContents.forEach(content => content.classList.add('hidden'));
+                    canjeTabs.forEach(t => {
+                        t.classList.remove('text-brand', 'border-brand');
+                        t.classList.add('text-gray-500', 'border-transparent');
+                    });
+                    document.getElementById(targetId).classList.remove('hidden');
+                    e.currentTarget.classList.add('text-brand', 'border-brand');
+                    e.currentTarget.classList.remove('text-gray-500', 'border-transparent');
+                });
+            });
+
+            // Botones de Negociar
+            document.querySelectorAll('.btn-negociar').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const form = e.currentTarget.closest('.p-4').querySelector('.negotiation-form');
+                    if (form) form.classList.toggle('hidden');
+                });
+            });
+
+            // Barra lateral
+            sidebarToggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+                mainContentWrapper.classList.toggle('sidebar-collapsed');
+            });
+
+            // Input de Foto de Perfil
+            profilePicUpload.addEventListener('change', handleProfilePicUpload);
+
+
+            // --- NUEVOS LISTENERS (Vender Fotos) ---
+
+            // Input de Archivo (Click)
+            productPhotoInput.addEventListener('change', (e) => {
+                handleFiles(e.target.files);
+            });
+
+            // Drag & Drop
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                photoUploadLabel.addEventListener(eventName, e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                photoUploadLabel.addEventListener(eventName, () => {
+                    photoUploadLabel.classList.add('border-brand', 'bg-brand-light');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                photoUploadLabel.addEventListener(eventName, () => {
+                    photoUploadLabel.classList.remove('border-brand', 'bg-brand-light');
+                }, false);
+            });
+
+            photoUploadLabel.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles(files);
+            });
+
+            // Delegación de eventos para borrar fotos
+            photoPreviewContainer.addEventListener('click', (e) => {
+                const removeBtn = e.target.closest('.btn-remove-photo');
+                if (removeBtn) {
+                    e.preventDefault();
+                    const indexToRemove = parseInt(removeBtn.dataset.index, 10);
+                    if (!isNaN(indexToRemove)) {
+                        state.productFiles.splice(indexToRemove, 1);
+                        updatePhotoPreview();
+                    }
+                }
+            });
+
+
+            
+            // --- LÓGICA DE AUTENTICACIÓN (Simulada) ---
+            
+            formLogin.addEventListener('submit', (e) => {
+                e.preventDefault();
+                state.isLoggedIn = true;
+                const email = document.getElementById('email-login').value;
+
+                // Check de Admin (NUEVO)
+                if (email.toLowerCase() === 'admin@canje.app') {
+                    state.isAdmin = true;
+                    state.currentUser.name = "Administrador";
+                    state.currentUser.email = "admin@canje.app";
+                } else {
+                    state.isAdmin = false;
+                    state.currentUser.name = "Usuario Logueado";
+                    state.currentUser.email = email || "usuario@canje.app";
+                }
+
+                // Simular carga
+                state.currentUser.address = "Cra 5 # 10-20, Bogotá";
+                state.currentUser.doc = "CC 1061...";
+                state.currentUser.profilePic = "https://placehold.co/100x100/E8F0FE/4285F4?text=U";
+                
+                updateAuthUI();
+                showPage('page-perfil');
+            });
+
+            formRegister.addEventListener('submit', (e) => {
+                e.preventDefault();
+                state.isLoggedIn = true;
+                state.isAdmin = false; // El registro normal no es admin
+                // Guardar datos simulados
+                state.currentUser.name = document.getElementById('nombre-reg').value || "Nuevo Usuario";
+                state.currentUser.email = document.getElementById('email-reg').value || "nuevo@canje.app";
+                state.currentUser.address = document.getElementById('dir-reg').value || "Sin dirección";
+                state.currentUser.doc = document.getElementById('doc-reg').value || "Sin documento";
+                // La foto ya se guardó en state.currentUser.profilePic con el 'change' event
+                updateAuthUI();
+                showPage('page-perfil');
+            });
+
+            btnLogout.addEventListener('click', (e) => {
+                e.preventDefault();
+                state.isLoggedIn = false;
+                state.isAdmin = false; // Resetear admin al salir
+                updateAuthUI();
+                showPage('page-perfil');
+            });
+
+            // --- LÓGICA DE PUBLICAR (MODIFICADA para validación de fotos) ---
+            
+            formVender.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const submitBtn = e.currentTarget.querySelector('button[type="submit"]');
+
+                // Limpiar errores previos
+                photoErrorMsg.classList.add('hidden');
+                submitBtn.classList.remove('bg-red-600', 'hover:bg-red-700', 'bg-green-600', 'hover:bg-green-700');
+                submitBtn.textContent = 'Publicar Artículo';
+
+                // --- VALIDACIÓN ---
+                if (state.productFiles.length < 2) {
+                    showPhotoError('Debes subir un mínimo de 2 fotos.');
+                    submitBtn.textContent = 'Faltan fotos';
+                    submitBtn.classList.add('bg-red-600', 'hover:bg-red-700');
+                    return; // Detener envío
+                }
+                
+                if (state.productFiles.length > 10) {
+                    // Esta validación ya está en handleFiles, pero es una buena defensa
+                    showPhotoError('Has excedido el límite de 10 fotos.');
+                    submitBtn.textContent = 'Demasiadas fotos';
+                    submitBtn.classList.add('bg-red-600', 'hover:bg-red-700');
+                    return; // Detener envío
+                }
+                // --- FIN VALIDACIÓN ---
+
+                // Simulación de Alerta (Éxito)
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Publicando...';
+                
+                setTimeout(() => {
+                    submitBtn.textContent = '¡Publicado con Éxito!';
+                    submitBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                    
+                    setTimeout(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Publicar Artículo';
+                        submitBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                        
+                        // Limpiar formulario y estado de fotos
+                        e.target.reset();
+                        state.productFiles = [];
+                        updatePhotoPreview();
+                        
+                        showPage('page-canjes');
+                        document.querySelector('.canje-tab-btn[data-tab="tab-mis-articulos"]').click();
+                    }, 2000);
+
+                }, 1000);
+            });
+
+
+            // --- LÓGICA DE CANJE (Modal) ---
+
+            btnsProponerCanje.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    if (!state.isLoggedIn) {
+                        showPage('page-perfil');
+                        return;
+                    }
+                    
+                    const itemData = e.currentTarget.dataset;
+                    state.itemToSwap = {
+                        id: itemData.itemId,
+                        name: itemData.itemName,
+                        value: parseFloat(itemData.itemValue)
+                    };
+
+                    const formattedValue = formatCOP(state.itemToSwap.value);
+                    document.getElementById('modal-item-name').textContent = state.itemToSwap.name;
+                    document.getElementById('modal-item-value').textContent = formattedValue;
+                    document.getElementById('deseado-valor').textContent = formattedValue;
+
+                    selectTuArticulo.innerHTML = '<option value="">Selecciona tu artículo...</option>';
+                    state.currentUser.items.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item.id;
+                        option.dataset.value = item.value;
+                        option.textContent = `${item.name} (${formatCOP(item.value)})`;
+                        selectTuArticulo.appendChild(option);
+                    });
+                    
+                    document.getElementById('tu-valor').textContent = formatCOP(0);
+                    document.getElementById('diferencia-valor').textContent = formatCOP(state.itemToSwap.value);
+
+                    modalProponerCanje.classList.remove('hidden');
+                    modalProponerCanje.classList.add('open');
+                });
+            });
+
+            function closeModal(modalElement) {
+                modalElement.classList.add('hidden');
+                modalElement.classList.remove('open');
+            }
+            
+            // Asignar listeners para cerrar el modal de propuesta
+            modalProponerCanje.querySelector('.modal-close-btn').addEventListener('click', () => closeModal(modalProponerCanje));
+            modalProponerCanje.querySelector('.modal-backdrop').addEventListener('click', () => closeModal(modalProponerCanje));
+
+
+            selectTuArticulo.addEventListener('change', (e) => {
+                const selectedOption = e.target.options[e.target.selectedIndex];
+                const tuValor = parseFloat(selectedOption.dataset.value) || 0;
+                const deseadoValor = state.itemToSwap.value;
+                const diferencia = deseadoValor - tuValor;
+                
+                document.getElementById('tu-valor').textContent = formatCOP(tuValor);
+                document.getElementById('diferencia-valor').textContent = formatCOP(diferencia);
+                
+                const inputDinero = document.getElementById('agregar-dinero');
+                if (diferencia > 0) {
+                    inputDinero.placeholder = `Sugerido: ${diferencia}`;
+                } else {
+                    inputDinero.placeholder = "0";
+                }
+            });
+
+            formProponerCanje.addEventListener('submit', (e) => {
+                e.preventDefault();
+                // Simulación de Alerta
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                submitBtn.textContent = '¡Propuesta Enviada!';
+                submitBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                
+                setTimeout(() => {
+                    submitBtn.textContent = 'Enviar Propuesta de Canje';
+                    submitBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                    closeModal(modalProponerCanje);
+                    state.itemToSwap = null;
+                }, 2000);
+            });
+
+            // --- INICIALIZACIÓN ---
+            updateAuthUI();
+            showPage('page-explorar');
+            
+            // Inicializar Carrusel
+            carouselPrevBtn.addEventListener('click', () => {
+                prevSlide();
+                stopCarouselAutoPlay();
+                startCarouselAutoPlay();
+            });
+            carouselNextBtn.addEventListener('click', () => {
+                nextSlide();
+                stopCarouselAutoPlay();
+                startCarouselAutoPlay();
+            });
+            startCarouselAutoPlay();
+
+            // Inicializar Temporizadores
+            startTimers();
+
+            // --- NUEVAS LLAMADAS DE INICIALIZACIÓN ---
+            populateCategoryList();
+            populateCategorySelect();
+            assignAdminTimerListeners(); // Asignar listeners para los botones de admin
+            
+            // Inicializar iconos (MOVIDO AL FINAL)
+            // Esto asegura que los iconos cargados estáticamente se rendericen al inicio.
+            // Los iconos dinámicos se renderizan en sus respectivas funciones (populateCategoryList, updatePhotoPreview).
+            lucide.createIcons();
+        });
+    </script>
+
+</body>
+</html>
+
