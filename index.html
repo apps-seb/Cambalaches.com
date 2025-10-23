@@ -6476,6 +6476,17 @@
               <input type="email" id="auth-email" required placeholder="nombre@correo.com" />
             </label>
             <label class="profile-field">
+              <span>Contraseña segura</span>
+              <input
+                type="password"
+                id="auth-password"
+                required
+                minlength="6"
+                placeholder="Mínimo 6 caracteres"
+                autocomplete="new-password"
+              />
+            </label>
+            <label class="profile-field">
               <span>Teléfono verificado</span>
               <input type="tel" id="auth-phone" required placeholder="300 000 0000" />
             </label>
@@ -6680,7 +6691,58 @@
       </div>
     </dialog>
 
-    <script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-analytics.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        createUserWithEmailAndPassword,
+        signInWithEmailAndPassword,
+        signOut,
+        updateProfile as updateAuthProfile,
+      } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        getDoc,
+        setDoc,
+        serverTimestamp,
+        collection,
+        query,
+        where,
+        orderBy,
+        onSnapshot,
+        Timestamp,
+      } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
+      import {
+        getStorage,
+        ref as storageRef,
+        uploadBytes,
+        getDownloadURL,
+      } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBG035jZHTgsqZKIYCHGAUshwRukSccrjU",
+        authDomain: "mercadocanje-ffca0.firebaseapp.com",
+        projectId: "mercadocanje-ffca0",
+        storageBucket: "mercadocanje-ffca0.appspot.com",
+        messagingSenderId: "1069590620221",
+        appId: "1:1069590620221:web:ea68de5b49395ce42be254",
+        measurementId: "G-9KEBKJ84CR",
+      };
+
+      const firebaseApp = initializeApp(firebaseConfig);
+      let analytics;
+      try {
+        analytics = getAnalytics(firebaseApp);
+      } catch (error) {
+        console.info("Firebase analytics no disponible en este entorno", error);
+      }
+      const auth = getAuth(firebaseApp);
+      const db = getFirestore(firebaseApp);
+      const storageService = getStorage(firebaseApp, "gs://mercadocanje-ffca0.appspot.com");
+
       const $ = (selector, scope = document) => scope.querySelector(selector);
       const $$ = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
 
@@ -6721,6 +6783,439 @@
           return null;
         }
       })();
+
+      const firebaseCollections = {
+        users: "users",
+        products: "products",
+        promoBanners: "promoBanners",
+        pendingSales: "pendingSales",
+      };
+
+      let unsubscribeProducts = null;
+      let unsubscribePromoBanners = null;
+      let unsubscribePendingSales = null;
+
+      function getFileExtension(file) {
+        if (!file) {
+          return "jpg";
+        }
+        const name = typeof file.name === "string" ? file.name : "";
+        const nameMatch = name.match(/\.([a-zA-Z0-9]+)$/);
+        if (nameMatch && nameMatch[1]) {
+          const ext = nameMatch[1].toLowerCase();
+          return ext === "jpeg" ? "jpg" : ext;
+        }
+        const mime = typeof file.type === "string" ? file.type : "";
+        if (mime.includes("/")) {
+          const [, subtype] = mime.split("/");
+          if (subtype) {
+            const normalized = subtype.toLowerCase();
+            return normalized === "jpeg" ? "jpg" : normalized;
+          }
+        }
+        return "jpg";
+      }
+
+      function buildStoragePath(segments, file, descriptor = "asset") {
+        const extension = getFileExtension(file);
+        const unique =
+          typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+            ? crypto.randomUUID()
+            : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+        const sanitizedDescriptor = descriptor.replace(/[^a-z0-9_-]/gi, "").toLowerCase() || "asset";
+        const pathSegments = Array.isArray(segments) ? segments : [segments];
+        return `${pathSegments.filter(Boolean).join("/")}/${sanitizedDescriptor}-${unique}.${extension}`;
+      }
+
+      function isFirebaseStorageUrl(value) {
+        return typeof value === "string" && /^https?:\/\//i.test(value);
+      }
+
+      async function ensureFirebaseStorageUrl(rawValue) {
+        if (!rawValue || typeof rawValue !== "string") {
+          return "";
+        }
+        if (isFirebaseStorageUrl(rawValue) || /^data:/i.test(rawValue) || /^blob:/i.test(rawValue)) {
+          return rawValue;
+        }
+        try {
+          const reference = storageRef(storageService, rawValue);
+          return await getDownloadURL(reference);
+        } catch (error) {
+          console.warn("No se pudo resolver la URL de Firebase Storage", rawValue, error);
+          return "";
+        }
+      }
+
+      async function ensureFirebaseStorageUrls(values) {
+        if (!Array.isArray(values) || !values.length) {
+          return [];
+        }
+        const resolved = await Promise.all(values.map((value) => ensureFirebaseStorageUrl(value)));
+        return resolved.filter(Boolean);
+      }
+
+      async function uploadFileToFirebaseStorage(file, segments, descriptor = "asset") {
+        if (!file) {
+          return null;
+        }
+        const path = buildStoragePath(segments, file, descriptor);
+        const fileRef = storageRef(storageService, path);
+        await uploadBytes(fileRef, file, { contentType: file.type || undefined });
+        return getDownloadURL(fileRef);
+      }
+
+      function normalizeFirebaseTimestamp(value) {
+        if (!value) {
+          return null;
+        }
+        if (value instanceof Timestamp) {
+          return value.toMillis();
+        }
+        if (typeof value === "number" && Number.isFinite(value)) {
+          return value;
+        }
+        if (typeof value === "string") {
+          const parsed = Date.parse(value);
+          return Number.isNaN(parsed) ? null : parsed;
+        }
+        if (typeof value === "object" && typeof value.toDate === "function") {
+          return value.toDate().getTime();
+        }
+        return null;
+      }
+
+      function timestampToISOString(value, fallback = new Date()) {
+        const normalized = normalizeFirebaseTimestamp(value);
+        if (Number.isFinite(normalized)) {
+          try {
+            return new Date(normalized).toISOString();
+          } catch (error) {
+            return fallback.toISOString();
+          }
+        }
+        return fallback.toISOString();
+      }
+
+      async function fetchUserProfile(uid) {
+        if (!uid) {
+          return null;
+        }
+        try {
+          const snapshot = await getDoc(doc(db, firebaseCollections.users, uid));
+          const firebaseUser = auth.currentUser;
+          if (!snapshot.exists()) {
+            if (!firebaseUser) {
+              return null;
+            }
+            const createdAt = firebaseUser.metadata?.creationTime
+              ? new Date(firebaseUser.metadata.creationTime).toISOString()
+              : new Date().toISOString();
+            const avatarUrl = await ensureFirebaseStorageUrl(firebaseUser.photoURL || "");
+            return {
+              id: uid,
+              name: firebaseUser.displayName || firebaseUser.email || "Usuario verificado",
+              email: firebaseUser.email || "",
+              phone: "",
+              location: "",
+              department: "",
+              city: "",
+              bio: "",
+              avatar: avatarUrl,
+              rating: 5,
+              createdAt,
+              updatedAt: createdAt,
+            };
+          }
+          const data = snapshot.data() || {};
+          const createdAtIso = data.createdAt
+            ? timestampToISOString(data.createdAt)
+            : new Date().toISOString();
+          const updatedAtIso = data.updatedAt
+            ? timestampToISOString(data.updatedAt, new Date(createdAtIso))
+            : createdAtIso;
+          const avatarUrl = await ensureFirebaseStorageUrl(
+            data.avatar || firebaseUser?.photoURL || ""
+          );
+          return {
+            id: uid,
+            name: data.name || firebaseUser?.displayName || "Usuario verificado",
+            email: data.email || firebaseUser?.email || "",
+            phone: data.phone || "",
+            location: data.location || "",
+            department: data.department || "",
+            city: data.city || "",
+            bio: data.bio || "",
+            avatar: avatarUrl,
+            rating: Number(data.rating || 5),
+            createdAt: createdAtIso,
+            updatedAt: updatedAtIso,
+          };
+        } catch (error) {
+          console.error("Error al obtener el perfil del usuario", error);
+          return null;
+        }
+      }
+
+      async function syncCurrentUserFromFirebase({ silent = false } = {}) {
+        const firebaseUser = auth.currentUser;
+        if (!firebaseUser) {
+          setCurrentUser(null, { silent });
+          return null;
+        }
+        const profile = await fetchUserProfile(firebaseUser.uid);
+        if (profile) {
+          setCurrentUser(profile, { silent });
+          return profile;
+        }
+        return null;
+      }
+
+      function normalizeProductRecord(id, data = {}) {
+        if (!id) {
+          return null;
+        }
+        const createdAtIso = data.createdAt
+          ? timestampToISOString(data.createdAt)
+          : new Date().toISOString();
+        const updatedAtIso = data.updatedAt
+          ? timestampToISOString(data.updatedAt, new Date(createdAtIso))
+          : createdAtIso;
+        return {
+          id,
+          title: data.title || "",
+          description: data.description || "",
+          category: data.category || "general",
+          price: Number.isFinite(Number(data.price)) ? Number(data.price) : 0,
+          location: data.location || "",
+          images: Array.isArray(data.images) ? data.images.filter(Boolean) : [],
+          tags: Array.isArray(data.tags) ? data.tags : [],
+          views: Number.isFinite(Number(data.views)) ? Number(data.views) : 0,
+          createdAt: createdAtIso,
+          updatedAt: updatedAtIso,
+          listingType: data.listingType || "marketplace",
+          sellIntent: data.sellIntent || "",
+          publishedToFeed: data.publishedToFeed !== false,
+          owner: {
+            id: data.ownerId || data.owner?.id || "",
+            name: data.ownerName || data.owner?.name || "Usuario",
+            email: data.ownerEmail || data.owner?.email || "",
+            phone: data.ownerPhone || data.owner?.phone || "",
+            location: data.ownerLocation || data.owner?.location || "",
+            avatar: data.ownerAvatar || data.owner?.avatar || "",
+            rating: Number(data.ownerRating || data.owner?.rating || 5),
+          },
+        };
+      }
+
+      function normalizePromoBannerRecord(id, data = {}) {
+        const expiresAt = normalizeFirebaseTimestamp(data.expiresAt);
+        return {
+          id,
+          label: data.label || "Publicidad",
+          title: data.title || "",
+          description: data.description || "",
+          ctaLabel: data.ctaLabel || "Ver más",
+          ctaLink: data.ctaLink || "#",
+          theme: data.theme || "midnight",
+          textColor: data.textColor || "#f8fafc",
+          buttonColor: data.buttonColor || "#4338ca",
+          image: data.image || "",
+          expiresAt: Number.isFinite(expiresAt) ? expiresAt : Date.now() + 1000 * 60 * 60 * 24 * 7,
+        };
+      }
+
+      function mapFirebaseError(error) {
+        if (!error || typeof error !== "object") {
+          return "Ocurrió un error inesperado. Intenta de nuevo.";
+        }
+        const messages = {
+          "auth/email-already-in-use": "El correo ya está registrado. Usa tu contraseña para ingresar.",
+          "auth/invalid-email": "El correo electrónico no es válido.",
+          "auth/operation-not-allowed": "La autenticación por correo no está habilitada.",
+          "auth/weak-password": "La contraseña debe tener al menos 6 caracteres.",
+          "auth/user-not-found": "No encontramos una cuenta con ese correo.",
+          "auth/wrong-password": "La contraseña ingresada no es correcta.",
+          "storage/canceled": "La carga del archivo fue cancelada.",
+          "storage/unauthorized": "No tienes permisos para acceder a este recurso.",
+          "storage/quota-exceeded": "Se alcanzó el límite de almacenamiento. Intenta más tarde.",
+          "storage/retry-limit-exceeded": "La carga tardó demasiado. Intenta de nuevo.",
+        };
+        return messages[error.code] || error.message || "Ocurrió un error inesperado. Intenta de nuevo.";
+      }
+
+      function subscribeToProducts() {
+        if (unsubscribeProducts) {
+          unsubscribeProducts();
+        }
+        try {
+          const productsRef = collection(db, firebaseCollections.products);
+          const productsQuery = query(
+            productsRef,
+            where("publishedToFeed", "==", true),
+            orderBy("createdAt", "desc")
+          );
+          unsubscribeProducts = onSnapshot(
+            productsQuery,
+            async (snapshot) => {
+              try {
+                const items = await Promise.all(
+                  snapshot.docs.map(async (docSnap) => {
+                    const record = normalizeProductRecord(docSnap.id, docSnap.data());
+                    if (!record) {
+                      return null;
+                    }
+                    const images = await ensureFirebaseStorageUrls(record.images);
+                    const ownerAvatar = await ensureFirebaseStorageUrl(record.owner?.avatar || "");
+                    return {
+                      ...record,
+                      images,
+                      owner: { ...record.owner, avatar: ownerAvatar },
+                    };
+                  })
+                );
+                const filtered = items.filter(Boolean);
+                state.products = filtered.length ? filtered : [...sampleProducts];
+                updateUI();
+              } catch (processingError) {
+                console.error("Error al procesar productos de Firebase", processingError);
+                state.products = [...sampleProducts];
+                updateUI();
+              }
+            },
+            (error) => {
+              console.error("Error al sincronizar productos", error);
+              state.products = [...sampleProducts];
+              updateUI();
+            }
+          );
+        } catch (error) {
+          console.error("No se pudo iniciar la suscripción de productos", error);
+        }
+      }
+
+      function subscribeToPromoBanners() {
+        if (unsubscribePromoBanners) {
+          unsubscribePromoBanners();
+        }
+        try {
+          const bannersRef = collection(db, firebaseCollections.promoBanners);
+          const bannersQuery = query(bannersRef, orderBy("createdAt", "desc"));
+          unsubscribePromoBanners = onSnapshot(
+            bannersQuery,
+            async (snapshot) => {
+              try {
+                const items = await Promise.all(
+                  snapshot.docs.map(async (docSnap) => {
+                    const record = normalizePromoBannerRecord(docSnap.id, docSnap.data());
+                    const imageUrl = await ensureFirebaseStorageUrl(record.image);
+                    return { ...record, image: imageUrl };
+                  })
+                );
+                state.promoBanners = items.length ? items : [...initialPromoBanners];
+                renderPromoBanners();
+              } catch (processingError) {
+                console.error("Error al procesar banners de Firebase", processingError);
+                state.promoBanners = [...initialPromoBanners];
+                renderPromoBanners();
+              }
+            },
+            (error) => {
+              console.error("Error al sincronizar banners promocionales", error);
+              state.promoBanners = [...initialPromoBanners];
+              renderPromoBanners();
+            }
+          );
+        } catch (error) {
+          console.error("No se pudo iniciar la suscripción de banners", error);
+        }
+      }
+
+      function subscribeToPendingSales(uid) {
+        if (unsubscribePendingSales) {
+          unsubscribePendingSales();
+          unsubscribePendingSales = null;
+        }
+
+        if (!uid) {
+          state.pendingSales = [];
+          updateUI();
+          return;
+        }
+
+        try {
+          const draftsRef = collection(db, firebaseCollections.pendingSales);
+          const draftsQuery = query(draftsRef, where("ownerId", "==", uid));
+
+          unsubscribePendingSales = onSnapshot(
+            draftsQuery,
+            async (snapshot) => {
+              try {
+                const items = await Promise.all(
+                  snapshot.docs.map(async (docSnap) => {
+                    const data = docSnap.data() || {};
+                    const normalized = normalizeProductRecord(docSnap.id || data.id || "", data);
+                    const baseRecord = normalized
+                      ? { ...normalized, publishedToFeed: false }
+                      : {
+                          id: docSnap.id,
+                          title: data.title || "",
+                          description: data.description || "",
+                          category: data.category || "general",
+                          price: Number(data.price || 0),
+                          location: data.location || "",
+                          images: Array.isArray(data.images) ? data.images.filter(Boolean) : [],
+                          views: Number(data.views || 0),
+                          owner: state.currentUser || {
+                            id: uid,
+                            name: data.ownerName || "",
+                            avatar: data.ownerAvatar || "",
+                          },
+                          listingType: data.listingType || "venta",
+                          sellIntent: data.sellIntent || "",
+                          publishedToFeed: false,
+                          createdAt: timestampToISOString(data.createdAt),
+                          updatedAt: timestampToISOString(data.updatedAt),
+                        };
+                    const images = await ensureFirebaseStorageUrls(baseRecord.images || []);
+                    const ownerAvatar = await ensureFirebaseStorageUrl(
+                      baseRecord.owner?.avatar || ""
+                    );
+                    return {
+                      ...baseRecord,
+                      images,
+                      owner: { ...baseRecord.owner, avatar: ownerAvatar },
+                    };
+                  })
+                );
+                const sorted = items.sort((a, b) => {
+                  const first = Date.parse(b.createdAt || "");
+                  const second = Date.parse(a.createdAt || "");
+                  if (Number.isFinite(first) && Number.isFinite(second)) {
+                    return first - second;
+                  }
+                  return 0;
+                });
+                state.pendingSales = sorted;
+                updateUI();
+              } catch (processingError) {
+                console.error("Error al procesar borradores de venta", processingError);
+                state.pendingSales = [];
+                updateUI();
+              }
+            },
+            (error) => {
+              console.error("Error al sincronizar borradores de venta", error);
+              state.pendingSales = [];
+              updateUI();
+            }
+          );
+        } catch (error) {
+          console.error("No se pudo iniciar la suscripción de borradores", error);
+          state.pendingSales = [];
+          updateUI();
+        }
+      }
 
       const COLOMBIAN_DEPARTMENTS = [
         {
@@ -8547,13 +9042,22 @@
         }
       }
 
-      function logout({ toast = true } = {}) {
+      async function logout({ toast = true } = {}) {
+        try {
+          await signOut(auth);
+        } catch (error) {
+          console.error("No se pudo cerrar la sesión", error);
+          showToast("No pudimos cerrar la sesión. Inténtalo de nuevo.", "danger");
+          return;
+        }
+
         setCurrentUser(null, { silent: true });
         state.offersSent = [];
         state.offersReceived = [];
         state.activeAgreements = [];
         state.history = [];
         state.reviews = [];
+        state.pendingSales = [];
         profileMode = "create";
         updateUI();
         if (toast) {
@@ -9029,15 +9533,6 @@
         reader.readAsDataURL(file);
       }
 
-      function readFileAsDataURL(file) {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result);
-          reader.onerror = () => reject(new Error("No se pudo procesar el archivo"));
-          reader.readAsDataURL(file);
-        });
-      }
-
       async function handlePromoBannerFormSubmit(event) {
         event.preventDefault();
         ensurePromoBannerElements();
@@ -9077,14 +9572,6 @@
           return;
         }
 
-        let imageData = "";
-        try {
-          imageData = await readFileAsDataURL(imageFile);
-        } catch (error) {
-          showToast("Ocurrió un error al procesar la imagen.", "danger");
-          return;
-        }
-
         const hasValidLink = /^https?:\/\//i.test(rawLink);
         const ctaLink = hasValidLink ? rawLink : "#";
         const fallbackThemeIndex = state.promoBanners.length % PROMO_BANNER_THEMES.length;
@@ -9092,11 +9579,22 @@
         const themeDefaults = getPromoBannerThemeDefaults(theme);
         const textColor = normalizeHexColor(textColorValue) || themeDefaults.textColor;
         const buttonColor = normalizeHexColor(buttonColorValue) || themeDefaults.buttonColor;
+        nextPromoBannerTheme = theme;
+        const submitButton = promoBannerFormElement.querySelector('button[type="submit"]');
+        if (submitButton) {
+          submitButton.disabled = true;
+          submitButton.dataset.loading = "true";
+        }
 
-        state.promoBanners = [
-          ...state.promoBanners,
-          {
-            id: generateId("banner"),
+        try {
+          const bannerId = generateId("banner");
+          const imageUrl = await uploadFileToFirebaseStorage(
+            imageFile,
+            ["promo-banners", bannerId],
+            "cover"
+          );
+
+          const bannerDoc = {
             label,
             title,
             description,
@@ -9105,14 +9603,28 @@
             theme,
             textColor,
             buttonColor,
-            image: imageData,
+            image: imageUrl,
             expiresAt: expiresAt.getTime(),
-          },
-        ];
+            createdAt: serverTimestamp(),
+          };
 
-        renderPromoBanners();
-        showToast("Nuevo banner agregado correctamente.", "success");
-        closePromoBannerModal();
+          const bannerRef = doc(db, firebaseCollections.promoBanners, bannerId);
+          await setDoc(bannerRef, bannerDoc);
+
+          const normalizedBanner = normalizePromoBannerRecord(bannerId, bannerDoc);
+          state.promoBanners = [...state.promoBanners, normalizedBanner];
+          renderPromoBanners();
+          showToast("Nuevo banner agregado correctamente.", "success");
+          closePromoBannerModal();
+        } catch (error) {
+          console.error("No se pudo registrar el banner promocional", error);
+          showToast(mapFirebaseError(error), "danger");
+        } finally {
+          if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.removeAttribute("data-loading");
+          }
+        }
       }
 
       function clearPromoBannerTimers() {
@@ -9753,7 +10265,7 @@
           });
       }
 
-      function handleProfileSubmit(event) {
+      async function handleProfileSubmit(event) {
         event.preventDefault();
         const form = event?.currentTarget;
         const nameInput = $("#profile-name");
@@ -9763,6 +10275,7 @@
         const citySelect = $("#profile-city");
         const bioInput = $("#profile-bio");
         const photoInput = $("#profile-photo");
+
         const name = nameInput ? nameInput.value.trim() : "";
         const email = emailInput ? emailInput.value.trim() : "";
         const phone = phoneInput ? phoneInput.value.trim() : "";
@@ -9771,19 +10284,46 @@
         const location = department && city ? `${city}, ${department}` : "";
         const bio = bioInput ? bioInput.value.trim() : "";
         const file = photoInput && photoInput.files ? photoInput.files[0] : null;
-        const existingAvatar = state.currentUser && state.currentUser.avatar;
+        const existingAvatar = (state.currentUser && state.currentUser.avatar) || auth.currentUser?.photoURL || "";
 
         if (!name || !email || !phone || !department || !city) {
           showToast("Completa todos los campos obligatorios del perfil.", "danger");
           return;
         }
 
-        const finalize = (avatar) => {
+        const userId = state.currentUser?.id || auth.currentUser?.uid;
+        if (!userId) {
+          showToast("Debes iniciar sesión para actualizar tu perfil.", "danger");
+          return;
+        }
+
+        if (file && file.type && !file.type.startsWith("image")) {
+          showToast("Selecciona una imagen válida para tu perfil.", "danger");
+          return;
+        }
+
+        if (!file && !existingAvatar) {
+          showToast("Agrega una foto de perfil para completar tu registro.", "danger");
+          return;
+        }
+
+        const submitButton = form?.querySelector('button[type="submit"]');
+        if (submitButton) {
+          submitButton.disabled = true;
+          submitButton.dataset.loading = "true";
+        }
+
+        try {
+          let avatarUrl = existingAvatar;
+          if (file) {
+            avatarUrl = await uploadFileToFirebaseStorage(file, ["profiles", userId], "avatar");
+          }
+
           const now = new Date().toISOString();
           const previous = state.currentUser || {};
           const user = {
             ...previous,
-            id: previous.id || generateId("user"),
+            id: userId,
             name,
             email,
             phone,
@@ -9791,13 +10331,47 @@
             department,
             city,
             bio,
-            avatar: avatar || previous.avatar || "",
+            avatar: avatarUrl || previous.avatar || "",
             rating: Number(previous.rating || 5),
             createdAt: previous.createdAt || now,
             updatedAt: now,
           };
+
           profileMode = "view";
           setCurrentUser(user);
+
+          const payload = {
+            name,
+            email,
+            phone,
+            location,
+            department,
+            city,
+            bio,
+            avatar: avatarUrl,
+            updatedAt: serverTimestamp(),
+          };
+
+          if (!previous.createdAt) {
+            payload.createdAt = serverTimestamp();
+          }
+
+          const profileRef = doc(db, firebaseCollections.users, userId);
+          await setDoc(profileRef, payload, { merge: true });
+
+          if (auth.currentUser && auth.currentUser.uid === userId) {
+            try {
+              await updateAuthProfile(auth.currentUser, {
+                displayName: name,
+                photoURL: avatarUrl || null,
+              });
+            } catch (profileError) {
+              console.warn("No se pudo sincronizar el perfil de autenticación", profileError);
+            }
+          }
+
+          await syncCurrentUserFromFirebase({ silent: true });
+
           if (photoInput) {
             photoInput.value = "";
           }
@@ -9805,24 +10379,22 @@
             form.reset();
           }
           applyLocationToForm({ department: "", city: "" });
-          showToast(previous && previous.id ? "Perfil actualizado correctamente." : "Perfil creado correctamente.", "success");
-          switchToPage("profile", { scroll: false });
-        };
 
-        if (file) {
-          if (file.type && !file.type.startsWith("image")) {
-            showToast("Selecciona una imagen válida para tu perfil.", "danger");
-            return;
+          showToast(
+            previous && previous.id
+              ? "Perfil actualizado correctamente."
+              : "Perfil creado correctamente.",
+            "success"
+          );
+          switchToPage("profile", { scroll: false });
+        } catch (error) {
+          console.error("No se pudo actualizar el perfil", error);
+          showToast(mapFirebaseError(error), "danger");
+        } finally {
+          if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.removeAttribute("data-loading");
           }
-          readFile(file)
-            .then((data) => finalize(data))
-            .catch(() => {
-              showToast("No pudimos procesar la imagen seleccionada.", "danger");
-            });
-        } else if (existingAvatar) {
-          finalize(existingAvatar);
-        } else {
-          showToast("Agrega una foto de perfil para completar tu registro.", "danger");
         }
       }
 
@@ -10938,53 +11510,143 @@
         };
       }
 
-      function handleAuth(event) {
+      async function handleAuth(event) {
         event.preventDefault();
+        const form = event?.currentTarget;
         const nameInput = $("#auth-name");
         const emailInput = $("#auth-email");
+        const passwordInput = $("#auth-password");
         const phoneInput = $("#auth-phone");
         const locationInput = $("#auth-location");
         const fileInput = $("#auth-photo");
         const termsCheckbox = $("#auth-terms");
+
         const name = nameInput ? nameInput.value.trim() : "";
         const email = emailInput ? emailInput.value.trim() : "";
+        const password = passwordInput ? passwordInput.value.trim() : "";
         const phone = phoneInput ? phoneInput.value.trim() : "";
         const location = locationInput ? locationInput.value.trim() : "";
         const file = fileInput && fileInput.files ? fileInput.files[0] : null;
         const acceptedTerms = termsCheckbox ? Boolean(termsCheckbox.checked) : false;
-        if (!name || !email || !phone || !location || !file || !acceptedTerms) {
+
+        if (!name || !email || !password || !phone || !location || !acceptedTerms) {
           showToast("Completa todos los campos de verificación.", "danger");
           return;
         }
-        readFile(file)
-          .then((avatar) => {
-            const now = new Date().toISOString();
-            const user = {
-              id: generateId("user"),
-              name,
-              email,
-              phone,
-              location,
-              bio: "",
-              avatar,
-              rating: 5,
-              createdAt: now,
-              updatedAt: now,
-            };
-            closeModal("auth-modal");
-            profileMode = "view";
-            setCurrentUser(user);
-            showToast("Cuenta verificada creada. ¡Ya puedes publicar!", "success");
-            switchToPage("profile", { scroll: false });
-          })
-          .catch(() => {
-            showToast("No pudimos procesar la imagen seleccionada.", "danger");
-          });
+
+        if (!file) {
+          showToast("Adjunta una foto de perfil válida para activar tu cuenta.", "danger");
+          return;
+        }
+
+        if (password.length < 6) {
+          showToast("La contraseña debe tener al menos 6 caracteres.", "danger");
+          return;
+        }
+
+        const submitButton = form?.querySelector('button[type="submit"]');
+        if (submitButton) {
+          submitButton.disabled = true;
+          submitButton.dataset.loading = "true";
+        }
+
+        try {
+          let credential = null;
+          let isNewUser = false;
+          try {
+            credential = await createUserWithEmailAndPassword(auth, email, password);
+            isNewUser = true;
+          } catch (error) {
+            if (error?.code === "auth/email-already-in-use") {
+              credential = await signInWithEmailAndPassword(auth, email, password);
+            } else {
+              throw error;
+            }
+          }
+
+          if (!credential || !credential.user) {
+            throw new Error("No se pudo completar la autenticación");
+          }
+
+          const { user } = credential;
+          const userId = user.uid;
+          const { city, department } = parseLocationString(location);
+          let avatarUrl = user.photoURL || "";
+
+          if (file) {
+            try {
+              avatarUrl = await uploadFileToFirebaseStorage(file, ["profiles", userId], "avatar");
+            } catch (uploadError) {
+              throw uploadError;
+            }
+          }
+
+          const userDocPayload = {
+            name,
+            email,
+            phone,
+            location,
+            department,
+            city,
+            avatar: avatarUrl,
+            updatedAt: serverTimestamp(),
+          };
+
+          if (isNewUser) {
+            userDocPayload.createdAt = serverTimestamp();
+            userDocPayload.rating = 5;
+            userDocPayload.bio = "";
+          }
+
+          const profileRef = doc(db, firebaseCollections.users, userId);
+          await setDoc(profileRef, userDocPayload, { merge: true });
+
+          try {
+            await updateAuthProfile(user, {
+              displayName: name,
+              photoURL: avatarUrl || null,
+            });
+          } catch (profileError) {
+            console.warn("No se pudo actualizar el perfil de autenticación", profileError);
+          }
+
+          await syncCurrentUserFromFirebase();
+
+          if (form && typeof form.reset === "function") {
+            form.reset();
+          }
+          if (fileInput) {
+            fileInput.value = "";
+          }
+          const preview = $("#auth-photo-preview");
+          if (preview) {
+            preview.innerHTML = '<i class="fa-regular fa-user" aria-hidden="true"></i>';
+          }
+
+          closeModal("auth-modal");
+          profileMode = "view";
+          showToast(
+            isNewUser
+              ? "Cuenta verificada creada. ¡Ya puedes publicar!"
+              : "Sesión iniciada correctamente. ¡Bienvenido de vuelta!",
+            "success"
+          );
+          switchToPage("profile", { scroll: false });
+        } catch (error) {
+          console.error("Error durante el flujo de autenticación", error);
+          showToast(mapFirebaseError(error), "danger");
+        } finally {
+          if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.removeAttribute("data-loading");
+          }
+        }
       }
 
-      function handlePublish(event) {
+      async function handlePublish(event) {
         event.preventDefault();
         if (!ensureAuthenticated()) return;
+        const form = event?.currentTarget;
         const titleField = $("#product-name");
         const categoryField = $("#product-category");
         const descriptionField = $("#product-description");
@@ -10998,6 +11660,13 @@
         const price = priceField ? Number(priceField.value || 0) : 0;
         const location = locationField ? locationField.value.trim() : "";
         const files = Array.from((imagesInput && imagesInput.files) || []);
+        const user = state.currentUser;
+        const userId = user?.id || auth.currentUser?.uid;
+
+        if (!userId) {
+          showToast("Inicia sesión para publicar tus artículos.", "danger");
+          return;
+        }
 
         if (!title || !category || !description || !price || !location) {
           showToast("Completa todos los campos obligatorios.", "danger");
@@ -11011,32 +11680,92 @@
           return;
         }
 
-        Promise.all(files.map((file) => readFile(file))).then((images) => {
-          const product = {
-            id: generateId("prod"),
+        const submitButton = form?.querySelector('button[type="submit"]');
+        if (submitButton) {
+          submitButton.disabled = true;
+          submitButton.dataset.loading = "true";
+        }
+
+        try {
+          const productId = generateId("prod");
+          const imageUrls = [];
+          for (let index = 0; index < files.length; index += 1) {
+            const file = files[index];
+            const url = await uploadFileToFirebaseStorage(
+              file,
+              ["products", userId, productId],
+              `media-${index + 1}`
+            );
+            imageUrls.push(url);
+          }
+
+          const productDoc = {
             title,
             description,
             category,
             price,
             location,
-            images,
+            images: imageUrls,
+            ownerId: userId,
+            ownerName: user?.name || "",
+            ownerEmail: user?.email || "",
+            ownerPhone: user?.phone || "",
+            ownerLocation: user?.location || "",
+            ownerAvatar: user?.avatar || "",
+            ownerRating: Number(user?.rating || 5),
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
             views: 0,
-            owner: state.currentUser,
+            tags: [],
+            listingType: "marketplace",
+            sellIntent: "",
+            publishedToFeed: true,
           };
-          state.products.unshift(product);
+
+          const productRef = doc(db, firebaseCollections.products, productId);
+          await setDoc(productRef, productDoc);
+
+          const normalizedProduct = normalizeProductRecord(productId, productDoc);
+          if (normalizedProduct) {
+            state.products.unshift(normalizedProduct);
+          }
+          const productForSimulation =
+            normalizedProduct || {
+              id: productId,
+              title,
+              description,
+              category,
+              price,
+              location,
+              images: imageUrls,
+              views: 0,
+              owner: user,
+            };
+
           closeModal("publish-modal");
           showToast("Producto publicado en el feed.", "success");
-          event.target.reset();
+          if (form && typeof form.reset === "function") {
+            form.reset();
+          }
           if (imagesInput) {
             resetMediaInput(imagesInput);
           }
           updateUI();
-          setTimeout(() => simulateIncomingOffer(product), 5500);
-        });
+          setTimeout(() => simulateIncomingOffer(productForSimulation), 5500);
+        } catch (error) {
+          console.error("No se pudo publicar el producto", error);
+          showToast(mapFirebaseError(error), "danger");
+        } finally {
+          if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.removeAttribute("data-loading");
+          }
+        }
       }
 
-      function handleSell(event) {
+      async function handleSell(event) {
         event.preventDefault();
+        const form = event?.currentTarget;
         const intentField = $("#sell-intent");
         const nameField = $("#sell-name");
         const categoryField = $("#sell-category");
@@ -11063,6 +11792,13 @@
         const location = locationField ? locationField.value.trim() : "";
         const files = Array.from((imagesInput && imagesInput.files) || []);
         const publishToFeed = feedToggle ? Boolean(feedToggle.checked) : true;
+        const user = state.currentUser;
+        const userId = user?.id || auth.currentUser?.uid;
+
+        if (!userId) {
+          showToast("Inicia sesión para gestionar tus anuncios.", "danger");
+          return;
+        }
 
         if (!title || !category || !description || !price || !location) {
           showToast("Completa todos los campos obligatorios.", "danger");
@@ -11077,17 +11813,59 @@
           return;
         }
 
-        Promise.all(files.map((file) => readFile(file))).then((images) => {
-          const product = {
-            id: generateId("sale"),
+        const submitButton = form?.querySelector('button[type="submit"]');
+        if (submitButton) {
+          submitButton.disabled = true;
+          submitButton.dataset.loading = "true";
+        }
+
+        try {
+          const saleId = generateId("sale");
+          const storageFolder = publishToFeed ? ["products", userId, saleId] : ["drafts", userId, saleId];
+          const imageUrls = [];
+          for (let index = 0; index < files.length; index += 1) {
+            const file = files[index];
+            const url = await uploadFileToFirebaseStorage(
+              file,
+              storageFolder,
+              `media-${index + 1}`
+            );
+            imageUrls.push(url);
+          }
+
+          const baseDocument = {
+            id: saleId,
             title,
             description,
             category,
             price,
             location,
-            images,
+            images: imageUrls,
+            ownerId: userId,
+            ownerName: user?.name || "",
+            ownerEmail: user?.email || "",
+            ownerPhone: user?.phone || "",
+            ownerLocation: user?.location || "",
+            ownerAvatar: user?.avatar || "",
+            ownerRating: Number(user?.rating || 5),
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
             views: 0,
-            owner: state.currentUser,
+            listingType: "venta",
+            sellIntent: intentKey,
+            publishedToFeed,
+          };
+
+          const localProduct = {
+            id: saleId,
+            title,
+            description,
+            category,
+            price,
+            location,
+            images: imageUrls,
+            views: 0,
+            owner: user,
             listingType: "venta",
             sellIntent: intentKey,
             publishedToFeed,
@@ -11095,23 +11873,39 @@
           };
 
           if (publishToFeed) {
-            state.products.unshift(product);
+            const productRef = doc(db, firebaseCollections.products, saleId);
+            await setDoc(productRef, baseDocument);
+            const normalized = normalizeProductRecord(saleId, baseDocument) || localProduct;
+            state.products.unshift(normalized);
             showToast(`Anuncio de ${intent.label.toLowerCase()} publicado en el feed.`, "success");
             updateUI();
-            setTimeout(() => simulateIncomingOffer(product), 5500);
+            setTimeout(() => simulateIncomingOffer(normalized), 5500);
           } else {
-            state.pendingSales.unshift(product);
+            const draftRef = doc(db, firebaseCollections.pendingSales, saleId);
+            await setDoc(draftRef, baseDocument);
+            state.pendingSales.unshift(localProduct);
             showToast("Borrador guardado. Podrás publicarlo cuando quieras.", "info");
+            updateUI();
           }
 
           closeModal("sell-modal");
-          event.target.reset();
+          if (form && typeof form.reset === "function") {
+            form.reset();
+          }
           if (imagesInput) {
             resetMediaInput(imagesInput);
           }
           activeSellIntent = intentKey;
           configureSellModal(intentKey, { resetForm: false });
-        });
+        } catch (error) {
+          console.error("No se pudo procesar el anuncio de venta", error);
+          showToast(mapFirebaseError(error), "danger");
+        } finally {
+          if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.removeAttribute("data-loading");
+          }
+        }
       }
 
       function simulateIncomingOffer(product) {
@@ -11250,6 +12044,22 @@
         registerNavigation();
         ensureLocationSelectorsInitialized();
         updateUI();
+
+        onAuthStateChanged(auth, async (firebaseUser) => {
+          if (firebaseUser) {
+            await syncCurrentUserFromFirebase();
+            subscribeToPendingSales(firebaseUser.uid);
+          } else {
+            subscribeToPendingSales(null);
+            setCurrentUser(null);
+          }
+        });
+
+        subscribeToProducts();
+        subscribeToPromoBanners();
+        if (auth.currentUser) {
+          subscribeToPendingSales(auth.currentUser.uid);
+        }
 
         ensurePromoBannerElements();
         resetPromoBannerForm();
