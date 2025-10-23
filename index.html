@@ -943,9 +943,9 @@
 
       .admin-banner {
         width: 100%;
-        margin: 0;
+        margin: 0 0 10px;
         background: #fff;
-        padding: var(--hero-gap) 0 var(--hero-gap);
+        padding: var(--hero-gap) 0 0;
       }
 
       .banner-shell {
@@ -964,7 +964,7 @@
         display: flex;
         gap: clamp(0.3rem, 0.9vw, 0.65rem);
         overflow-x: auto;
-        padding-bottom: 0.55rem;
+        padding-bottom: clamp(0.05rem, 0.25vw, 0.2rem);
         margin: 0;
         padding-inline: clamp(0.4rem, 2.8vw, 1.4rem);
         scroll-snap-type: x mandatory;
@@ -984,7 +984,7 @@
         overflow: hidden;
         scroll-snap-align: start;
         transition: transform var(--transition);
-        margin-block: 0.25rem;
+        margin-block: clamp(0.05rem, 0.25vw, 0.18rem);
         isolation: isolate;
       }
 
