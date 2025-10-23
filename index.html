@@ -6726,7 +6726,7 @@
         apiKey: "AIzaSyBG035jZHTgsqZKIYCHGAUshwRukSccrjU",
         authDomain: "mercadocanje-ffca0.firebaseapp.com",
         projectId: "mercadocanje-ffca0",
-        storageBucket: "mercadocanje-ffca0.firebasestorage.app",
+        storageBucket: "mercadocanje-ffca0.appspot.com",
         messagingSenderId: "1069590620221",
         appId: "1:1069590620221:web:ea68de5b49395ce42be254",
         measurementId: "G-9KEBKJ84CR",
@@ -6741,7 +6741,7 @@
       }
       const auth = getAuth(firebaseApp);
       const db = getFirestore(firebaseApp);
-      const storageService = getStorage(firebaseApp);
+      const storageService = getStorage(firebaseApp, "gs://mercadocanje-ffca0.appspot.com");
 
       const $ = (selector, scope = document) => scope.querySelector(selector);
       const $$ = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
@@ -6827,6 +6827,34 @@
         return `${pathSegments.filter(Boolean).join("/")}/${sanitizedDescriptor}-${unique}.${extension}`;
       }
 
+      function isFirebaseStorageUrl(value) {
+        return typeof value === "string" && /^https?:\/\//i.test(value);
+      }
+
+      async function ensureFirebaseStorageUrl(rawValue) {
+        if (!rawValue || typeof rawValue !== "string") {
+          return "";
+        }
+        if (isFirebaseStorageUrl(rawValue) || /^data:/i.test(rawValue) || /^blob:/i.test(rawValue)) {
+          return rawValue;
+        }
+        try {
+          const reference = storageRef(storageService, rawValue);
+          return await getDownloadURL(reference);
+        } catch (error) {
+          console.warn("No se pudo resolver la URL de Firebase Storage", rawValue, error);
+          return "";
+        }
+      }
+
+      async function ensureFirebaseStorageUrls(values) {
+        if (!Array.isArray(values) || !values.length) {
+          return [];
+        }
+        const resolved = await Promise.all(values.map((value) => ensureFirebaseStorageUrl(value)));
+        return resolved.filter(Boolean);
+      }
+
       async function uploadFileToFirebaseStorage(file, segments, descriptor = "asset") {
         if (!file) {
           return null;
@@ -6883,6 +6911,7 @@
             const createdAt = firebaseUser.metadata?.creationTime
               ? new Date(firebaseUser.metadata.creationTime).toISOString()
               : new Date().toISOString();
+            const avatarUrl = await ensureFirebaseStorageUrl(firebaseUser.photoURL || "");
             return {
               id: uid,
               name: firebaseUser.displayName || firebaseUser.email || "Usuario verificado",
@@ -6892,7 +6921,7 @@
               department: "",
               city: "",
               bio: "",
-              avatar: firebaseUser.photoURL || "",
+              avatar: avatarUrl,
               rating: 5,
               createdAt,
               updatedAt: createdAt,
@@ -6905,6 +6934,9 @@
           const updatedAtIso = data.updatedAt
             ? timestampToISOString(data.updatedAt, new Date(createdAtIso))
             : createdAtIso;
+          const avatarUrl = await ensureFirebaseStorageUrl(
+            data.avatar || firebaseUser?.photoURL || ""
+          );
           return {
             id: uid,
             name: data.name || firebaseUser?.displayName || "Usuario verificado",
@@ -6914,7 +6946,7 @@
             department: data.department || "",
             city: data.city || "",
             bio: data.bio || "",
-            avatar: data.avatar || firebaseUser?.photoURL || "",
+            avatar: avatarUrl,
             rating: Number(data.rating || 5),
             createdAt: createdAtIso,
             updatedAt: updatedAtIso,
@@ -7005,6 +7037,9 @@
           "auth/user-not-found": "No encontramos una cuenta con ese correo.",
           "auth/wrong-password": "La contraseña ingresada no es correcta.",
           "storage/canceled": "La carga del archivo fue cancelada.",
+          "storage/unauthorized": "No tienes permisos para acceder a este recurso.",
+          "storage/quota-exceeded": "Se alcanzó el límite de almacenamiento. Intenta más tarde.",
+          "storage/retry-limit-exceeded": "La carga tardó demasiado. Intenta de nuevo.",
         };
         return messages[error.code] || error.message || "Ocurrió un error inesperado. Intenta de nuevo.";
       }
@@ -7022,10 +7057,31 @@
           );
           unsubscribeProducts = onSnapshot(
             productsQuery,
-            (snapshot) => {
-              const items = snapshot.docs.map((docSnap) => normalizeProductRecord(docSnap.id, docSnap.data()));
-              state.products = items.length ? items : [...sampleProducts];
-              updateUI();
+            async (snapshot) => {
+              try {
+                const items = await Promise.all(
+                  snapshot.docs.map(async (docSnap) => {
+                    const record = normalizeProductRecord(docSnap.id, docSnap.data());
+                    if (!record) {
+                      return null;
+                    }
+                    const images = await ensureFirebaseStorageUrls(record.images);
+                    const ownerAvatar = await ensureFirebaseStorageUrl(record.owner?.avatar || "");
+                    return {
+                      ...record,
+                      images,
+                      owner: { ...record.owner, avatar: ownerAvatar },
+                    };
+                  })
+                );
+                const filtered = items.filter(Boolean);
+                state.products = filtered.length ? filtered : [...sampleProducts];
+                updateUI();
+              } catch (processingError) {
+                console.error("Error al procesar productos de Firebase", processingError);
+                state.products = [...sampleProducts];
+                updateUI();
+              }
             },
             (error) => {
               console.error("Error al sincronizar productos", error);
@@ -7047,10 +7103,22 @@
           const bannersQuery = query(bannersRef, orderBy("createdAt", "desc"));
           unsubscribePromoBanners = onSnapshot(
             bannersQuery,
-            (snapshot) => {
-              const items = snapshot.docs.map((docSnap) => normalizePromoBannerRecord(docSnap.id, docSnap.data()));
-              state.promoBanners = items.length ? items : [...initialPromoBanners];
-              renderPromoBanners();
+            async (snapshot) => {
+              try {
+                const items = await Promise.all(
+                  snapshot.docs.map(async (docSnap) => {
+                    const record = normalizePromoBannerRecord(docSnap.id, docSnap.data());
+                    const imageUrl = await ensureFirebaseStorageUrl(record.image);
+                    return { ...record, image: imageUrl };
+                  })
+                );
+                state.promoBanners = items.length ? items : [...initialPromoBanners];
+                renderPromoBanners();
+              } catch (processingError) {
+                console.error("Error al procesar banners de Firebase", processingError);
+                state.promoBanners = [...initialPromoBanners];
+                renderPromoBanners();
+              }
             },
             (error) => {
               console.error("Error al sincronizar banners promocionales", error);
@@ -7081,43 +7149,60 @@
 
           unsubscribePendingSales = onSnapshot(
             draftsQuery,
-            (snapshot) => {
-              const items = snapshot.docs.map((docSnap) => {
-                const data = docSnap.data() || {};
-                const normalized = normalizeProductRecord(docSnap.id || data.id || "", data);
-                if (normalized) {
-                  return { ...normalized, publishedToFeed: false };
-                }
-                return {
-                  id: docSnap.id,
-                  title: data.title || "",
-                  description: data.description || "",
-                  category: data.category || "general",
-                  price: Number(data.price || 0),
-                  location: data.location || "",
-                  images: Array.isArray(data.images) ? data.images.filter(Boolean) : [],
-                  views: Number(data.views || 0),
-                  owner: state.currentUser || {
-                    id: uid,
-                    name: data.ownerName || "",
-                    avatar: data.ownerAvatar || "",
-                  },
-                  listingType: data.listingType || "venta",
-                  sellIntent: data.sellIntent || "",
-                  publishedToFeed: false,
-                  createdAt: timestampToISOString(data.createdAt),
-                  updatedAt: timestampToISOString(data.updatedAt),
-                };
-              });
-              state.pendingSales = items.sort((a, b) => {
-                const first = Date.parse(b.createdAt || "");
-                const second = Date.parse(a.createdAt || "");
-                if (Number.isFinite(first) && Number.isFinite(second)) {
-                  return first - second;
-                }
-                return 0;
-              });
-              updateUI();
+            async (snapshot) => {
+              try {
+                const items = await Promise.all(
+                  snapshot.docs.map(async (docSnap) => {
+                    const data = docSnap.data() || {};
+                    const normalized = normalizeProductRecord(docSnap.id || data.id || "", data);
+                    const baseRecord = normalized
+                      ? { ...normalized, publishedToFeed: false }
+                      : {
+                          id: docSnap.id,
+                          title: data.title || "",
+                          description: data.description || "",
+                          category: data.category || "general",
+                          price: Number(data.price || 0),
+                          location: data.location || "",
+                          images: Array.isArray(data.images) ? data.images.filter(Boolean) : [],
+                          views: Number(data.views || 0),
+                          owner: state.currentUser || {
+                            id: uid,
+                            name: data.ownerName || "",
+                            avatar: data.ownerAvatar || "",
+                          },
+                          listingType: data.listingType || "venta",
+                          sellIntent: data.sellIntent || "",
+                          publishedToFeed: false,
+                          createdAt: timestampToISOString(data.createdAt),
+                          updatedAt: timestampToISOString(data.updatedAt),
+                        };
+                    const images = await ensureFirebaseStorageUrls(baseRecord.images || []);
+                    const ownerAvatar = await ensureFirebaseStorageUrl(
+                      baseRecord.owner?.avatar || ""
+                    );
+                    return {
+                      ...baseRecord,
+                      images,
+                      owner: { ...baseRecord.owner, avatar: ownerAvatar },
+                    };
+                  })
+                );
+                const sorted = items.sort((a, b) => {
+                  const first = Date.parse(b.createdAt || "");
+                  const second = Date.parse(a.createdAt || "");
+                  if (Number.isFinite(first) && Number.isFinite(second)) {
+                    return first - second;
+                  }
+                  return 0;
+                });
+                state.pendingSales = sorted;
+                updateUI();
+              } catch (processingError) {
+                console.error("Error al procesar borradores de venta", processingError);
+                state.pendingSales = [];
+                updateUI();
+              }
             },
             (error) => {
               console.error("Error al sincronizar borradores de venta", error);
