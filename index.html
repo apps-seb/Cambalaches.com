@@ -589,6 +589,7 @@
                         <button type="submit" class="w-full px-4 py-2 font-medium text-white bg-brand rounded-lg hover:bg-brand-dark">
                             Entrar
                         </button>
+                        <p id="login-error-msg" class="hidden text-sm text-center text-red-600"></p>
                     </form>
 
                     <!-- Formulario Registrarse -->
@@ -628,6 +629,7 @@
                         <button type="submit" class="w-full px-4 py-2 font-medium text-white bg-brand rounded-lg hover:bg-brand-dark">
                             Crear Cuenta
                         </button>
+                        <p id="register-error-msg" class="hidden text-sm text-center text-red-600"></p>
                     </form>
                 </div>
 
@@ -837,8 +839,38 @@
 
 
     <!-- SCRIPT PRINCIPAL (MODIFICADO) -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAnalytics, isSupported as isAnalyticsSupported } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+        import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, query, where, serverTimestamp, deleteDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBG035jZHTgsqZKIYCHGAUshwRukSccrjU",
+            authDomain: "mercadocanje-ffca0.firebaseapp.com",
+            projectId: "mercadocanje-ffca0",
+            storageBucket: "mercadocanje-ffca0.firebasestorage.app",
+            messagingSenderId: "1069590620221",
+            appId: "1:1069590620221:web:ea68de5b49395ce42be254",
+            measurementId: "G-9KEBKJ84CR"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        let analytics;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                if (await isAnalyticsSupported()) {
+                    analytics = getAnalytics(app);
+                    window.firebaseAnalytics = analytics;
+                }
+            } catch (analyticsError) {
+                console.warn('Firebase Analytics no está disponible en este entorno:', analyticsError);
+            }
             
             // --- CONSTANTES DE CATEGORÍAS (MODIFICADO) ---
             const categories = [
@@ -858,76 +890,35 @@
                 { name: 'Otros', icon: 'box', id: 'otros' }
             ];
 
-            // --- ESTADO DE LA APLICACIÓN (simulado) ---
+            const DEFAULT_PROFILE_PIC = 'https://placehold.co/100x100/E8F0FE/4285F4?text=U';
+            const DEFAULT_PRODUCT_IMAGE = 'https://placehold.co/300x200/D1D5DB/111827?text=Sin+Imagen';
+
+            // --- ESTADO DE LA APLICACIÓN ---
             const state = {
                 isLoggedIn: false,
-                isAdmin: false, 
+                isAdmin: false,
                 currentUser: {
-                    // Datos por defecto (log out)
-                },
-                viewedCategoryHistory: {}, // NUEVO: Para rastrear vistas
-                
-                // --- BASE DE DATOS SIMULADA ---
-                users: {
-                    'user@canje.app': {
-                        name: "Usuario de Prueba",
-                        email: "usuario@canje.app",
-                        address: "Cra 5 # 10-20, Bogotá",
-                        doc: "CC 1061...",
-                        profilePic: "https://placehold.co/100x100/E8F0FE/4285F4?text=U",
-                        items: [
-                            { id: 101, name: "Smartwatch Gama Alta", value: 750000, imageUrl: 'https://placehold.co/300x200/D1D5DB/111827?text=Reloj', wants: 'Cualquier cosa', categoryId: 'tecnologia' },
-                            { id: 102, name: "Teclado Mecánico RGB", value: 400000, imageUrl: 'https://placehold.co/300x200/D1D5DB/111827?text=Teclado', wants: 'Mouse', categoryId: 'computacion' },
-                        ]
+                    uid: null,
+                    name: '',
+                    email: '',
+                    address: '',
+                    doc: '',
+                    profilePic: DEFAULT_PROFILE_PIC,
+                    profilePicPath: '',
+                    items: [],
+                    role: 'user',
+                    stats: {
+                        listedCount: 0,
+                        completedTrades: 0,
                     },
-                    'admin@canje.app': {
-                        name: "Administrador",
-                        email: "admin@canje.app",
-                        address: "Oficina Principal",
-                        doc: "CC 1000...",
-                        profilePic: "https://placehold.co/100x100/F4B400/333?text=A",
-                        items: [
-                             { id: 901, name: "Item de Admin 1", value: 10000, imageUrl: 'https://placehold.co/300x200/D1D5DB/111827?text=Admin1', wants: 'Todo', categoryId: 'otros' },
-                        ]
-                    }
                 },
-                allProducts: [
-                    { id: 1, name: "Consola PS5 Usada", wants: "iPhone 13 o similar", value: 2000000, imageUrl: 'https://placehold.co/300x200/D1D5DB/111827?text=PS5', categoryId: 'juegos' },
-                    { id: 2, name: "Bicicleta de Montaña", wants: "Smartwatch", value: 800000, imageUrl: 'https://placehold.co/300x200/D1D5DB/111827?text=Bicicleta', categoryId: 'deportes' },
-                    { id: 3, name: "Guitarra Eléctrica", wants: "Amplificador", value: 1200000, imageUrl: 'https://placehold.co/300x200/D1D5DB/111827?text=Guitarra', categoryId: 'otros' },
-                    { id: 4, name: "iPhone 12 Mini", wants: "PS5", value: 1800000, imageUrl: 'https://placehold.co/300x200/D1D5DB/111827?text=iPhone', categoryId: 'celulares' },
-                    { id: 5, name: "Monitor Gamer Curvo", wants: "Portátil", value: 900000, imageUrl: 'https://placehold.co/300x200/D1D5DB/111827?text=Monitor', categoryId: 'computacion' },
-                    { id: 6, name: "Air Fryer Nueva", wants: "Sillas", value: 350000, imageUrl: 'https://placehold.co/300x200/D1D5DB/111827?text=AirFryer', categoryId: 'hogar' },
-                    { id: 7, name: "Zapatos Deportivos", wants: "Juegos Switch", value: 400000, imageUrl: 'https://placehold.co/300x200/D1D5DB/111827?text=Zapatos', categoryId: 'deportes' },
-                ],
-                receivedOffers: [
-                    {
-                        id: 201,
-                        fromUser: { name: "Usuario_Bici", profilePic: 'https://placehold.co/40x40/34A853/FFF?text=B' },
-                        theirItems: [
-                            { id: 2, name: "Bicicleta de Montaña", value: 800000, imageUrl: 'https://placehold.co/300x200/D1D5DB/111827?text=Bicicleta' }
-                        ],
-                        additionalCop: 0,
-                        forYourItem: { id: 101, name: "Smartwatch Gama Alta", value: 750000, imageUrl: 'https://placehold.co/300x200/D1D5DB/111827?text=Reloj' },
-                        totalOfferedValue: 800000,
-                        difference: 50000 // 800000 (ofrecido) - 750000 (tuyo)
-                    },
-                    {
-                        id: 202,
-                        fromUser: { name: "Musico_Fan", profilePic: 'https://placehold.co/40x40/EA4335/FFF?text=M' },
-                        theirItems: [
-                            { id: 3, name: "Guitarra Eléctrica", value: 1200000, imageUrl: 'https://placehold.co/300x200/D1D5DB/111827?text=Guitarra' }
-                        ],
-                        additionalCop: 100000,
-                        forYourItem: { id: 1, name: "Consola PS5 Usada", value: 2000000, imageUrl: 'https://placehold.co/300x200/D1D5DB/111827?text=PS5' },
-                        totalOfferedValue: 1300000, // 1.2M + 100k
-                        difference: -700000 // 1.3M (ofrecido) - 2.0M (tuyo)
-                    }
-                ],
-                // --- FIN DB SIMULADA ---
+                viewedCategoryHistory: {},
+                allProducts: [],
+                receivedOffers: [],
                 itemToSwap: null,
-                editingTimerSlide: null, 
-                productFiles: [], 
+                editingTimerSlide: null,
+                productFiles: [],
+                profilePicFile: null,
             };
 
 
@@ -949,6 +940,8 @@
             const btnLogout = document.getElementById('btn-logout');
             const formLogin = document.getElementById('auth-login');
             const formRegister = document.getElementById('auth-register');
+            const loginErrorMsg = document.getElementById('login-error-msg');
+            const registerErrorMsg = document.getElementById('register-error-msg');
             const userNameEl = document.getElementById('user-name');
             const userEmailEl = document.getElementById('user-email');
             const userAddressEl = document.getElementById('user-address');
@@ -957,6 +950,7 @@
             const headerProfileImg = document.getElementById('header-profile-img');
             const profilePicUpload = document.getElementById('profile-pic-upload');
             const profilePicPreview = document.getElementById('profile-pic-preview');
+            const defaultProfilePreviewSrc = profilePicPreview ? profilePicPreview.src : DEFAULT_PROFILE_PIC;
 
             // Barra lateral
             const sidebar = document.getElementById('desktop-sidebar');
@@ -1050,12 +1044,15 @@
                     // Vista Perfil
                     perfilAuthForm.classList.add('hidden');
                     perfilLoggedIn.classList.remove('hidden');
-                    userNameEl.textContent = state.currentUser.name;
-                    userEmailEl.textContent = state.currentUser.email;
-                    userAddressEl.textContent = state.currentUser.address;
-                    userDocEl.textContent = state.currentUser.doc.replace(/(\d{4})\d+/, '$1******'); // Ocultar parte del doc
-                    mainProfileImg.src = state.currentUser.profilePic;
-                    headerProfileImg.src = state.currentUser.profilePic;
+                    const defaultPic = 'https://placehold.co/40x40/E8F0FE/4285F4?text=U';
+                    const profilePic = state.currentUser.profilePic || defaultPic;
+                    userNameEl.textContent = state.currentUser.name || 'Usuario';
+                    userEmailEl.textContent = state.currentUser.email || '';
+                    userAddressEl.textContent = state.currentUser.address || 'Sin dirección';
+                    const docValue = state.currentUser.doc || '';
+                    userDocEl.textContent = docValue ? docValue.replace(/(\d{4})\d+/, '$1******') : 'Sin documento';
+                    mainProfileImg.src = profilePic;
+                    headerProfileImg.src = profilePic;
 
                     // Vistas restringidas
                     canjesAuthRequired.classList.add('hidden');
@@ -1071,10 +1068,10 @@
                         adminBadge.classList.add('hidden');
                         document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
                     }
-                    
+
                     // Actualizar contadores
                     ofertasCount.textContent = state.receivedOffers.length;
-                    misArticulosCount.textContent = state.currentUser.items.length;
+                    misArticulosCount.textContent = (state.currentUser.items || []).length;
                     // Renderizar contenido dinámico del usuario
                     renderReceivedOffers();
                     renderMyItems();
@@ -1086,7 +1083,10 @@
                     const defaultPic = 'https://placehold.co/40x40/E8F0FE/4285F4?text=U';
                     mainProfileImg.src = defaultPic;
                     headerProfileImg.src = defaultPic;
-                    
+                    if (profilePicPreview) {
+                        profilePicPreview.src = defaultProfilePreviewSrc;
+                    }
+
                     // Vistas restringidas
                     canjesAuthRequired.classList.remove('hidden');
                     canjesContent.classList.add('hidden');
@@ -1116,6 +1116,251 @@
                     minimumFractionDigits: 0,
                 }).format(value);
             }
+
+            /**
+             * Normaliza un documento de producto proveniente de Firestore.
+             */
+            function mapProductDoc(docSnap) {
+                const data = docSnap.data();
+                if (!data) return null;
+
+                const createdAt = data.createdAt && typeof data.createdAt.toMillis === 'function' ? data.createdAt.toMillis() : 0;
+                return {
+                    id: docSnap.id,
+                    name: data.name || 'Artículo sin título',
+                    wants: data.wants || '',
+                    value: Number(data.value) || 0,
+                    description: data.description || '',
+                    categoryId: data.categoryId || 'otros',
+                    imageUrl: data.imageUrl || (Array.isArray(data.imageUrls) && data.imageUrls.length > 0 ? data.imageUrls[0] : DEFAULT_PRODUCT_IMAGE),
+                    imageUrls: Array.isArray(data.imageUrls) ? data.imageUrls : (data.imageUrl ? [data.imageUrl] : []),
+                    imagePaths: Array.isArray(data.imagePaths) ? data.imagePaths : [],
+                    ownerId: data.ownerId || '',
+                    ownerName: data.ownerName || '',
+                    ownerEmail: data.ownerEmail || '',
+                    createdAt,
+                    updatedAt: data.updatedAt && typeof data.updatedAt.toMillis === 'function' ? data.updatedAt.toMillis() : createdAt,
+                };
+            }
+
+            /**
+             * Carga todos los productos publicados en Firestore.
+             */
+            async function loadAllProducts() {
+                try {
+                    const snapshot = await getDocs(collection(db, 'items'));
+                    const products = [];
+                    snapshot.forEach(docSnap => {
+                        const mapped = mapProductDoc(docSnap);
+                        if (mapped) {
+                            products.push(mapped);
+                        }
+                    });
+                    products.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                    state.allProducts = products;
+                    renderProducts();
+                    renderMostViewedProducts();
+                } catch (error) {
+                    console.error('Error al cargar los productos:', error);
+                }
+            }
+
+            /**
+             * Carga los artículos pertenecientes al usuario actual.
+             */
+            async function loadUserItems(uid) {
+                if (!uid) {
+                    state.currentUser.items = [];
+                    misArticulosCount.textContent = 0;
+                    renderMyItems();
+                    return;
+                }
+
+                try {
+                    const itemsQuery = query(collection(db, 'items'), where('ownerId', '==', uid));
+                    const snapshot = await getDocs(itemsQuery);
+                    const items = [];
+                    snapshot.forEach(docSnap => {
+                        const mapped = mapProductDoc(docSnap);
+                        if (mapped) {
+                            items.push(mapped);
+                        }
+                    });
+                    items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                    state.currentUser.items = items;
+                    state.currentUser.stats = state.currentUser.stats || { listedCount: 0, completedTrades: 0 };
+                    state.currentUser.stats.listedCount = items.length;
+                    misArticulosCount.textContent = items.length;
+                    renderMyItems();
+                } catch (error) {
+                    console.error('Error al cargar los artículos del usuario:', error);
+                    misArticulosCount.textContent = (state.currentUser.items || []).length;
+                }
+            }
+
+            /**
+             * Crea o actualiza el documento de perfil del usuario autenticado y devuelve los datos consolidados.
+             */
+            async function ensureUserProfile(user, overrides = {}) {
+                if (!user || !user.uid) return null;
+
+                const userDocRef = doc(db, 'users', user.uid);
+                const snapshot = await getDoc(userDocRef);
+                const existingData = snapshot.exists() ? snapshot.data() : {};
+                const hasStats = existingData && typeof existingData.stats === 'object';
+
+                const finalStats = overrides.stats || (hasStats ? existingData.stats : {
+                    listedCount: 0,
+                    completedTrades: 0,
+                });
+
+                const payload = {
+                    name: overrides.name ?? existingData.name ?? user.displayName ?? 'Usuario',
+                    email: overrides.email ?? existingData.email ?? user.email ?? '',
+                    address: overrides.address ?? existingData.address ?? '',
+                    doc: overrides.doc ?? existingData.doc ?? '',
+                    profilePic: overrides.profilePic ?? existingData.profilePic ?? user.photoURL ?? DEFAULT_PROFILE_PIC,
+                    profilePicPath: overrides.profilePicPath ?? existingData.profilePicPath ?? '',
+                    role: overrides.role ?? existingData.role ?? 'user',
+                    updatedAt: serverTimestamp(),
+                };
+
+                if (!snapshot.exists()) {
+                    payload.createdAt = serverTimestamp();
+                    payload.stats = finalStats;
+                } else if (!hasStats || overrides.stats) {
+                    payload.stats = finalStats;
+                }
+
+                await setDoc(userDocRef, payload, { merge: true });
+
+                return {
+                    uid: user.uid,
+                    name: payload.name,
+                    email: payload.email,
+                    address: payload.address,
+                    doc: payload.doc,
+                    profilePic: payload.profilePic,
+                    profilePicPath: payload.profilePicPath,
+                    role: payload.role,
+                    stats: finalStats,
+                };
+            }
+
+            /**
+             * Garantiza que exista un documento de perfil para el usuario autenticado.
+             */
+            async function hydrateCurrentUser(user) {
+                if (!user) return;
+
+                try {
+                    const profile = await ensureUserProfile(user);
+                    if (!profile) return;
+
+                    state.currentUser = {
+                        uid: user.uid,
+                        name: profile.name || user.displayName || 'Usuario',
+                        email: profile.email || user.email || '',
+                        address: profile.address || '',
+                        doc: profile.doc || '',
+                        profilePic: profile.profilePic || user.photoURL || DEFAULT_PROFILE_PIC,
+                        profilePicPath: profile.profilePicPath || '',
+                        items: [],
+                        role: profile.role || 'user',
+                        stats: profile.stats || {
+                            listedCount: 0,
+                            completedTrades: 0,
+                        },
+                    };
+
+                    state.isAdmin = (state.currentUser.role === 'admin') || ((state.currentUser.email || '').toLowerCase() === 'admin@canje.app');
+                } catch (error) {
+                    console.error('Error al obtener el perfil del usuario:', error);
+                }
+            }
+
+            /**
+             * Elimina un artículo del usuario actual, incluyendo sus archivos en Storage.
+             */
+            async function deleteUserItem(itemId) {
+                if (!itemId) return;
+
+                try {
+                    const productRef = doc(db, 'items', itemId);
+                    const productSnapshot = await getDoc(productRef);
+                    if (productSnapshot.exists()) {
+                        const productData = productSnapshot.data();
+                        if (productData.ownerId && productData.ownerId !== state.currentUser.uid) {
+                            console.warn('No puedes eliminar artículos de otros usuarios.');
+                            return;
+                        }
+
+                        let statsDecremented = false;
+                        await deleteDoc(productRef);
+
+                        try {
+                            await deleteDoc(doc(db, 'users', state.currentUser.uid, 'items', itemId));
+                        } catch (userItemDeleteError) {
+                            console.warn('No se pudo eliminar el artículo de la colección del usuario:', userItemDeleteError);
+                        }
+
+                        try {
+                            await setDoc(doc(db, 'users', state.currentUser.uid), {
+                                'stats.listedCount': increment(-1),
+                                updatedAt: serverTimestamp(),
+                            }, { merge: true });
+                            statsDecremented = true;
+                        } catch (statsError) {
+                            console.warn('No se pudo actualizar el contador de publicaciones del usuario:', statsError);
+                        }
+
+                        const imagePaths = Array.isArray(productData.imagePaths) ? productData.imagePaths : [];
+                        if (imagePaths.length > 0) {
+                            await Promise.allSettled(imagePaths.map(path => {
+                                try {
+                                    const fileRef = storageRef(storage, path);
+                                    return deleteObject(fileRef);
+                                } catch (storageError) {
+                                    console.error('Error al preparar la eliminación de una imagen:', storageError);
+                                    return Promise.resolve();
+                                }
+                            }));
+                        }
+
+                        if (statsDecremented) {
+                            state.currentUser.stats = state.currentUser.stats || { listedCount: 0, completedTrades: 0 };
+                            state.currentUser.stats.listedCount = Math.max(0, (state.currentUser.stats.listedCount || 1) - 1);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error al eliminar el artículo:', error);
+                }
+
+                state.currentUser.items = (state.currentUser.items || []).filter(item => item.id !== itemId);
+                state.allProducts = state.allProducts.filter(item => item.id !== itemId);
+                renderMyItems();
+                renderProducts();
+                renderMostViewedProducts();
+                misArticulosCount.textContent = (state.currentUser.items || []).length;
+            }
+
+            /**
+             * Traduce códigos de error de Firebase Auth a mensajes legibles.
+             */
+            function getAuthErrorMessage(error) {
+                if (!error) return 'Ocurrió un error inesperado. Intenta nuevamente.';
+                const errorCode = error.code || '';
+                const messages = {
+                    'auth/invalid-email': 'El correo electrónico no es válido.',
+                    'auth/user-disabled': 'La cuenta ha sido deshabilitada.',
+                    'auth/user-not-found': 'No encontramos una cuenta con este correo.',
+                    'auth/wrong-password': 'La contraseña es incorrecta.',
+                    'auth/email-already-in-use': 'Este correo ya está registrado.',
+                    'auth/weak-password': 'La contraseña debe tener al menos 6 caracteres.',
+                    'auth/too-many-requests': 'Demasiados intentos. Intenta más tarde.',
+                };
+                return messages[errorCode] || error.message || 'Ocurrió un error inesperado. Intenta nuevamente.';
+            }
             
             /**
              * Previsualiza la imagen de perfil al seleccionarla.
@@ -1129,6 +1374,9 @@
                         // state.currentUser.profilePic se actualiza al registrarse
                     };
                     reader.readAsDataURL(file);
+                    state.profilePicFile = file;
+                } else {
+                    state.profilePicFile = null;
                 }
             }
 
@@ -1849,142 +2097,358 @@
             });
 
 
-            
-            // --- LÓGICA DE AUTENTICACIÓN (Simulada) ---
-            
-            formLogin.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const email = document.getElementById('email-login').value.toLowerCase();
-                
-                // Simulación de búsqueda en DB
-                if (state.users[email]) {
+
+            // --- LÓGICA DE AUTENTICACIÓN (Firebase) ---
+
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
                     state.isLoggedIn = true;
-                    state.currentUser = JSON.parse(JSON.stringify(state.users[email])); // Copia profunda
-                    state.isAdmin = (email === 'admin@canje.app');
-                    
+                    await hydrateCurrentUser(user);
+                    await loadUserItems(user.uid);
+                    await loadAllProducts();
                     updateAuthUI();
                     showPage('page-perfil');
                 } else {
-                    // Simulación de error
                     state.isLoggedIn = false;
                     state.isAdmin = false;
-                    state.currentUser = {};
-                    console.error("Usuario no encontrado");
-                    // Aquí podrías mostrar un mensaje de error en el formulario
+                    state.currentUser = {
+                        uid: null,
+                        name: '',
+                        email: '',
+                        address: '',
+                        doc: '',
+                        profilePic: DEFAULT_PROFILE_PIC,
+                        profilePicPath: '',
+                        items: [],
+                        role: 'user',
+                        stats: {
+                            listedCount: 0,
+                            completedTrades: 0,
+                        },
+                    };
+                    state.profilePicFile = null;
+                    updateAuthUI();
+                    showPage('page-perfil');
                 }
             });
 
-            formRegister.addEventListener('submit', (e) => {
+            formLogin.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                state.isLoggedIn = true;
-                state.isAdmin = false; // El registro normal no es admin
-                
-                // Simulación de creación de usuario
-                const newEmail = document.getElementById('email-reg').value.toLowerCase();
-                if (!newEmail) {
-                    console.error("Email es requerido");
-                    return;
+                const submitBtn = formLogin.querySelector('button[type="submit"]');
+                const email = document.getElementById('email-login').value.trim().toLowerCase();
+                const password = document.getElementById('pass-login').value;
+
+                if (loginErrorMsg) {
+                    loginErrorMsg.classList.add('hidden');
                 }
 
-                const newUser = {
-                    name: document.getElementById('nombre-reg').value || "Nuevo Usuario",
-                    email: newEmail,
-                    address: document.getElementById('dir-reg').value || "Sin dirección",
-                    doc: document.getElementById('doc-reg').value || "Sin documento",
-                    profilePic: profilePicPreview.src, // Usa la URL de la vista previa
-                    items: [] // Nuevo usuario no tiene items
-                };
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Ingresando...';
+                }
 
-                state.users[newEmail] = newUser; // Añadir a la "DB"
-                state.currentUser = JSON.parse(JSON.stringify(newUser)); // Asignar como usuario actual
-
-                updateAuthUI();
-                showPage('page-perfil');
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    formLogin.reset();
+                } catch (error) {
+                    console.error('Error al iniciar sesión:', error);
+                    if (loginErrorMsg) {
+                        loginErrorMsg.textContent = getAuthErrorMessage(error);
+                        loginErrorMsg.classList.remove('hidden');
+                    }
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Entrar';
+                    }
+                }
             });
 
-            btnLogout.addEventListener('click', (e) => {
+            formRegister.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                state.isLoggedIn = false;
-                state.isAdmin = false; // Resetear admin al salir
-                state.currentUser = {};
-                updateAuthUI();
-                showPage('page-perfil');
+                const submitBtn = formRegister.querySelector('button[type="submit"]');
+
+                if (registerErrorMsg) {
+                    registerErrorMsg.classList.add('hidden');
+                }
+
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Creando cuenta...';
+                }
+
+                const name = document.getElementById('nombre-reg').value.trim();
+                const docNumber = document.getElementById('doc-reg').value.trim();
+                const address = document.getElementById('dir-reg').value.trim();
+                const email = document.getElementById('email-reg').value.trim().toLowerCase();
+                const password = document.getElementById('pass-reg').value;
+
+                let profilePicPath = '';
+                let newUserUid = null;
+                let newlyCreatedUser = null;
+
+                try {
+                    const credential = await createUserWithEmailAndPassword(auth, email, password);
+                    const { user } = credential;
+                    newUserUid = user.uid;
+                    newlyCreatedUser = user;
+
+                    let profilePicUrl = profilePicPreview ? profilePicPreview.src : DEFAULT_PROFILE_PIC;
+
+                    if (state.profilePicFile) {
+                        const file = state.profilePicFile;
+                        const sanitizedName = file.name.replace(/\s+/g, '-');
+                        const uniquePath = `profilePictures/${user.uid}/${Date.now()}-${sanitizedName}`;
+                        const fileRef = storageRef(storage, uniquePath);
+                        const uploadResult = await uploadBytes(fileRef, file);
+                        profilePicUrl = await getDownloadURL(uploadResult.ref);
+                        profilePicPath = uploadResult.metadata && uploadResult.metadata.fullPath ? uploadResult.metadata.fullPath : fileRef.fullPath;
+                    }
+
+                    try {
+                        await updateProfile(user, {
+                            displayName: name,
+                            photoURL: profilePicUrl,
+                        });
+                    } catch (profileError) {
+                        console.warn('No se pudo actualizar el perfil de Firebase Auth:', profileError);
+                    }
+
+                    const profileData = await ensureUserProfile(user, {
+                        name,
+                        email,
+                        address,
+                        doc: docNumber,
+                        profilePic: profilePicUrl,
+                        profilePicPath,
+                    });
+
+                    if (profileData) {
+                        state.currentUser = {
+                            ...state.currentUser,
+                            ...profileData,
+                            uid: user.uid,
+                            items: [],
+                        };
+                        state.isAdmin = (state.currentUser.role === 'admin') || ((state.currentUser.email || '').toLowerCase() === 'admin@canje.app');
+                        state.isLoggedIn = true;
+                        updateAuthUI();
+                        showPage('page-perfil');
+                    }
+
+                    formRegister.reset();
+                    state.profilePicFile = null;
+                    if (profilePicPreview) {
+                        profilePicPreview.src = defaultProfilePreviewSrc;
+                    }
+                } catch (error) {
+                    if (profilePicPath) {
+                        try {
+                            const fileRef = storageRef(storage, profilePicPath);
+                            await deleteObject(fileRef);
+                        } catch (storageError) {
+                            console.warn('No se pudo limpiar la foto de perfil temporal:', storageError);
+                        }
+                    }
+                    if (newUserUid && newlyCreatedUser) {
+                        try {
+                            await deleteUser(newlyCreatedUser);
+                        } catch (deleteError) {
+                            console.warn('No se pudo eliminar la cuenta creada tras un fallo de registro:', deleteError);
+                        }
+                    }
+                    console.error('Error al registrar el usuario:', error);
+                    if (registerErrorMsg) {
+                        registerErrorMsg.textContent = getAuthErrorMessage(error);
+                        registerErrorMsg.classList.remove('hidden');
+                    }
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Crear Cuenta';
+                    }
+                }
             });
 
-            // --- LÓGICA DE PUBLICAR (MODIFICADA para validación de fotos y añadir a 'allProducts') ---
-            
-            formVender.addEventListener('submit', (e) => {
+            btnLogout.addEventListener('click', async (e) => {
+                e.preventDefault();
+                try {
+                    await signOut(auth);
+                } catch (error) {
+                    console.error('Error al cerrar sesión:', error);
+                }
+            });
+
+            // --- LÓGICA DE PUBLICAR (Firebase Storage + Firestore) ---
+
+            formVender.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const submitBtn = e.currentTarget.querySelector('button[type="submit"]');
 
-                // Limpiar errores previos
                 publicarErrorMsg.classList.add('hidden');
                 submitBtn.classList.remove('bg-red-600', 'hover:bg-red-700', 'bg-green-600', 'hover:bg-green-700');
                 submitBtn.textContent = 'Publicar Artículo';
                 submitBtn.disabled = false;
 
-                // --- VALIDACIÓN ---
-                if (state.productFiles.length < 2) {
-                    showPublicarError('Debes subir un mínimo de 2 fotos.', submitBtn);
-                    return; // Detener envío
-                }
-                
-                if (state.productFiles.length > 10) {
-                    showPublicarError('Has excedido el límite de 10 fotos.', submitBtn);
-                    return; // Detener envío
-                }
-                
-                const categoryId = document.getElementById('categoria').value;
-                if (!categoryId) {
-                     showPublicarError('Debes seleccionar una categoría.', submitBtn);
+                if (!state.isLoggedIn || !state.currentUser.uid) {
+                    showPublicarError('Debes iniciar sesión para publicar un artículo.', submitBtn);
                     return;
                 }
 
-                // --- CREAR NUEVO PRODUCTO ---
-                const newProduct = {
-                    id: Date.now(), // ID único simple
-                    name: document.getElementById('titulo').value,
-                    wants: document.getElementById('busco').value,
-                    value: parseFloat(document.getElementById('valor-cop').value) || 0,
-                    imageUrl: state.productFiles[0].dataURL, // Usar la primera foto como principal
-                    categoryId: categoryId,
-                    // Podrías añadir más datos como 'descripcion', 'allImages: state.productFiles.map(f => f.dataURL)'
-                };
-                
-                // Simulación de Alerta (Éxito)
+                if (state.productFiles.length < 2) {
+                    showPublicarError('Debes subir un mínimo de 2 fotos.', submitBtn);
+                    return;
+                }
+
+                if (state.productFiles.length > 10) {
+                    showPublicarError('Has excedido el límite de 10 fotos.', submitBtn);
+                    return;
+                }
+
+                const categoryId = document.getElementById('categoria').value;
+                if (!categoryId) {
+                    showPublicarError('Debes seleccionar una categoría.', submitBtn);
+                    return;
+                }
+
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Publicando...';
-                
-                setTimeout(() => {
-                    // --- AÑADIR A LOS ESTADOS GLOBALES ---
-                    state.allProducts.unshift(newProduct); // Añadir al inicio de la lista de explorar
-                    state.currentUser.items.unshift(newProduct); // Añadir al inventario del usuario
-                    
-                    // --- ACTUALIZAR UI ---
-                    renderProducts(); // Actualizar grilla de explorar
-                    renderMyItems(); // Actualizar lista de "Mis Artículos"
-                    renderMostViewedProducts(); // Actualizar carrusel de "más vistos"
-                    misArticulosCount.textContent = state.currentUser.items.length; // Actualizar contador
+
+                const imageUrls = [];
+                const imagePaths = [];
+                let productDocRef = null;
+                let userItemDocCreated = false;
+                let statsIncremented = false;
+
+                try {
+                    const firebaseUser = auth.currentUser;
+                    if (firebaseUser) {
+                        try {
+                            const ensuredProfile = await ensureUserProfile(firebaseUser, {
+                                name: state.currentUser.name,
+                                email: state.currentUser.email,
+                                profilePic: state.currentUser.profilePic,
+                            });
+                            if (ensuredProfile) {
+                                state.currentUser = {
+                                    ...state.currentUser,
+                                    ...ensuredProfile,
+                                    items: state.currentUser.items || [],
+                                };
+                            }
+                        } catch (profileError) {
+                            console.warn('No se pudo sincronizar el perfil del usuario antes de publicar:', profileError);
+                        }
+                    }
+
+                    let index = 0;
+                    for (const fileData of state.productFiles) {
+                        const file = fileData.file;
+                        const sanitizedName = file.name.replace(/\s+/g, '-');
+                        const uniquePath = `productImages/${state.currentUser.uid}/${Date.now()}-${index}-${sanitizedName}`;
+                        const fileRef = storageRef(storage, uniquePath);
+                        const uploadResult = await uploadBytes(fileRef, file);
+                        const downloadURL = await getDownloadURL(uploadResult.ref);
+                        imageUrls.push(downloadURL);
+                        imagePaths.push(uploadResult.metadata && uploadResult.metadata.fullPath ? uploadResult.metadata.fullPath : fileRef.fullPath);
+                        index += 1;
+                    }
+
+                    const productPayload = {
+                        name: document.getElementById('titulo').value,
+                        wants: document.getElementById('busco').value,
+                        value: Number(document.getElementById('valor-cop').value) || 0,
+                        description: document.getElementById('descripcion').value || '',
+                        categoryId,
+                        imageUrl: imageUrls[0] || DEFAULT_PRODUCT_IMAGE,
+                        imageUrls,
+                        imagePaths,
+                        ownerId: state.currentUser.uid,
+                        ownerName: state.currentUser.name || '',
+                        ownerEmail: state.currentUser.email || '',
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp(),
+                    };
+
+                    productDocRef = await addDoc(collection(db, 'items'), productPayload);
+
+                    await setDoc(doc(db, 'users', state.currentUser.uid, 'items', productDocRef.id), {
+                        productId: productDocRef.id,
+                        productName: productPayload.name,
+                        imageUrl: productPayload.imageUrl,
+                        categoryId: productPayload.categoryId,
+                        value: productPayload.value,
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp(),
+                    });
+                    userItemDocCreated = true;
+
+                    await setDoc(doc(db, 'users', state.currentUser.uid), {
+                        'stats.listedCount': increment(1),
+                        updatedAt: serverTimestamp(),
+                    }, { merge: true });
+                    statsIncremented = true;
+
+                    state.currentUser.stats = state.currentUser.stats || { listedCount: 0, completedTrades: 0 };
+                    state.currentUser.stats.listedCount = Math.max(0, (state.currentUser.stats.listedCount || 0) + 1);
+
+                    await loadAllProducts();
+                    await loadUserItems(state.currentUser.uid);
 
                     submitBtn.textContent = '¡Publicado con Éxito!';
                     submitBtn.classList.add('bg-green-600', 'hover:bg-green-700');
-                    
+
                     setTimeout(() => {
                         submitBtn.disabled = false;
                         submitBtn.textContent = 'Publicar Artículo';
                         submitBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-                        
-                        // Limpiar formulario y estado de fotos
-                        e.target.reset();
-                        state.productFiles = [];
-                        updatePhotoPreview();
-                        
-                        // Redirigir a "Explorar" para ver el nuevo item
-                        showPage('page-explorar');
-                        
                     }, 2000);
 
-                }, 1000);
+                    e.target.reset();
+                    state.productFiles = [];
+                    updatePhotoPreview();
+                    showPage('page-explorar');
+                } catch (error) {
+                    console.error('Error al publicar el artículo:', error);
+                    if (imagePaths.length > 0) {
+                        await Promise.allSettled(imagePaths.map(path => {
+                            try {
+                                const fileRef = storageRef(storage, path);
+                                return deleteObject(fileRef);
+                            } catch (storageError) {
+                                console.error('Error al preparar la eliminación de imagenes fallidas:', storageError);
+                                return Promise.resolve();
+                            }
+                        }));
+                    }
+                    if (productDocRef) {
+                        try {
+                            await deleteDoc(productDocRef);
+                        } catch (productCleanupError) {
+                            console.warn('No se pudo eliminar el producto incompleto:', productCleanupError);
+                        }
+                    }
+                    if (userItemDocCreated && productDocRef) {
+                        try {
+                            await deleteDoc(doc(db, 'users', state.currentUser.uid, 'items', productDocRef.id));
+                        } catch (userItemCleanupError) {
+                            console.warn('No se pudo limpiar el registro del artículo del usuario:', userItemCleanupError);
+                        }
+                    }
+                    if (statsIncremented) {
+                        try {
+                            await setDoc(doc(db, 'users', state.currentUser.uid), {
+                                'stats.listedCount': increment(-1),
+                                updatedAt: serverTimestamp(),
+                            }, { merge: true });
+                            state.currentUser.stats = state.currentUser.stats || { listedCount: 0, completedTrades: 0 };
+                            state.currentUser.stats.listedCount = Math.max(0, (state.currentUser.stats.listedCount || 1) - 1);
+                        } catch (statsCleanupError) {
+                            console.warn('No se pudo revertir el contador de publicaciones:', statsCleanupError);
+                        }
+                    }
+                    showPublicarError('Ocurrió un error al publicar tu artículo. Intenta nuevamente.', submitBtn);
+                }
             });
 
 
@@ -2143,31 +2607,22 @@
                 });
 
                 // Listener para botones "Eliminar" en "Mis Artículos"
-                tabMisArticulos.addEventListener('click', (e) => {
+                tabMisArticulos.addEventListener('click', async (e) => {
                     const eliminarBtn = e.target.closest('.btn-eliminar-item');
-                    if(eliminarBtn) {
-                        const itemId = parseInt(eliminarBtn.dataset.itemId, 10);
-                        
-                        // Eliminar de currentUser.items
-                        state.currentUser.items = state.currentUser.items.filter(item => item.id !== itemId);
-                        // Eliminar de allProducts
-                        state.allProducts = state.allProducts.filter(item => item.id !== itemId);
-
-                        // Re-renderizar
-                        renderMyItems();
-                        renderProducts();
-                        renderMostViewedProducts(); // También actualizar el carrusel
-                        misArticulosCount.textContent = state.currentUser.items.length;
+                    if (eliminarBtn) {
+                        e.preventDefault();
+                        const itemId = eliminarBtn.dataset.itemId;
+                        await deleteUserItem(itemId);
                     }
                 });
             }
 
 
             // --- INICIALIZACIÓN ---
-            function init() {
+            async function init() {
                 updateAuthUI();
                 showPage('page-explorar');
-                
+
                 // Inicializar Carrusel
                 carouselPrevBtn.addEventListener('click', () => {
                     prevSlide();
@@ -2195,13 +2650,15 @@
                 
                 // Configurar listeners delegados para contenido dinámico
                 setupDelegatedListeners();
-                
+
                 // Inicializar iconos (MOVIDO AL FINAL)
                 lucide.createIcons();
+
+                await loadAllProducts();
             }
 
             // Arrancar la aplicación
-            init();
+            init().catch(error => console.error('Error al inicializar la aplicación:', error));
         });
     </script>
 
