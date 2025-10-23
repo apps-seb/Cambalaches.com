@@ -22,17 +22,17 @@
         --primary-600: #3a3fe0;
         --primary-700: #2a2bbd;
         --accent: #00b894;
-        --surface: rgba(255, 255, 255, 0.85);
-        --surface-strong: rgba(255, 255, 255, 0.95);
-        --border: rgba(99, 102, 241, 0.15);
-        --border-strong: rgba(15, 23, 42, 0.08);
+        --surface: transparent;
+        --surface-strong: transparent;
+        --border: transparent;
+        --border-strong: transparent;
         --muted: #657195;
         --muted-dark: #1e2a4a;
         --success: #16a34a;
         --warning: #f59e0b;
         --danger: #ef4444;
-        --shadow-lg: 0 35px 70px -40px rgba(15, 23, 42, 0.5);
-        --shadow-sm: 0 18px 30px -25px rgba(15, 23, 42, 0.35);
+        --shadow-lg: none;
+        --shadow-sm: none;
         --radius-xl: 28px;
         --radius-lg: 22px;
         --radius-md: 16px;
@@ -57,9 +57,7 @@
       body {
         margin: 0;
         font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-        background: radial-gradient(circle at 10% 20%, rgba(76, 81, 255, 0.14) 0%, transparent 42%),
-          radial-gradient(circle at 82% 4%, rgba(0, 184, 148, 0.18) 0%, transparent 48%),
-          linear-gradient(165deg, #f5f8ff 0%, #f0f4ff 45%, #f9fbff 100%);
+        background: #ffffff;
         color: #0f172a;
         min-height: 100vh;
         padding-top: var(--header-height);
@@ -88,9 +86,9 @@
         right: 0;
         z-index: 40;
         width: 100%;
-        background: #ffe600;
-        border-bottom: 1px solid rgba(15, 15, 15, 0.08);
-        box-shadow: 0 22px 48px -30px rgba(0, 0, 0, 0.45);
+        background: transparent;
+        border-bottom: none;
+        box-shadow: none;
         color: #111827;
       }
 
@@ -156,8 +154,8 @@
         border-radius: 16px;
         display: grid;
         place-items: center;
-        background: linear-gradient(135deg, #111, #2f2f2f);
-        color: #ffd60a;
+        background: none;
+        color: inherit;
         font-weight: 700;
         letter-spacing: 0.02em;
         box-shadow: 0 16px 40px -18px rgba(0, 0, 0, 0.6);
@@ -5081,6 +5079,167 @@
 
       [data-page-group].page-hidden {
         display: none !important;
+      }
+      /* Minimal layout overrides */
+      body {
+        background-color: #ffffff;
+      }
+
+      header,
+      footer {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+
+      section,
+      article,
+      main,
+      aside,
+      nav,
+      .layout-shell,
+      .shell,
+      .grid-shell,
+      .module,
+      .card,
+      [class*="sidebar"],
+      [class*="card"],
+      [class*="Card"],
+      [class*="container"],
+      [class*="Container"],
+      [class*="panel"],
+      [class*="Panel"],
+      [class*="overlay"],
+      [class*="Overlay"],
+      [class*="wrapper"],
+      [class*="Wrapper"],
+      [class*="block"],
+      [class*="Block"],
+      [class*="section"],
+      [class*="Section"],
+      [class*="sheet"],
+      [class*="Sheet"],
+      [class*="coupon"],
+      [class*="Coupon"] {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        backdrop-filter: none !important;
+        color: inherit !important;
+      }
+
+      [class*="hero"],
+      [class*="Hero"],
+      [class*="cta"],
+      [class*="CTA"],
+      [class*="banner"],
+      [class*="Banner"],
+      [class*="summary"],
+      [class*="Summary"],
+      [class*="info"],
+      [class*="Info"] {
+        background: transparent !important;
+        box-shadow: none !important;
+        color: inherit !important;
+      }
+
+      [class*="hero"]::before,
+      [class*="hero"]::after,
+      [class*="Hero"]::before,
+      [class*="Hero"]::after,
+      [class*="cta"]::before,
+      [class*="cta"]::after,
+      [class*="CTA"]::before,
+      [class*="CTA"]::after,
+      [class*="card"]::before,
+      [class*="card"]::after,
+      [class*="Card"]::before,
+      [class*="Card"]::after,
+      [class*="overlay"]::before,
+      [class*="overlay"]::after,
+      [class*="Overlay"]::before,
+      [class*="Overlay"]::after,
+      [class*="sheet"]::before,
+      [class*="sheet"]::after,
+      [class*="Sheet"]::before,
+      [class*="Sheet"]::after,
+      section::before,
+      section::after,
+      article::before,
+      article::after {
+        background: transparent !important;
+        box-shadow: none !important;
+        border: none !important;
+      }
+
+      [class*="badge"],
+      [class*="Badge"],
+      [class*="chip"],
+      [class*="Chip"],
+      [class*="tag"],
+      [class*="Tag"],
+      [class*="rank"],
+      [class*="Rank"],
+      [class*="toggle"],
+      [class*="Toggle"],
+      [class*="pill"],
+      [class*="Pill"],
+      [class*="tab"],
+      [class*="Tab"] {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        color: inherit !important;
+      }
+
+      button,
+      .button,
+      [class*="button"],
+      [class*="Button"] {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        color: inherit !important;
+      }
+
+      .brand-mark {
+        background: none !important;
+        color: inherit !important;
+      }
+
+      * {
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        color: inherit;
+      }
+
+      *::before,
+      *::after {
+        box-shadow: none !important;
+        border-radius: 0 !important;
+      }
+
+      body * {
+        color: #0f172a !important;
+      }
+
+      [class*="success"],
+      [class*="Success"] {
+        color: var(--success) !important;
+      }
+
+      [class*="warning"],
+      [class*="Warning"] {
+        color: var(--warning) !important;
+      }
+
+      [class*="danger"],
+      [class*="Danger"],
+      [class*="error"],
+      [class*="Error"] {
+        color: var(--danger) !important;
       }
     </style>
   </head>
