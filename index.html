@@ -2414,6 +2414,35 @@
         overflow: hidden;
       }
 
+      .category-board--compact {
+        padding: clamp(0.85rem, 1.6vw, 1.15rem);
+        border-radius: clamp(20px, 2.6vw, 28px);
+        gap: clamp(0.6rem, 1.4vw, 0.9rem);
+      }
+
+      .category-board--compact .category-board-header {
+        align-items: flex-start;
+        gap: clamp(0.5rem, 1.2vw, 0.85rem);
+      }
+
+      .category-board--compact .category-board-title span {
+        letter-spacing: 0.2em;
+        font-size: clamp(0.7rem, 1.2vw, 0.78rem);
+      }
+
+      .category-board--compact .category-list {
+        gap: clamp(0.28rem, 1vw, 0.55rem);
+        padding: 0.1rem 0.15rem 0.55rem;
+      }
+
+      .explore-hub {
+        display: block;
+      }
+
+      .explore-hub__categories {
+        height: 100%;
+      }
+
       .category-board::before {
         content: "";
         position: absolute;
@@ -2518,7 +2547,11 @@
       }
 
       .most-viewed-board {
-        margin-top: clamp(1.2rem, 3vw, 2rem);
+        margin-top: 0;
+      }
+
+      .most-viewed-board .category-board-title span {
+        color: rgba(15, 23, 42, 0.6);
       }
 
       .most-viewed-list {
@@ -5128,68 +5161,55 @@
             <input type="hidden" id="filter-category" value="" />
             <input type="hidden" id="filter-keyword" />
             <input type="hidden" id="filter-style" value="marketplace" />
-            <div class="category-board">
-              <div class="category-board-header">
-                <div class="category-board-title">
-                  <span>Categorías premium</span>
-                  <h4>Selecciona la experiencia que buscas</h4>
+            <div class="explore-hub">
+              <div class="category-board category-board--compact explore-hub__categories">
+                <div class="category-board-header">
+                  <div class="category-board-title">
+                    <span>Categorías premium</span>
+                    <h4>Selecciona la experiencia que buscas</h4>
+                  </div>
+                  <div class="category-board-actions">
+                    <button class="category-filters" type="button" id="filters-inline">
+                      <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+                      <span>Filtros avanzados</span>
+                    </button>
+                  </div>
                 </div>
-                <div class="category-board-actions">
-                  <button class="category-filters" type="button" id="filters-inline">
-                    <i class="fa-solid fa-sliders" aria-hidden="true"></i>
-                    <span>Filtros avanzados</span>
+                <div class="category-list" role="list">
+                  <button class="category-card active" type="button" data-category="">
+                    <span class="category-icon"><i class="fa-solid fa-shapes" aria-hidden="true"></i></span>
+                    <span class="category-label">Todo</span>
+                  </button>
+                  <button class="category-card" type="button" data-category="tecnologia">
+                    <span class="category-icon"><i class="fa-solid fa-laptop-code" aria-hidden="true"></i></span>
+                    <span class="category-label">Tecnología</span>
+                  </button>
+                  <button class="category-card" type="button" data-category="agricultura">
+                    <span class="category-icon"><i class="fa-solid fa-seedling" aria-hidden="true"></i></span>
+                    <span class="category-label">Agricultura</span>
+                  </button>
+                  <button class="category-card" type="button" data-category="servicios">
+                    <span class="category-icon"><i class="fa-solid fa-briefcase" aria-hidden="true"></i></span>
+                    <span class="category-label">Servicios</span>
+                  </button>
+                  <button class="category-card" type="button" data-category="vehiculos">
+                    <span class="category-icon"><i class="fa-solid fa-car-side" aria-hidden="true"></i></span>
+                    <span class="category-label">Vehículos</span>
+                  </button>
+                  <button class="category-card" type="button" data-category="hogar">
+                    <span class="category-icon"><i class="fa-solid fa-couch" aria-hidden="true"></i></span>
+                    <span class="category-label">Hogar</span>
+                  </button>
+                  <button class="category-card" type="button" data-category="moda">
+                    <span class="category-icon"><i class="fa-solid fa-shirt" aria-hidden="true"></i></span>
+                    <span class="category-label">Moda</span>
+                  </button>
+                  <button class="category-card" type="button" data-category="coleccionables">
+                    <span class="category-icon"><i class="fa-solid fa-chess-queen" aria-hidden="true"></i></span>
+                    <span class="category-label">Coleccionables</span>
                   </button>
                 </div>
               </div>
-              <div class="category-list" role="list">
-                <button class="category-card active" type="button" data-category="">
-                  <span class="category-icon"><i class="fa-solid fa-shapes" aria-hidden="true"></i></span>
-                  <span class="category-label">Todo</span>
-                </button>
-                <button class="category-card" type="button" data-category="tecnologia">
-                  <span class="category-icon"><i class="fa-solid fa-laptop-code" aria-hidden="true"></i></span>
-                  <span class="category-label">Tecnología</span>
-                </button>
-                <button class="category-card" type="button" data-category="agricultura">
-                  <span class="category-icon"><i class="fa-solid fa-seedling" aria-hidden="true"></i></span>
-                  <span class="category-label">Agricultura</span>
-                </button>
-                <button class="category-card" type="button" data-category="servicios">
-                  <span class="category-icon"><i class="fa-solid fa-briefcase" aria-hidden="true"></i></span>
-                  <span class="category-label">Servicios</span>
-                </button>
-                <button class="category-card" type="button" data-category="vehiculos">
-                  <span class="category-icon"><i class="fa-solid fa-car-side" aria-hidden="true"></i></span>
-                  <span class="category-label">Vehículos</span>
-                </button>
-                <button class="category-card" type="button" data-category="hogar">
-                  <span class="category-icon"><i class="fa-solid fa-couch" aria-hidden="true"></i></span>
-                  <span class="category-label">Hogar</span>
-                </button>
-                <button class="category-card" type="button" data-category="moda">
-                  <span class="category-icon"><i class="fa-solid fa-shirt" aria-hidden="true"></i></span>
-                  <span class="category-label">Moda</span>
-                </button>
-                <button class="category-card" type="button" data-category="coleccionables">
-                  <span class="category-icon"><i class="fa-solid fa-chess-queen" aria-hidden="true"></i></span>
-                  <span class="category-label">Coleccionables</span>
-                </button>
-              </div>
-            </div>
-            <div class="category-board most-viewed-board">
-              <div class="category-board-header">
-                <div class="category-board-title">
-                  <span>Los más vistos</span>
-                  <h4>Artículos que cautivan al marketplace</h4>
-                </div>
-                <div class="category-board-actions">
-                  <button class="category-filters" type="button" id="most-viewed-explore">
-                    <i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i>
-                    <span>Ver todos</span>
-                  </button>
-                </div>
-              </div>
-              <div class="most-viewed-list" id="most-viewed-list" role="list"></div>
             </div>
             <div class="card-grid mode-marketplace" id="feed-grid"></div>
             <div class="filters-overlay" id="filters-overlay" aria-hidden="true">
