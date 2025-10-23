@@ -4973,6 +4973,37 @@
         gap: clamp(1.4rem, 3vw, 2rem);
       }
 
+      .auth-form__tabs {
+        display: inline-flex;
+        background: rgba(15, 23, 42, 0.08);
+        padding: 0.35rem;
+        border-radius: 999px;
+        width: fit-content;
+        gap: 0.35rem;
+      }
+
+      .auth-form__tab {
+        border: none;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        padding: 0.45rem 1.2rem;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: background 0.2s ease, color 0.2s ease;
+      }
+
+      .auth-form__tab:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      .auth-form__tab.is-active {
+        background: #fff;
+        color: #111827;
+        font-weight: 600;
+      }
+
       .auth-form__lead {
         margin: 0;
         color: rgba(15, 23, 42, 0.65);
@@ -5005,6 +5036,10 @@
       .auth-form__actions {
         justify-content: flex-end;
         gap: 0.75rem;
+      }
+
+      .auth-form[data-mode="login"] [data-auth-section="register"] {
+        display: none !important;
       }
 
       .modal-section-header {
@@ -6446,18 +6481,42 @@
             <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
-        <form method="dialog" class="modal-body auth-form" id="auth-form">
-          <p class="auth-form__lead">
+        <form method="dialog" class="modal-body auth-form" id="auth-form" data-mode="register">
+          <div class="auth-form__tabs" role="tablist" aria-label="Cambiar modo de autenticación">
+            <button
+              type="button"
+              class="auth-form__tab is-active"
+              data-auth-mode="register"
+              role="tab"
+              aria-selected="true"
+            >
+              Crear cuenta
+            </button>
+            <button
+              type="button"
+              class="auth-form__tab"
+              data-auth-mode="login"
+              role="tab"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              Iniciar sesión
+            </button>
+          </div>
+          <p class="auth-form__lead" data-auth-section="register">
             Completa tus datos personales para habilitar tu perfil verificado y comenzar a publicar en la comunidad.
           </p>
-          <div class="profile-field profile-field--full auth-form__photo">
+          <p class="auth-form__lead" data-auth-section="login">
+            Accede con tu correo y contraseña verificados para gestionar tus publicaciones y canjes.
+          </p>
+          <div class="profile-field profile-field--full auth-form__photo" data-auth-section="register">
             <span>Foto de perfil</span>
             <div class="profile-photo-control">
               <div class="profile-avatar" id="auth-photo-preview">
                 <i class="fa-regular fa-user" aria-hidden="true"></i>
               </div>
               <div class="profile-photo-actions">
-                <input type="file" id="auth-photo" accept="image/*" required class="visually-hidden" />
+                <input type="file" id="auth-photo" accept="image/*" class="visually-hidden" />
                 <label class="profile-upload btn btn-outline" for="auth-photo" role="button" tabindex="0">
                   <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>
                   <span>Subir imagen</span>
@@ -6467,25 +6526,41 @@
             </div>
           </div>
           <div class="profile-grid" data-columns="two">
-            <label class="profile-field">
+            <label class="profile-field" data-auth-section="register">
               <span>Nombre completo</span>
-              <input type="text" id="auth-name" required placeholder="Tu nombre" />
+              <input type="text" id="auth-name" placeholder="Tu nombre" autocomplete="name" />
             </label>
             <label class="profile-field">
               <span>Correo electrónico</span>
-              <input type="email" id="auth-email" required placeholder="nombre@correo.com" />
+              <input type="email" id="auth-email" required placeholder="nombre@correo.com" autocomplete="email" />
             </label>
             <label class="profile-field">
+              <span>Contraseña segura</span>
+              <input
+                type="password"
+                id="auth-password"
+                required
+                minlength="6"
+                placeholder="Crea una contraseña segura"
+                autocomplete="new-password"
+              />
+            </label>
+            <label class="profile-field" data-auth-section="register">
               <span>Teléfono verificado</span>
-              <input type="tel" id="auth-phone" required placeholder="300 000 0000" />
+              <input type="tel" id="auth-phone" placeholder="300 000 0000" autocomplete="tel" />
             </label>
-            <label class="profile-field">
+            <label class="profile-field" data-auth-section="register">
               <span>Ciudad y país</span>
-              <input type="text" id="auth-location" required placeholder="Bogotá, Colombia" />
+              <input
+                type="text"
+                id="auth-location"
+                placeholder="Bogotá, Colombia"
+                autocomplete="address-level2"
+              />
             </label>
           </div>
-          <label class="checkbox-field auth-form__terms">
-            <input type="checkbox" id="auth-terms" required />
+          <label class="checkbox-field auth-form__terms" data-auth-section="register">
+            <input type="checkbox" id="auth-terms" />
             <span>Acepto las políticas de verificación, reputación y resolución de disputas.</span>
           </label>
           <div class="modal-actions auth-form__actions">
@@ -6680,7 +6755,229 @@
       </div>
     </dialog>
 
-    <script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import {
+        getAnalytics,
+        isSupported as isAnalyticsSupported,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        createUserWithEmailAndPassword,
+        signInWithEmailAndPassword,
+        signOut,
+        updateProfile,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        getDoc,
+        setDoc,
+        collection,
+        addDoc,
+        serverTimestamp,
+        onSnapshot,
+        query,
+        orderBy,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+      import {
+        getStorage,
+        ref as storageRef,
+        uploadBytes,
+        getDownloadURL,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBG035jZHTgsqZKIYCHGAUshwRukSccrjU",
+        authDomain: "mercadocanje-ffca0.firebaseapp.com",
+        projectId: "mercadocanje-ffca0",
+        storageBucket: "mercadocanje-ffca0.firebasestorage.app",
+        messagingSenderId: "1069590620221",
+        appId: "1:1069590620221:web:ea68de5b49395ce42be254",
+        measurementId: "G-9KEBKJ84CR",
+      };
+
+      const firebaseApp = initializeApp(firebaseConfig);
+      const auth = getAuth(firebaseApp);
+      const db = getFirestore(firebaseApp);
+      const storageService = getStorage(firebaseApp);
+      let analytics;
+
+      isAnalyticsSupported()
+        .then((supported) => {
+          if (supported) {
+            analytics = getAnalytics(firebaseApp);
+          }
+          return supported;
+        })
+        .catch(() => undefined);
+
+      const FIREBASE_COLLECTIONS = {
+        users: "users",
+        products: "products",
+      };
+
+      let unsubscribeProducts = null;
+      let hasLoadedProductsFromFirebase = false;
+      let productsSyncErrorShown = false;
+      let authMode = "register";
+
+      const AUTH_ERROR_MESSAGES = {
+        "auth/email-already-in-use": "Ya existe una cuenta registrada con este correo electrónico.",
+        "auth/invalid-email": "El correo ingresado no es válido.",
+        "auth/weak-password": "La contraseña debe tener mínimo 6 caracteres.",
+        "auth/user-not-found": "No encontramos una cuenta con ese correo electrónico.",
+        "auth/wrong-password": "La contraseña ingresada es incorrecta.",
+        "auth/too-many-requests": "Demasiados intentos fallidos. Inténtalo más tarde.",
+      };
+
+      const getFileExtension = (file, fallback = "jpg") => {
+        if (!file || !file.name) {
+          return fallback;
+        }
+        const parts = file.name.split(".");
+        const ext = parts.length > 1 ? parts.pop().toLowerCase() : "";
+        if (!ext) {
+          return fallback;
+        }
+        return ext.replace(/[^a-z0-9]/gi, "") || fallback;
+      };
+
+      const normalizeTimestamp = (value, fallback) => {
+        if (!value && fallback) {
+          return fallback;
+        }
+        if (!value) {
+          return new Date().toISOString();
+        }
+        if (value instanceof Date) {
+          return value.toISOString();
+        }
+        if (typeof value === "string") {
+          const parsed = new Date(value);
+          if (!Number.isNaN(parsed.getTime())) {
+            return parsed.toISOString();
+          }
+        }
+        if (typeof value === "object" && typeof value.seconds === "number") {
+          const millis = value.seconds * 1000 + Math.round((value.nanoseconds || 0) / 1e6);
+          return new Date(millis).toISOString();
+        }
+        try {
+          return new Date(value).toISOString();
+        } catch (_) {
+          return fallback || new Date().toISOString();
+        }
+      };
+
+      const getOwnerSnapshot = (user) => {
+        if (!user) {
+          return null;
+        }
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          location: user.location,
+          department: user.department,
+          city: user.city,
+          avatar: user.avatar,
+          rating: Number.isFinite(Number(user.rating)) ? Number(user.rating) : 5,
+        };
+      };
+
+      const mapUserDocument = (id, data = {}, firebaseUser = null) => {
+        const createdFallback = firebaseUser?.metadata?.creationTime
+          ? new Date(firebaseUser.metadata.creationTime).toISOString()
+          : new Date().toISOString();
+        const createdAt = normalizeTimestamp(data.createdAt, createdFallback);
+        const updatedAt = normalizeTimestamp(data.updatedAt, createdAt);
+        return {
+          id,
+          name: data.name || firebaseUser?.displayName || "",
+          email: data.email || firebaseUser?.email || "",
+          phone: data.phone || "",
+          location: data.location || "",
+          department: data.department || "",
+          city: data.city || "",
+          bio: data.bio || "",
+          avatar: data.avatar || firebaseUser?.photoURL || "",
+          rating: Number.isFinite(Number(data.rating)) ? Number(data.rating) : 5,
+          createdAt,
+          updatedAt,
+        };
+      };
+
+      const mapProductDocument = (docSnapshot) => {
+        const data = docSnapshot.data() || {};
+        const createdAt = normalizeTimestamp(data.createdAt, new Date().toISOString());
+        const updatedAt = normalizeTimestamp(data.updatedAt, createdAt);
+        return {
+          id: docSnapshot.id,
+          title: data.title || "",
+          description: data.description || "",
+          category: data.category || "",
+          price: Number(data.price || 0),
+          location: data.location || "",
+          images: Array.isArray(data.images) ? data.images : [],
+          views: Number(data.views || 0),
+          owner: data.owner || null,
+          rating: Number.isFinite(Number(data.rating))
+            ? Number(data.rating)
+            : data.owner && Number.isFinite(Number(data.owner.rating))
+            ? Number(data.owner.rating)
+            : null,
+          tags: Array.isArray(data.tags) ? data.tags : [],
+          listingType: data.listingType || "canje",
+          sellIntent: data.sellIntent || "",
+          publishedToFeed: data.publishedToFeed !== false,
+          createdAt,
+          updatedAt,
+        };
+      };
+
+      const getFirebaseErrorMessage = (
+        error,
+        fallback = "Ocurrió un error inesperado. Inténtalo nuevamente."
+      ) => {
+        if (!error) {
+          return fallback;
+        }
+        const code = error.code || error.message;
+        if (code && AUTH_ERROR_MESSAGES[code]) {
+          return AUTH_ERROR_MESSAGES[code];
+        }
+        return fallback;
+      };
+
+      const uploadFileToStorage = async (path, file) => {
+        const reference = storageRef(storageService, path);
+        await uploadBytes(reference, file);
+        return getDownloadURL(reference);
+      };
+
+      const uploadAvatar = async (userId, file) => {
+        if (!userId || !file) {
+          return "";
+        }
+        const extension = getFileExtension(file);
+        const path = `users/${userId}/avatar-${Date.now()}.${extension}`;
+        return uploadFileToStorage(path, file);
+      };
+
+      const uploadProductImages = async (userId, files = []) => {
+        if (!files.length) {
+          return [];
+        }
+        const uploads = files.map((file, index) => {
+          const extension = getFileExtension(file);
+          const path = `products/${userId || "anonymous"}/${Date.now()}-${index}.${extension}`;
+          return uploadFileToStorage(path, file);
+        });
+        return Promise.all(uploads);
+      };
       const $ = (selector, scope = document) => scope.querySelector(selector);
       const $$ = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
 
@@ -8547,7 +8844,43 @@
         }
       }
 
-      function logout({ toast = true } = {}) {
+      async function syncCurrentUserFromFirebase(firebaseUser) {
+        if (!firebaseUser) {
+          setCurrentUser(null);
+          return;
+        }
+        try {
+          const userDocRef = doc(db, FIREBASE_COLLECTIONS.users, firebaseUser.uid);
+          const snapshot = await getDoc(userDocRef);
+          let data = snapshot.exists() ? snapshot.data() : null;
+          if (!data) {
+            const fallback = {
+              name: firebaseUser.displayName || "",
+              email: firebaseUser.email || "",
+              avatar: firebaseUser.photoURL || "",
+              rating: 5,
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp(),
+            };
+            await setDoc(userDocRef, fallback, { merge: true });
+            data = fallback;
+          }
+          const mappedUser = mapUserDocument(firebaseUser.uid, data, firebaseUser);
+          setCurrentUser(mappedUser);
+        } catch (error) {
+          console.error("No se pudo sincronizar el perfil del usuario", error);
+          showToast("No pudimos sincronizar tu perfil con Firebase.", "danger");
+        }
+      }
+
+      async function logout({ toast = true } = {}) {
+        try {
+          await signOut(auth);
+        } catch (error) {
+          console.error("Error al cerrar sesión en Firebase", error);
+          showToast("No pudimos cerrar tu sesión. Intenta nuevamente.", "danger");
+          return;
+        }
         setCurrentUser(null, { silent: true });
         state.offersSent = [];
         state.offersReceived = [];
@@ -8686,7 +9019,43 @@
         notes: "Podemos entregar el servicio en máximo 5 días hábiles.",
       });
 
+      function startProductsListener() {
+        if (unsubscribeProducts) {
+          return;
+        }
+        try {
+          const productsRef = collection(db, FIREBASE_COLLECTIONS.products);
+          const productsQuery = query(productsRef, orderBy("createdAt", "desc"));
+          unsubscribeProducts = onSnapshot(
+            productsQuery,
+            (snapshot) => {
+              hasLoadedProductsFromFirebase = true;
+              if (snapshot.empty) {
+                state.products = [...sampleProducts];
+              } else {
+                state.products = snapshot.docs.map((docSnapshot) => mapProductDocument(docSnapshot));
+              }
+              updateUI();
+            },
+            (error) => {
+              console.error("Error sincronizando productos con Firebase", error);
+              if (!productsSyncErrorShown) {
+                productsSyncErrorShown = true;
+                showToast("No pudimos sincronizar el catálogo en tiempo real.", "danger");
+              }
+              if (!hasLoadedProductsFromFirebase && !state.products.length) {
+                state.products = [...sampleProducts];
+                updateUI();
+              }
+            }
+          );
+        } catch (error) {
+          console.error("Error al iniciar el listener de productos", error);
+        }
+      }
+
       state.products = [...sampleProducts];
+      startProductsListener();
       const toastEl = $("#toast");
       let toastTimeout = null;
       let filtersSnapshot = null;
@@ -9553,13 +9922,96 @@
         });
       }
 
+      function setAuthMode(mode = "register") {
+        authMode = mode === "login" ? "login" : "register";
+        const form = $("#auth-form");
+        if (!form) {
+          return;
+        }
+
+        form.dataset.mode = authMode;
+
+        const toggleSection = (section, visible) => {
+          if (!section) {
+            return;
+          }
+          if (visible) {
+            section.removeAttribute("hidden");
+          } else {
+            section.setAttribute("hidden", "true");
+          }
+        };
+
+        const registerSections = $$('[data-auth-section="register"]', form);
+        const loginSections = $$('[data-auth-section="login"]', form);
+        registerSections.forEach((section) => toggleSection(section, authMode === "register"));
+        loginSections.forEach((section) => toggleSection(section, authMode === "login"));
+
+        const nameInput = $("#auth-name");
+        if (nameInput) {
+          nameInput.required = authMode === "register";
+        }
+
+        const phoneInput = $("#auth-phone");
+        if (phoneInput) {
+          phoneInput.required = authMode === "register";
+        }
+
+        const locationInput = $("#auth-location");
+        if (locationInput) {
+          locationInput.required = authMode === "register";
+        }
+
+        const termsCheckbox = $("#auth-terms");
+        if (termsCheckbox) {
+          termsCheckbox.required = authMode === "register";
+          if (authMode !== "register") {
+            termsCheckbox.checked = false;
+          }
+        }
+
+        const photoInput = $("#auth-photo");
+        if (photoInput) {
+          photoInput.required = authMode === "register";
+          if (authMode !== "register") {
+            photoInput.value = "";
+            const preview = $("#auth-photo-preview");
+            if (preview) {
+              preview.innerHTML = '<i class="fa-regular fa-user" aria-hidden="true"></i>';
+            }
+          }
+        }
+
+        const passwordInput = $("#auth-password");
+        if (passwordInput) {
+          passwordInput.placeholder =
+            authMode === "register" ? "Crea una contraseña segura" : "Ingresa tu contraseña";
+          passwordInput.setAttribute(
+            "autocomplete",
+            authMode === "register" ? "new-password" : "current-password"
+          );
+        }
+
+        const submitBtn = form.querySelector('.auth-form__actions .btn.btn-primary');
+        if (submitBtn) {
+          submitBtn.textContent = authMode === "register" ? "Crear cuenta" : "Iniciar sesión";
+        }
+
+        const tabs = $$(".auth-form__tab", form);
+        tabs.forEach((tab) => {
+          const tabMode = tab.dataset.authMode || "register";
+          const isActive = tabMode === authMode;
+          tab.classList.toggle("is-active", isActive);
+          tab.setAttribute("aria-selected", isActive ? "true" : "false");
+          tab.setAttribute("tabindex", isActive ? "0" : "-1");
+        });
+      }
+
       function ensureAuthenticated(callback) {
         if (!state.currentUser) {
-          showToast("Debes crear tu perfil verificado para continuar.", "danger");
-          profileMode = "create";
-          switchToPage("profile");
-          closeSidebar();
-          focusProfileForm();
+          showToast("Debes iniciar sesión con tu cuenta verificada para continuar.", "danger");
+          setAuthMode("login");
+          openModal("auth-modal");
           return false;
         }
         if (typeof callback === "function") callback();
@@ -9731,6 +10183,11 @@
         if (!input || !preview) {
           return;
         }
+        if (authMode !== "register") {
+          input.value = "";
+          preview.innerHTML = '<i class="fa-regular fa-user" aria-hidden="true"></i>';
+          return;
+        }
         const file = input.files && input.files[0];
         if (!file) {
           preview.innerHTML = '<i class="fa-regular fa-user" aria-hidden="true"></i>';
@@ -9753,8 +10210,13 @@
           });
       }
 
-      function handleProfileSubmit(event) {
+      async function handleProfileSubmit(event) {
         event.preventDefault();
+        if (!state.currentUser) {
+          showToast("Inicia sesión para actualizar tu perfil.", "danger");
+          return;
+        }
+
         const form = event?.currentTarget;
         const nameInput = $("#profile-name");
         const emailInput = $("#profile-email");
@@ -9763,6 +10225,7 @@
         const citySelect = $("#profile-city");
         const bioInput = $("#profile-bio");
         const photoInput = $("#profile-photo");
+
         const name = nameInput ? nameInput.value.trim() : "";
         const email = emailInput ? emailInput.value.trim() : "";
         const phone = phoneInput ? phoneInput.value.trim() : "";
@@ -9771,19 +10234,67 @@
         const location = department && city ? `${city}, ${department}` : "";
         const bio = bioInput ? bioInput.value.trim() : "";
         const file = photoInput && photoInput.files ? photoInput.files[0] : null;
-        const existingAvatar = state.currentUser && state.currentUser.avatar;
+        const existingAvatar = state.currentUser.avatar || "";
 
         if (!name || !email || !phone || !department || !city) {
           showToast("Completa todos los campos obligatorios del perfil.", "danger");
           return;
         }
 
-        const finalize = (avatar) => {
+        if (file && file.type && !file.type.startsWith("image")) {
+          showToast("Selecciona una imagen válida para tu perfil.", "danger");
+          return;
+        }
+
+        const submitBtn = $("#profile-submit");
+        const originalLabel = submitBtn ? submitBtn.textContent : "";
+        const setSubmitting = (loading) => {
+          if (!submitBtn) {
+            return;
+          }
+          submitBtn.disabled = Boolean(loading);
+          submitBtn.dataset.loading = loading ? "true" : "false";
+          submitBtn.textContent = loading ? "Guardando..." : originalLabel;
+        };
+
+        try {
+          setSubmitting(true);
+          let avatarUrl = existingAvatar;
+          if (file) {
+            avatarUrl = await uploadAvatar(state.currentUser.id, file);
+          }
+
+          await setDoc(
+            doc(db, FIREBASE_COLLECTIONS.users, state.currentUser.id),
+            {
+              name,
+              email,
+              phone,
+              location,
+              department,
+              city,
+              bio,
+              avatar: avatarUrl,
+              updatedAt: serverTimestamp(),
+            },
+            { merge: true }
+          );
+
+          if (auth.currentUser) {
+            try {
+              await updateProfile(auth.currentUser, {
+                displayName: name,
+                photoURL: avatarUrl || auth.currentUser.photoURL || null,
+              });
+            } catch (profileError) {
+              console.warn("No se pudo actualizar el perfil de autenticación", profileError);
+            }
+          }
+
           const now = new Date().toISOString();
           const previous = state.currentUser || {};
           const user = {
             ...previous,
-            id: previous.id || generateId("user"),
             name,
             email,
             phone,
@@ -9791,11 +10302,10 @@
             department,
             city,
             bio,
-            avatar: avatar || previous.avatar || "",
-            rating: Number(previous.rating || 5),
-            createdAt: previous.createdAt || now,
+            avatar: avatarUrl,
             updatedAt: now,
           };
+
           profileMode = "view";
           setCurrentUser(user);
           if (photoInput) {
@@ -9807,22 +10317,11 @@
           applyLocationToForm({ department: "", city: "" });
           showToast(previous && previous.id ? "Perfil actualizado correctamente." : "Perfil creado correctamente.", "success");
           switchToPage("profile", { scroll: false });
-        };
-
-        if (file) {
-          if (file.type && !file.type.startsWith("image")) {
-            showToast("Selecciona una imagen válida para tu perfil.", "danger");
-            return;
-          }
-          readFile(file)
-            .then((data) => finalize(data))
-            .catch(() => {
-              showToast("No pudimos procesar la imagen seleccionada.", "danger");
-            });
-        } else if (existingAvatar) {
-          finalize(existingAvatar);
-        } else {
-          showToast("Agrega una foto de perfil para completar tu registro.", "danger");
+        } catch (error) {
+          console.error("Error al actualizar perfil en Firebase", error);
+          showToast("No pudimos actualizar tu perfil. Inténtalo de nuevo.", "danger");
+        } finally {
+          setSubmitting(false);
         }
       }
 
@@ -10030,7 +10529,9 @@
         grid.classList.toggle("mode-ecommerce", layoutStyle === "ecommerce");
         grid.classList.toggle("mode-marketplace", layoutStyle !== "ecommerce");
 
-        const results = state.products.filter((product) => {
+        const sourceProducts = state.products.filter((product) => product.publishedToFeed !== false);
+
+        const results = sourceProducts.filter((product) => {
           const matchesCategory = category ? product.category === category : true;
           const matchesLocation = location
             ? product.location.toLowerCase().includes(location)
@@ -10938,53 +11439,109 @@
         };
       }
 
-      function handleAuth(event) {
+      async function handleAuth(event) {
         event.preventDefault();
+        const form = event.currentTarget;
         const nameInput = $("#auth-name");
         const emailInput = $("#auth-email");
+        const passwordInput = $("#auth-password");
         const phoneInput = $("#auth-phone");
         const locationInput = $("#auth-location");
         const fileInput = $("#auth-photo");
         const termsCheckbox = $("#auth-terms");
-        const name = nameInput ? nameInput.value.trim() : "";
-        const email = emailInput ? emailInput.value.trim() : "";
-        const phone = phoneInput ? phoneInput.value.trim() : "";
-        const location = locationInput ? locationInput.value.trim() : "";
-        const file = fileInput && fileInput.files ? fileInput.files[0] : null;
-        const acceptedTerms = termsCheckbox ? Boolean(termsCheckbox.checked) : false;
-        if (!name || !email || !phone || !location || !file || !acceptedTerms) {
-          showToast("Completa todos los campos de verificación.", "danger");
+
+        const email = emailInput ? emailInput.value.trim().toLowerCase() : "";
+        const password = passwordInput ? passwordInput.value : "";
+
+        if (!email || !password) {
+          showToast("Ingresa tu correo electrónico y contraseña.", "danger");
           return;
         }
-        readFile(file)
-          .then((avatar) => {
-            const now = new Date().toISOString();
-            const user = {
-              id: generateId("user"),
+
+        const submitBtn = form?.querySelector('.auth-form__actions .btn.btn-primary');
+        const originalLabel = submitBtn ? submitBtn.textContent : "";
+        const setSubmitting = (loading) => {
+          if (!submitBtn) {
+            return;
+          }
+          submitBtn.disabled = Boolean(loading);
+          submitBtn.dataset.loading = loading ? "true" : "false";
+          if (loading) {
+            submitBtn.textContent = authMode === "register" ? "Creando cuenta..." : "Iniciando sesión...";
+          } else {
+            submitBtn.textContent = originalLabel || submitBtn.textContent;
+          }
+        };
+
+        try {
+          setSubmitting(true);
+          if (authMode === "register") {
+            const name = nameInput ? nameInput.value.trim() : "";
+            const phone = phoneInput ? phoneInput.value.trim() : "";
+            const location = locationInput ? locationInput.value.trim() : "";
+            const file = fileInput && fileInput.files ? fileInput.files[0] : null;
+            const acceptedTerms = termsCheckbox ? Boolean(termsCheckbox.checked) : false;
+
+            if (!name || !phone || !location || !file || !acceptedTerms) {
+              showToast("Completa todos los campos de verificación para crear tu cuenta.", "danger");
+              return;
+            }
+
+            const credential = await createUserWithEmailAndPassword(auth, email, password);
+            const userId = credential.user.uid;
+            const avatarUrl = await uploadAvatar(userId, file);
+            const locationData = parseLocationString(location);
+            await setDoc(doc(db, FIREBASE_COLLECTIONS.users, userId), {
               name,
               email,
               phone,
               location,
+              department: locationData.department,
+              city: locationData.city,
               bio: "",
-              avatar,
+              avatar: avatarUrl,
               rating: 5,
-              createdAt: now,
-              updatedAt: now,
-            };
-            closeModal("auth-modal");
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp(),
+            });
+            await updateProfile(credential.user, {
+              displayName: name,
+              photoURL: avatarUrl || null,
+            });
+            showToast("Cuenta verificada creada correctamente.", "success");
+          } else {
+            await signInWithEmailAndPassword(auth, email, password);
+            showToast("Sesión iniciada correctamente.", "success");
+          }
+
+          closeModal("auth-modal");
+          if (typeof form.reset === "function") {
+            form.reset();
+          }
+          const preview = $("#auth-photo-preview");
+          if (preview) {
+            preview.innerHTML = '<i class="fa-regular fa-user" aria-hidden="true"></i>';
+          }
+          if (authMode === "register") {
             profileMode = "view";
-            setCurrentUser(user);
-            showToast("Cuenta verificada creada. ¡Ya puedes publicar!", "success");
             switchToPage("profile", { scroll: false });
-          })
-          .catch(() => {
-            showToast("No pudimos procesar la imagen seleccionada.", "danger");
-          });
+          }
+        } catch (error) {
+          console.error("Error en autenticación con Firebase", error);
+          const fallbackMessage =
+            authMode === "register"
+              ? "No pudimos crear tu cuenta. Inténtalo nuevamente."
+              : "No pudimos iniciar sesión con esas credenciales.";
+          showToast(getFirebaseErrorMessage(error, fallbackMessage), "danger");
+        } finally {
+          setSubmitting(false);
+        }
       }
 
-      function handlePublish(event) {
+      async function handlePublish(event) {
         event.preventDefault();
         if (!ensureAuthenticated()) return;
+        const form = event.currentTarget;
         const titleField = $("#product-name");
         const categoryField = $("#product-category");
         const descriptionField = $("#product-description");
@@ -11003,40 +11560,78 @@
           showToast("Completa todos los campos obligatorios.", "danger");
           return;
         }
+
         if (files.length < minFiles || files.length > maxFiles) {
-          showToast(
-            `Adjunta entre ${minFiles} y ${maxFiles} imágenes reales.`,
-            "danger"
-          );
+          showToast(`Adjunta entre ${minFiles} y ${maxFiles} imágenes reales.`, "danger");
           return;
         }
 
-        Promise.all(files.map((file) => readFile(file))).then((images) => {
-          const product = {
-            id: generateId("prod"),
+        const submitBtn = form?.querySelector('button[type="submit"]');
+        const originalLabel = submitBtn ? submitBtn.textContent : "";
+        const setSubmitting = (loading) => {
+          if (!submitBtn) {
+            return;
+          }
+          submitBtn.disabled = Boolean(loading);
+          submitBtn.dataset.loading = loading ? "true" : "false";
+          submitBtn.textContent = loading ? "Publicando..." : originalLabel;
+        };
+
+        try {
+          setSubmitting(true);
+          const currentUser = state.currentUser;
+          const ownerSnapshot = getOwnerSnapshot(currentUser);
+          const imageUrls = await uploadProductImages(currentUser ? currentUser.id : "anon", files);
+          const nowIso = new Date().toISOString();
+          const docRef = await addDoc(collection(db, FIREBASE_COLLECTIONS.products), {
             title,
             description,
             category,
             price,
             location,
-            images,
+            images: imageUrls,
             views: 0,
-            owner: state.currentUser,
-          };
-          state.products.unshift(product);
+            owner: ownerSnapshot,
+            rating: ownerSnapshot?.rating ?? 0,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+            publishedToFeed: true,
+          });
+
           closeModal("publish-modal");
           showToast("Producto publicado en el feed.", "success");
-          event.target.reset();
+          if (typeof form.reset === "function") {
+            form.reset();
+          }
           if (imagesInput) {
             resetMediaInput(imagesInput);
           }
-          updateUI();
+
+          const product = {
+            id: docRef.id,
+            title,
+            description,
+            category,
+            price,
+            location,
+            images: imageUrls,
+            views: 0,
+            owner: ownerSnapshot,
+            createdAt: nowIso,
+            updatedAt: nowIso,
+          };
           setTimeout(() => simulateIncomingOffer(product), 5500);
-        });
+        } catch (error) {
+          console.error("Error al publicar producto en Firebase", error);
+          showToast("No pudimos publicar tu producto. Intenta nuevamente.", "danger");
+        } finally {
+          setSubmitting(false);
+        }
       }
 
-      function handleSell(event) {
+      async function handleSell(event) {
         event.preventDefault();
+        const form = event.currentTarget;
         const intentField = $("#sell-intent");
         const nameField = $("#sell-name");
         const categoryField = $("#sell-category");
@@ -11048,8 +11643,9 @@
         const { min: minFiles, max: maxFiles } = getMediaConstraints(imagesInput);
 
         if (!state.currentUser) {
-          showToast("Debes crear tu perfil verificado para vender en Cambalaches.", "danger");
+          showToast("Debes verificar tu cuenta para comenzar a vender.", "danger");
           closeModal("sell-modal");
+          setAuthMode("login");
           openModal("auth-modal");
           return;
         }
@@ -11070,48 +11666,93 @@
         }
 
         if (files.length < minFiles || files.length > maxFiles) {
-          showToast(
-            `Adjunta entre ${minFiles} y ${maxFiles} imágenes reales.`,
-            "danger"
-          );
+          showToast(`Adjunta entre ${minFiles} y ${maxFiles} imágenes reales.`, "danger");
           return;
         }
 
-        Promise.all(files.map((file) => readFile(file))).then((images) => {
-          const product = {
-            id: generateId("sale"),
+        const submitBtn = form?.querySelector('button[type="submit"]');
+        const originalLabel = submitBtn ? submitBtn.textContent : "";
+        const setSubmitting = (loading) => {
+          if (!submitBtn) {
+            return;
+          }
+          submitBtn.disabled = Boolean(loading);
+          submitBtn.dataset.loading = loading ? "true" : "false";
+          submitBtn.textContent = loading ? "Procesando..." : originalLabel;
+        };
+
+        try {
+          setSubmitting(true);
+          const ownerSnapshot = getOwnerSnapshot(state.currentUser);
+          const imageUrls = await uploadProductImages(state.currentUser.id, files);
+          const nowIso = new Date().toISOString();
+          const docRef = await addDoc(collection(db, FIREBASE_COLLECTIONS.products), {
             title,
             description,
             category,
             price,
             location,
-            images,
+            images: imageUrls,
             views: 0,
-            owner: state.currentUser,
+            owner: ownerSnapshot,
             listingType: "venta",
             sellIntent: intentKey,
             publishedToFeed,
-            createdAt: new Date().toISOString(),
-          };
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          });
 
           if (publishToFeed) {
-            state.products.unshift(product);
             showToast(`Anuncio de ${intent.label.toLowerCase()} publicado en el feed.`, "success");
-            updateUI();
+            const product = {
+              id: docRef.id,
+              title,
+              description,
+              category,
+              price,
+              location,
+              images: imageUrls,
+              views: 0,
+              owner: ownerSnapshot,
+              listingType: "venta",
+              sellIntent: intentKey,
+              createdAt: nowIso,
+              updatedAt: nowIso,
+            };
             setTimeout(() => simulateIncomingOffer(product), 5500);
           } else {
-            state.pendingSales.unshift(product);
+            state.pendingSales.unshift({
+              id: docRef.id,
+              title,
+              description,
+              category,
+              price,
+              location,
+              images: imageUrls,
+              owner: ownerSnapshot,
+              listingType: "venta",
+              sellIntent: intentKey,
+              publishedToFeed,
+              createdAt: nowIso,
+            });
             showToast("Borrador guardado. Podrás publicarlo cuando quieras.", "info");
           }
 
           closeModal("sell-modal");
-          event.target.reset();
+          if (typeof form.reset === "function") {
+            form.reset();
+          }
           if (imagesInput) {
             resetMediaInput(imagesInput);
           }
           activeSellIntent = intentKey;
           configureSellModal(intentKey, { resetForm: false });
-        });
+        } catch (error) {
+          console.error("Error al registrar anuncio en Firebase", error);
+          showToast("No pudimos publicar tu anuncio. Intenta nuevamente.", "danger");
+        } finally {
+          setSubmitting(false);
+        }
       }
 
       function simulateIncomingOffer(product) {
@@ -11173,12 +11814,10 @@
           authBtn.textContent = "Cerrar sesión";
           authBtn.onclick = () => logout();
         } else {
-          authBtn.textContent = "Crear perfil";
+          authBtn.textContent = "Ingresar / Registrarme";
           authBtn.onclick = () => {
-            profileMode = "create";
-            switchToPage("profile");
-            closeSidebar();
-            focusProfileForm();
+            setAuthMode("login");
+            openModal("auth-modal");
           };
         }
       }
@@ -11224,10 +11863,20 @@
         switchToPage(activePage, { scroll: false });
       }
 
+      onAuthStateChanged(auth, (firebaseUser) => {
+        syncCurrentUserFromFirebase(firebaseUser);
+      });
+
       document.addEventListener("DOMContentLoaded", () => {
         sidebarElement = $("#app-sidebar");
         sidebarToggleButton = $("#sidebar-toggle");
         sidebarBackdropElement = $("#sidebar-backdrop");
+
+        setAuthMode(authMode);
+        onAll(".auth-form__tab", "click", (event) => {
+          const mode = event.currentTarget.getAttribute("data-auth-mode") || "register";
+          setAuthMode(mode);
+        });
 
         const syncHandler = () => syncSidebarWithViewport();
         syncSidebarWithViewport();
@@ -11301,6 +11950,7 @@
           closeSidebar();
           if (!state.currentUser) {
             showToast("Debes verificar tu cuenta para comenzar a vender.", "danger");
+            setAuthMode("login");
             openModal("auth-modal");
             return;
           }
