@@ -188,6 +188,508 @@
         transition: background var(--transition), color var(--transition), transform var(--transition), box-shadow var(--transition);
       }
 
+      .promo-banners {
+        position: relative;
+        background: linear-gradient(180deg, rgba(255, 230, 0, 0.15) 0%, rgba(255, 255, 255, 0.85) 75%, #ffffff 100%);
+        border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+        padding: clamp(1.25rem, 2vw, 1.75rem) 0 clamp(1.8rem, 4vw, 2.6rem);
+      }
+
+      .promo-banners__shell {
+        width: min(1280px, 100%);
+        margin: 0 auto;
+        padding: 0 clamp(1rem, 4vw, 2rem);
+        display: grid;
+        gap: 1.4rem;
+      }
+
+      .promo-banners__header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .promo-banners__header h2 {
+        margin: 0 0 0.35rem 0;
+        font-size: clamp(1.35rem, 2.6vw, 1.75rem);
+        letter-spacing: -0.015em;
+        color: #0b0f19;
+      }
+
+      .promo-banners__header p {
+        margin: 0;
+        color: var(--muted);
+        max-width: 520px;
+      }
+
+      .promo-banners__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: rgba(15, 23, 42, 0.55);
+        font-weight: 700;
+      }
+
+      .promo-banners__actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .promo-banners__actions .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        white-space: nowrap;
+      }
+
+      .promo-banners__actions .btn i {
+        font-size: 0.85rem;
+      }
+
+      .promo-banners__empty {
+        border-radius: var(--radius-lg);
+        border: 1px dashed rgba(99, 102, 241, 0.25);
+        padding: 1.35rem 1.6rem;
+        background: rgba(255, 255, 255, 0.9);
+        color: var(--muted);
+        font-weight: 500;
+      }
+
+      .promo-banners__list {
+        display: grid;
+        gap: 1rem;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(280px, 1fr);
+        overflow-x: auto;
+        padding-bottom: 0.25rem;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: thin;
+      }
+
+      .promo-banners__list::-webkit-scrollbar {
+        height: 6px;
+      }
+
+      .promo-banners__list::-webkit-scrollbar-thumb {
+        background: rgba(15, 23, 42, 0.2);
+        border-radius: 999px;
+      }
+
+      .promo-banners__list::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .promo-banners__item {
+        --banner-image: none;
+        position: relative;
+        border-radius: var(--radius-lg);
+        padding: clamp(1.4rem, 2vw, 2rem);
+        display: grid;
+        gap: 1.1rem;
+        min-height: 180px;
+        box-shadow: var(--shadow-sm);
+        scroll-snap-align: start;
+        overflow: hidden;
+        isolation: isolate;
+      }
+
+      .promo-banners__item::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background-image: var(--banner-image);
+        background-size: cover;
+        background-position: center;
+        filter: saturate(1.05);
+        opacity: 0.85;
+        transform: scale(1.02);
+        transition: opacity var(--transition);
+        z-index: -2;
+      }
+
+      .promo-banners__item::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: linear-gradient(160deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0.18) 100%);
+        pointer-events: none;
+        mix-blend-mode: screen;
+        z-index: -1;
+      }
+
+      .promo-banner__meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+
+      .promo-banner__meta-left {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .promo-banner__meta-right {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+
+      .promo-banner__tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: rgba(15, 23, 42, 0.16);
+        color: inherit;
+      }
+
+      .promo-banner__remove {
+        border: none;
+        border-radius: 999px;
+        padding: 0.35rem;
+        background: rgba(15, 23, 42, 0.18);
+        color: inherit;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform var(--transition), background var(--transition);
+      }
+
+      .promo-banner__remove:hover,
+      .promo-banner__remove:focus-visible {
+        background: rgba(15, 23, 42, 0.28);
+        transform: translateY(-1px);
+      }
+
+      .promo-banner__timer {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: rgba(15, 23, 42, 0.28);
+        color: #f8fafc;
+        white-space: nowrap;
+      }
+
+      .promo-banner__timer i {
+        font-size: 0.8em;
+      }
+
+      .promo-banner__timer.is-expired {
+        background: rgba(239, 68, 68, 0.35);
+        color: #fff;
+      }
+
+      .promo-banner__body {
+        display: grid;
+        gap: 0.4rem;
+      }
+
+      .promo-banner__body h3 {
+        margin: 0;
+        font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+        letter-spacing: -0.01em;
+      }
+
+      .promo-banner__body p {
+        margin: 0;
+        font-size: 0.95rem;
+        color: inherit;
+        opacity: 0.92;
+      }
+
+      .promo-banner__footer {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .promo-banner__cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.55rem 1.1rem;
+        border-radius: 999px;
+        font-weight: 600;
+        text-decoration: none;
+        background: rgba(255, 255, 255, 0.2);
+        color: inherit;
+        transition: background var(--transition), transform var(--transition);
+      }
+
+      .promo-banner__cta:hover,
+      .promo-banner__cta:focus-visible {
+        background: rgba(255, 255, 255, 0.32);
+        transform: translateY(-1px);
+      }
+
+      .promo-banners__item[data-theme="midnight"] {
+        background: linear-gradient(135deg, #111827 0%, #312e81 55%, #6366f1 110%);
+        color: #f8fafc;
+      }
+
+      .promo-banners__item[data-theme="sunrise"] {
+        background: linear-gradient(135deg, #fbbf24 -5%, #f97316 45%, #ec4899 105%);
+        color: #111827;
+      }
+
+      .promo-banners__item[data-theme="ocean"] {
+        background: linear-gradient(140deg, #0f172a 0%, #0ea5e9 55%, #22d3ee 120%);
+        color: #f8fafc;
+      }
+
+      .promo-banners__item[data-theme="forest"] {
+        background: linear-gradient(140deg, #064e3b 0%, #059669 55%, #34d399 120%);
+        color: #f0fdf4;
+      }
+
+      .promo-banners__item[data-theme="sunrise"] .promo-banner__cta {
+        background: rgba(15, 23, 42, 0.08);
+      }
+
+      .promo-banners__item[data-theme="sunrise"] .promo-banner__cta:hover,
+      .promo-banners__item[data-theme="sunrise"] .promo-banner__cta:focus-visible {
+        background: rgba(15, 23, 42, 0.16);
+      }
+
+      .promo-banners__item[data-theme="sunrise"] .promo-banner__timer {
+        background: rgba(15, 23, 42, 0.45);
+      }
+
+      .promo-banner-modal {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 1.5rem;
+        background: rgba(15, 23, 42, 0.35);
+        backdrop-filter: blur(6px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--transition);
+        z-index: 90;
+      }
+
+      .promo-banner-modal.is-visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .promo-banner-modal__dialog {
+        width: min(680px, 100%);
+        background: var(--surface-strong);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-lg);
+        padding: clamp(1.5rem, 2vw, 2.2rem);
+        display: grid;
+        gap: 1.25rem;
+        max-height: min(90vh, 820px);
+        overflow-y: auto;
+      }
+
+      .promo-banner-modal__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .promo-banner-modal__title {
+        margin: 0;
+        font-size: clamp(1.3rem, 2vw, 1.55rem);
+        letter-spacing: -0.01em;
+      }
+
+      .promo-banner-modal__description {
+        margin: 0.35rem 0 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .promo-banner-modal__close {
+        border: none;
+        background: rgba(15, 23, 42, 0.08);
+        border-radius: 999px;
+        padding: 0.45rem;
+        cursor: pointer;
+        color: inherit;
+        transition: background var(--transition), transform var(--transition);
+      }
+
+      .promo-banner-modal__close:hover,
+      .promo-banner-modal__close:focus-visible {
+        background: rgba(15, 23, 42, 0.16);
+        transform: translateY(-1px);
+      }
+
+      .promo-banner-modal__form {
+        display: grid;
+        gap: 1.25rem;
+      }
+
+      .promo-banner-field {
+        display: grid;
+        gap: 0.45rem;
+      }
+
+      .promo-banner-field label {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--muted-dark);
+      }
+
+      .promo-banner-field input,
+      .promo-banner-field textarea {
+        width: 100%;
+        border-radius: 16px;
+        border: 1px solid var(--border-strong);
+        padding: 0.65rem 0.85rem;
+        font-family: inherit;
+        font-size: 0.95rem;
+        transition: border-color var(--transition), box-shadow var(--transition);
+        background: rgba(255, 255, 255, 0.92);
+      }
+
+      .promo-banner-field textarea {
+        min-height: 110px;
+        resize: vertical;
+      }
+
+      .promo-banner-field input:focus,
+      .promo-banner-field textarea:focus {
+        outline: none;
+        border-color: rgba(79, 70, 229, 0.35);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+      }
+
+      .promo-banner-modal__preview {
+        border-radius: var(--radius-md);
+        border: 1px dashed rgba(79, 70, 229, 0.2);
+        padding: 0.75rem;
+        display: grid;
+        place-items: center;
+        min-height: 160px;
+        background: rgba(79, 70, 229, 0.04);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .promo-banner-modal__preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: var(--radius-sm);
+      }
+
+      .promo-banner-modal__preview-placeholder {
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.9rem;
+        display: grid;
+        gap: 0.5rem;
+        justify-items: center;
+      }
+
+      .promo-banner-modal__preview-placeholder i {
+        font-size: 1.35rem;
+        color: var(--primary-500);
+      }
+
+      .promo-banner-modal__footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      .promo-banner-modal__timer-hint {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-top: -0.25rem;
+      }
+
+      @media (max-width: 1080px) {
+        .promo-banners {
+          padding: 0;
+        }
+
+        .promo-banners__shell {
+          width: 100%;
+          padding: 0;
+        }
+
+        .promo-banners__header {
+          padding: clamp(1.5rem, 4vw, 2rem);
+        }
+
+        .promo-banners__list {
+          padding: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 0;
+          overflow-x: hidden;
+          scroll-snap-type: none;
+        }
+
+        .promo-banners__item {
+          border-radius: 0;
+          min-height: calc(100vh - var(--header-height) + 24px);
+          box-shadow: none;
+          padding: clamp(1.75rem, 5vw, 2.5rem);
+        }
+
+        .promo-banners__item + .promo-banners__item {
+          border-top: 1px solid rgba(15, 23, 42, 0.08);
+        }
+
+        .promo-banner-modal {
+          padding: 1rem;
+        }
+
+        .promo-banner-modal__dialog {
+          width: 100%;
+          border-radius: var(--radius-lg);
+        }
+      }
+
+      @media (max-width: 960px) {
+        .promo-banners__list {
+          grid-auto-columns: minmax(240px, 82vw);
+        }
+      }
+
+      @media (max-width: 640px) {
+        .promo-banners {
+          padding-bottom: 2.4rem;
+        }
+
+        .promo-banners__header h2 {
+          font-size: 1.35rem;
+        }
+
+        .promo-banners__actions {
+          width: 100%;
+          justify-content: flex-start;
+        }
+      }
+
       .visually-hidden {
         position: absolute;
         width: 1px;
@@ -4891,6 +5393,105 @@
       </div>
     </header>
 
+    <section class="promo-banners" aria-label="Banners publicitarios destacados">
+      <div class="promo-banners__shell">
+        <div class="promo-banners__header">
+          <div>
+            <span class="promo-banners__eyebrow"><i class="fa-solid fa-bullhorn" aria-hidden="true"></i> Publicidad</span>
+            <h2>Campañas estratégicas destacadas</h2>
+            <p>
+              Resalta alianzas, eventos patrocinados y beneficios exclusivos en un carrusel curado para compradores y
+              vendedores premium.
+            </p>
+          </div>
+          <div class="promo-banners__actions">
+            <button class="btn btn-outline" type="button" id="promo-banners-add">
+              <i class="fa-solid fa-plus" aria-hidden="true"></i>
+              <span>Agregar banner</span>
+            </button>
+          </div>
+        </div>
+        <div class="promo-banner-modal" id="promo-banner-modal" aria-hidden="true">
+          <div class="promo-banner-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="promo-banner-modal-title">
+            <div class="promo-banner-modal__header">
+              <div>
+                <h3 class="promo-banner-modal__title" id="promo-banner-modal-title">Nuevo banner publicitario</h3>
+                <p class="promo-banner-modal__description">
+                  Personaliza la campaña con imagen, mensaje clave y define la vigencia para mantener tu vitrina siempre actualizada.
+                </p>
+              </div>
+              <button class="promo-banner-modal__close" type="button" id="promo-banner-close" aria-label="Cerrar">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+              </button>
+            </div>
+            <form class="promo-banner-modal__form" id="promo-banner-form">
+              <div class="promo-banner-field">
+                <label for="promo-banner-title">Título de la campaña</label>
+                <input id="promo-banner-title" name="title" type="text" maxlength="120" placeholder="Lanza tu mejor beneficio" required />
+              </div>
+              <div class="promo-banner-field">
+                <label for="promo-banner-description">Descripción breve</label>
+                <textarea
+                  id="promo-banner-description"
+                  name="description"
+                  maxlength="220"
+                  placeholder="Explica el valor diferenciador de tu promoción"
+                  required
+                ></textarea>
+              </div>
+              <div class="promo-banner-field">
+                <label for="promo-banner-label">Etiqueta destacada</label>
+                <input
+                  id="promo-banner-label"
+                  name="label"
+                  type="text"
+                  maxlength="60"
+                  placeholder="Aliado destacado, Publicidad, Lanzamiento, etc."
+                />
+              </div>
+              <div class="promo-banner-field">
+                <label for="promo-banner-cta">Texto del botón</label>
+                <input id="promo-banner-cta" name="ctaLabel" type="text" maxlength="35" placeholder="Ver beneficios" />
+              </div>
+              <div class="promo-banner-field">
+                <label for="promo-banner-link">Enlace del botón (opcional)</label>
+                <input
+                  id="promo-banner-link"
+                  name="ctaLink"
+                  type="url"
+                  placeholder="https://tusitio.com/promocion"
+                  inputmode="url"
+                />
+              </div>
+              <div class="promo-banner-field">
+                <label for="promo-banner-expires">Vigencia de la promoción</label>
+                <input id="promo-banner-expires" name="expiresAt" type="datetime-local" required />
+                <p class="promo-banner-modal__timer-hint">El temporizador mostrará el tiempo restante hasta la fecha seleccionada.</p>
+              </div>
+              <div class="promo-banner-field">
+                <label for="promo-banner-image">Imagen promocional</label>
+                <input id="promo-banner-image" name="image" type="file" accept="image/*" required />
+                <div class="promo-banner-modal__preview" id="promo-banner-image-preview">
+                  <div class="promo-banner-modal__preview-placeholder">
+                    <i class="fa-regular fa-image" aria-hidden="true"></i>
+                    <span>Selecciona una imagen horizontal en alta resolución (JPG o PNG).</span>
+                  </div>
+                </div>
+              </div>
+              <div class="promo-banner-modal__footer">
+                <button class="btn btn-ghost" type="button" id="promo-banner-cancel">Cancelar</button>
+                <button class="btn btn-primary" type="submit">Guardar banner</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="promo-banners__empty hidden" id="promo-banners-empty">
+          No hay campañas activas. Utiliza «Agregar banner» para destacar una nueva alianza.
+        </div>
+        <div class="promo-banners__list" id="promo-banners-list" role="list" aria-live="polite"></div>
+      </div>
+    </section>
+
     <main>
       <div class="app-shell">
         <aside class="app-sidebar" id="app-sidebar" aria-label="Navegación principal">
@@ -7708,8 +8309,45 @@
                 : ""),
             createdAt: storedUser.createdAt || new Date().toISOString(),
             updatedAt: storedUser.updatedAt || storedUser.createdAt || new Date().toISOString(),
-          }
+        }
         : null;
+
+      const initialPromoBanners = [
+        {
+          id: generateId("banner"),
+          label: "Publicidad",
+          title: "Impulsa tus canjes corporativos",
+          description:
+            "Conecta tu marca con comunidades verificadas y cierra alianzas estratégicas en cuestión de horas.",
+          ctaLabel: "Ver paquetes",
+          ctaLink: "#",
+          theme: "midnight",
+          image: "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=80",
+          expiresAt: Date.now() + 1000 * 60 * 60 * 72,
+        },
+        {
+          id: generateId("banner"),
+          label: "Aliado destacado",
+          title: "Tarjetas regalo hasta 30% OFF",
+          description: "Integra beneficios exclusivos y multiplica los incentivos en tus negociaciones premium.",
+          ctaLabel: "Descubrir ofertas",
+          ctaLink: "#",
+          theme: "sunrise",
+          image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1600&q=80",
+          expiresAt: Date.now() + 1000 * 60 * 60 * 24 * 5,
+        },
+        {
+          id: generateId("banner"),
+          label: "Publicidad",
+          title: "Haz match con vendedores verificados",
+          description: "Reserva espacios destacados y muestra tus productos en la portada diaria del marketplace.",
+          ctaLabel: "Reservar espacio",
+          ctaLink: "#",
+          theme: "ocean",
+          image: "https://images.unsplash.com/photo-1556740749-887f6717d7e4?auto=format&fit=crop&w=1600&q=80",
+          expiresAt: Date.now() + 1000 * 60 * 60 * 24 * 2,
+        },
+      ];
 
       const state = {
         currentUser: initialUser,
@@ -7722,6 +8360,7 @@
         reports: 0,
         modals: {},
         pendingSales: [],
+        promoBanners: initialPromoBanners,
       };
 
       let activePage = "feed-section";
@@ -7733,6 +8372,20 @@
       let sidebarBackdropElement = null;
       let activeSellIntent = "productos";
       const mobileSidebarQuery = window.matchMedia("(max-width: 1023px)");
+      const PROMO_BANNER_THEMES = ["midnight", "sunrise", "ocean", "forest"];
+      const PROMO_BANNER_DEFAULT_DURATION = 1000 * 60 * 60 * 24 * 7;
+      const PROMO_BANNER_PREVIEW_PLACEHOLDER = `
+        <div class="promo-banner-modal__preview-placeholder">
+          <i class="fa-regular fa-image" aria-hidden="true"></i>
+          <span>Selecciona una imagen horizontal en alta resolución (JPG o PNG).</span>
+        </div>
+      `;
+      let promoBannersScrollController = null;
+      let promoBannerTimers = [];
+      let promoBannerModalElement = null;
+      let promoBannerFormElement = null;
+      let promoBannerImagePreviewElement = null;
+      let promoBannerExpiresInput = null;
 
       const isMobileSidebar = () => mobileSidebarQuery.matches;
 
@@ -8095,6 +8748,409 @@
         toastEl.classList.add("show");
         clearTimeout(toastTimeout);
         toastTimeout = setTimeout(() => toastEl.classList.remove("show"), 3800);
+      }
+
+      function ensurePromoBannersScrollEnhancement() {
+        const list = $("#promo-banners-list");
+        if (!list) {
+          return;
+        }
+        if (!promoBannersScrollController) {
+          promoBannersScrollController = enhanceHorizontalScroll(list, {
+            snapToChildren: true,
+            snapSelector: ".promo-banners__item",
+            snapAlign: "start",
+            dragThreshold: 4,
+            snapOnWheel: false,
+          });
+        } else {
+          promoBannersScrollController.refresh();
+        }
+      }
+
+      function handlePromoBannerRemove(id) {
+        const before = state.promoBanners.length;
+        state.promoBanners = state.promoBanners.filter((banner) => banner.id !== id);
+        if (before !== state.promoBanners.length) {
+          renderPromoBanners();
+          showToast("Banner eliminado de la sección publicitaria.", "warning");
+        }
+      }
+
+      function handlePromoBannerAdd() {
+        openPromoBannerModal();
+      }
+
+      function ensurePromoBannerElements() {
+        if (!promoBannerModalElement) {
+          promoBannerModalElement = $("#promo-banner-modal");
+        }
+        if (!promoBannerFormElement) {
+          promoBannerFormElement = $("#promo-banner-form");
+        }
+        if (!promoBannerImagePreviewElement) {
+          promoBannerImagePreviewElement = $("#promo-banner-image-preview");
+        }
+        if (!promoBannerExpiresInput) {
+          promoBannerExpiresInput = $("#promo-banner-expires");
+        }
+      }
+
+      function formatDateTimeLocal(date) {
+        if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+          return "";
+        }
+        const pad = (value) => String(value).padStart(2, "0");
+        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(
+          date.getMinutes()
+        )}`;
+      }
+
+      function resetPromoBannerForm() {
+        ensurePromoBannerElements();
+        if (promoBannerFormElement) {
+          promoBannerFormElement.reset();
+        }
+        if (promoBannerImagePreviewElement) {
+          promoBannerImagePreviewElement.innerHTML = PROMO_BANNER_PREVIEW_PLACEHOLDER;
+        }
+        const defaultExpiration = new Date(Date.now() + PROMO_BANNER_DEFAULT_DURATION);
+        if (promoBannerExpiresInput) {
+          const minExpiration = new Date(Date.now() + 1000 * 60 * 30);
+          promoBannerExpiresInput.min = formatDateTimeLocal(minExpiration);
+          promoBannerExpiresInput.value = formatDateTimeLocal(defaultExpiration);
+        }
+      }
+
+      function openPromoBannerModal() {
+        ensurePromoBannerElements();
+        resetPromoBannerForm();
+        if (!promoBannerModalElement) {
+          return;
+        }
+        promoBannerModalElement.classList.add("is-visible");
+        promoBannerModalElement.setAttribute("aria-hidden", "false");
+        document.body.classList.add("modal-open");
+        const firstField = $("#promo-banner-title");
+        if (firstField) {
+          requestAnimationFrame(() => firstField.focus());
+        }
+      }
+
+      function closePromoBannerModal({ restoreFocus = true } = {}) {
+        ensurePromoBannerElements();
+        if (!promoBannerModalElement) {
+          return;
+        }
+        promoBannerModalElement.classList.remove("is-visible");
+        promoBannerModalElement.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("modal-open");
+        if (restoreFocus) {
+          const trigger = $("#promo-banners-add");
+          if (trigger) {
+            trigger.focus();
+          }
+        }
+      }
+
+      function handlePromoBannerOverlayClick(event) {
+        if (event.target === event.currentTarget) {
+          closePromoBannerModal({ restoreFocus: false });
+        }
+      }
+
+      function handlePromoBannerKeydown(event) {
+        if (event.key === "Escape" && promoBannerModalElement && promoBannerModalElement.classList.contains("is-visible")) {
+          event.preventDefault();
+          closePromoBannerModal({ restoreFocus: false });
+        }
+      }
+
+      function handlePromoBannerImageChange(event) {
+        ensurePromoBannerElements();
+        if (!promoBannerImagePreviewElement) {
+          return;
+        }
+        const file = event.target.files && event.target.files[0];
+        if (!file) {
+          promoBannerImagePreviewElement.innerHTML = PROMO_BANNER_PREVIEW_PLACEHOLDER;
+          return;
+        }
+        if (!file.type.startsWith("image/")) {
+          showToast("Selecciona un archivo de imagen válido.", "danger");
+          event.target.value = "";
+          promoBannerImagePreviewElement.innerHTML = PROMO_BANNER_PREVIEW_PLACEHOLDER;
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+          promoBannerImagePreviewElement.innerHTML = "";
+          const img = document.createElement("img");
+          img.src = reader.result;
+          img.alt = "Vista previa del banner publicitario";
+          promoBannerImagePreviewElement.appendChild(img);
+        };
+        reader.onerror = () => {
+          showToast("No pudimos cargar la imagen seleccionada.", "danger");
+          promoBannerImagePreviewElement.innerHTML = PROMO_BANNER_PREVIEW_PLACEHOLDER;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function readFileAsDataURL(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => reject(new Error("No se pudo procesar el archivo"));
+          reader.readAsDataURL(file);
+        });
+      }
+
+      async function handlePromoBannerFormSubmit(event) {
+        event.preventDefault();
+        ensurePromoBannerElements();
+        if (!promoBannerFormElement) {
+          return;
+        }
+
+        const formData = new FormData(promoBannerFormElement);
+        const title = (formData.get("title") || "").toString().trim();
+        const description = (formData.get("description") || "").toString().trim();
+        const label = (formData.get("label") || "Publicidad").toString().trim() || "Publicidad";
+        const ctaLabel = (formData.get("ctaLabel") || "Ver más").toString().trim() || "Ver más";
+        const rawLink = (formData.get("ctaLink") || "").toString().trim();
+        const expiresValue = (formData.get("expiresAt") || "").toString();
+        const imageFile = promoBannerFormElement.querySelector("#promo-banner-image")?.files?.[0] || null;
+
+        if (!title || !description) {
+          showToast("Completa el título y la descripción de la campaña.", "danger");
+          return;
+        }
+
+        if (!expiresValue) {
+          showToast("Define la vigencia de la promoción.", "danger");
+          return;
+        }
+
+        const expiresAt = new Date(expiresValue);
+        if (Number.isNaN(expiresAt.getTime()) || expiresAt.getTime() <= Date.now()) {
+          showToast("Selecciona una fecha futura para la vigencia de la promoción.", "danger");
+          return;
+        }
+
+        if (!imageFile) {
+          showToast("Selecciona una imagen para el banner.", "danger");
+          return;
+        }
+
+        let imageData = "";
+        try {
+          imageData = await readFileAsDataURL(imageFile);
+        } catch (error) {
+          showToast("Ocurrió un error al procesar la imagen.", "danger");
+          return;
+        }
+
+        const hasValidLink = /^https?:\/\//i.test(rawLink);
+        const ctaLink = hasValidLink ? rawLink : "#";
+        const theme = PROMO_BANNER_THEMES[state.promoBanners.length % PROMO_BANNER_THEMES.length] || "midnight";
+
+        state.promoBanners = [
+          ...state.promoBanners,
+          {
+            id: generateId("banner"),
+            label,
+            title,
+            description,
+            ctaLabel,
+            ctaLink,
+            theme,
+            image: imageData,
+            expiresAt: expiresAt.getTime(),
+          },
+        ];
+
+        renderPromoBanners();
+        showToast("Nuevo banner agregado correctamente.", "success");
+        closePromoBannerModal();
+      }
+
+      function clearPromoBannerTimers() {
+        promoBannerTimers.forEach((timerId) => clearInterval(timerId));
+        promoBannerTimers = [];
+      }
+
+      function formatTimeRemaining(milliseconds) {
+        if (!Number.isFinite(milliseconds) || milliseconds <= 0) {
+          return "Finalizada";
+        }
+        const totalSeconds = Math.floor(milliseconds / 1000);
+        const days = Math.floor(totalSeconds / 86400);
+        const hours = Math.floor((totalSeconds % 86400) / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        const pad = (value) => String(value).padStart(2, "0");
+        const segments = [];
+        if (days > 0) {
+          segments.push(`${days}d`);
+        }
+        segments.push(`${pad(hours)}h`);
+        segments.push(`${pad(minutes)}m`);
+        if (days === 0) {
+          segments.push(`${pad(seconds)}s`);
+        }
+        return segments.join(" ");
+      }
+
+      function startPromoBannerTimer(timerElement, labelElement, expiresAt) {
+        if (!timerElement || !labelElement) {
+          return;
+        }
+        const target = Number(expiresAt);
+        if (!Number.isFinite(target)) {
+          labelElement.textContent = "Sin fecha definida";
+          timerElement.classList.remove("is-expired");
+          return;
+        }
+
+        const update = () => {
+          const remaining = target - Date.now();
+          const expired = remaining <= 0;
+          labelElement.textContent = formatTimeRemaining(remaining);
+          timerElement.classList.toggle("is-expired", expired);
+        };
+
+        update();
+        const intervalId = window.setInterval(update, 1000);
+        promoBannerTimers.push(intervalId);
+      }
+
+      function renderPromoBanners() {
+        const list = $("#promo-banners-list");
+        const emptyState = $("#promo-banners-empty");
+        if (!list || !emptyState) {
+          return;
+        }
+
+        clearPromoBannerTimers();
+        list.innerHTML = "";
+        const banners = Array.isArray(state.promoBanners) ? state.promoBanners : [];
+
+        if (!banners.length) {
+          emptyState.classList.remove("hidden");
+          list.setAttribute("aria-hidden", "true");
+          ensurePromoBannersScrollEnhancement();
+          return;
+        }
+
+        emptyState.classList.add("hidden");
+        list.removeAttribute("aria-hidden");
+
+        banners.forEach((banner) => {
+          const item = document.createElement("article");
+          item.className = "promo-banners__item";
+          item.dataset.theme = banner.theme || PROMO_BANNER_THEMES[0];
+          item.setAttribute("role", "listitem");
+          if (banner.image) {
+            const escapedImage = banner.image.replace(/"/g, '\\"');
+            item.style.setProperty("--banner-image", `url("${escapedImage}")`);
+          } else {
+            item.style.removeProperty("--banner-image");
+          }
+
+          const meta = document.createElement("div");
+          meta.className = "promo-banner__meta";
+
+          const metaLeft = document.createElement("div");
+          metaLeft.className = "promo-banner__meta-left";
+
+          const tag = document.createElement("span");
+          tag.className = "promo-banner__tag";
+          tag.textContent = banner.label || "Publicidad";
+
+          metaLeft.appendChild(tag);
+
+          const metaRight = document.createElement("div");
+          metaRight.className = "promo-banner__meta-right";
+
+          const timer = document.createElement("span");
+          timer.className = "promo-banner__timer";
+          timer.setAttribute("aria-live", "polite");
+          timer.setAttribute("aria-label", "Tiempo restante de la promoción");
+          if (Number.isFinite(Number(banner.expiresAt))) {
+            try {
+              timer.title = new Date(Number(banner.expiresAt)).toLocaleString("es-CO");
+            } catch (error) {
+              timer.title = "";
+            }
+          }
+
+          const timerIcon = document.createElement("i");
+          timerIcon.className = "fa-regular fa-clock";
+          timerIcon.setAttribute("aria-hidden", "true");
+
+          const timerLabel = document.createElement("span");
+          timerLabel.className = "promo-banner__timer-label";
+
+          timer.appendChild(timerIcon);
+          timer.appendChild(timerLabel);
+
+          const removeBtn = document.createElement("button");
+          removeBtn.type = "button";
+          removeBtn.className = "promo-banner__remove";
+          removeBtn.setAttribute("data-remove-banner", banner.id);
+          removeBtn.setAttribute("aria-label", `Eliminar banner “${banner.title}”`);
+          removeBtn.innerHTML = '<i class="fa-solid fa-xmark" aria-hidden="true"></i>';
+          removeBtn.addEventListener("click", () => handlePromoBannerRemove(banner.id));
+
+          metaRight.appendChild(timer);
+          metaRight.appendChild(removeBtn);
+
+          meta.appendChild(metaLeft);
+          meta.appendChild(metaRight);
+
+          const body = document.createElement("div");
+          body.className = "promo-banner__body";
+
+          const titleEl = document.createElement("h3");
+          titleEl.textContent = banner.title || "Campaña destacada";
+
+          const descEl = document.createElement("p");
+          descEl.textContent = banner.description || "Maximiza tu visibilidad dentro del marketplace.";
+
+          body.appendChild(titleEl);
+          body.appendChild(descEl);
+
+          const footer = document.createElement("div");
+          footer.className = "promo-banner__footer";
+
+          const cta = document.createElement("a");
+          cta.className = "promo-banner__cta";
+          cta.textContent = banner.ctaLabel || "Ver más";
+          const hasExternalLink = Boolean(banner.ctaLink && banner.ctaLink !== "#");
+          cta.href = hasExternalLink ? banner.ctaLink : "#";
+          if (hasExternalLink) {
+            cta.target = "_blank";
+            cta.rel = "noopener noreferrer";
+          }
+          const ctaIcon = document.createElement("i");
+          ctaIcon.className = "fa-solid fa-arrow-up-right-from-square";
+          ctaIcon.setAttribute("aria-hidden", "true");
+          cta.appendChild(ctaIcon);
+
+          footer.appendChild(cta);
+
+          item.appendChild(meta);
+          item.appendChild(body);
+          item.appendChild(footer);
+
+          list.appendChild(item);
+
+          startPromoBannerTimer(timer, timerLabel, banner.expiresAt);
+        });
+
+        list.scrollLeft = 0;
+        ensurePromoBannersScrollEnhancement();
       }
 
       function getMediaConstraints(input) {
@@ -9969,6 +11025,7 @@
         updateProfileSection();
         updateProfileCard();
         updateAuthButton();
+        renderPromoBanners();
         renderMostViewed();
         renderFeed();
         renderCoupons();
@@ -10031,6 +11088,17 @@
         registerNavigation();
         ensureLocationSelectorsInitialized();
         updateUI();
+
+        ensurePromoBannerElements();
+        resetPromoBannerForm();
+
+        on("#promo-banners-add", "click", handlePromoBannerAdd);
+        on("#promo-banner-form", "submit", (event) => handlePromoBannerFormSubmit(event));
+        on("#promo-banner-image", "change", handlePromoBannerImageChange);
+        on("#promo-banner-close", "click", () => closePromoBannerModal());
+        on("#promo-banner-cancel", "click", () => closePromoBannerModal());
+        on("#promo-banner-modal", "click", handlePromoBannerOverlayClick);
+        document.addEventListener("keydown", handlePromoBannerKeydown);
 
         on("#cta-register", "click", () => {
           profileMode = state.currentUser ? "view" : "create";
