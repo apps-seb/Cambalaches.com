@@ -188,6 +188,257 @@
         transition: background var(--transition), color var(--transition), transform var(--transition), box-shadow var(--transition);
       }
 
+      .promo-banners {
+        position: relative;
+        background: linear-gradient(180deg, rgba(255, 230, 0, 0.15) 0%, rgba(255, 255, 255, 0.85) 75%, #ffffff 100%);
+        border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+        padding: clamp(1.25rem, 2vw, 1.75rem) 0 clamp(1.8rem, 4vw, 2.6rem);
+      }
+
+      .promo-banners__shell {
+        width: min(1280px, 100%);
+        margin: 0 auto;
+        padding: 0 clamp(1rem, 4vw, 2rem);
+        display: grid;
+        gap: 1.4rem;
+      }
+
+      .promo-banners__header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .promo-banners__header h2 {
+        margin: 0 0 0.35rem 0;
+        font-size: clamp(1.35rem, 2.6vw, 1.75rem);
+        letter-spacing: -0.015em;
+        color: #0b0f19;
+      }
+
+      .promo-banners__header p {
+        margin: 0;
+        color: var(--muted);
+        max-width: 520px;
+      }
+
+      .promo-banners__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: rgba(15, 23, 42, 0.55);
+        font-weight: 700;
+      }
+
+      .promo-banners__actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .promo-banners__actions .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        white-space: nowrap;
+      }
+
+      .promo-banners__actions .btn i {
+        font-size: 0.85rem;
+      }
+
+      .promo-banners__empty {
+        border-radius: var(--radius-lg);
+        border: 1px dashed rgba(99, 102, 241, 0.25);
+        padding: 1.35rem 1.6rem;
+        background: rgba(255, 255, 255, 0.9);
+        color: var(--muted);
+        font-weight: 500;
+      }
+
+      .promo-banners__list {
+        display: grid;
+        gap: 1rem;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(280px, 1fr);
+        overflow-x: auto;
+        padding-bottom: 0.25rem;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: thin;
+      }
+
+      .promo-banners__list::-webkit-scrollbar {
+        height: 6px;
+      }
+
+      .promo-banners__list::-webkit-scrollbar-thumb {
+        background: rgba(15, 23, 42, 0.2);
+        border-radius: 999px;
+      }
+
+      .promo-banners__list::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .promo-banners__item {
+        position: relative;
+        border-radius: var(--radius-lg);
+        padding: clamp(1.4rem, 2vw, 2rem);
+        display: grid;
+        gap: 1.1rem;
+        min-height: 180px;
+        box-shadow: var(--shadow-sm);
+        scroll-snap-align: start;
+        overflow: hidden;
+        isolation: isolate;
+      }
+
+      .promo-banners__item::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: linear-gradient(160deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0.18) 100%);
+        pointer-events: none;
+        mix-blend-mode: screen;
+      }
+
+      .promo-banner__meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+
+      .promo-banner__tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: rgba(15, 23, 42, 0.16);
+        color: inherit;
+      }
+
+      .promo-banner__remove {
+        border: none;
+        border-radius: 999px;
+        padding: 0.35rem;
+        background: rgba(15, 23, 42, 0.18);
+        color: inherit;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform var(--transition), background var(--transition);
+      }
+
+      .promo-banner__remove:hover,
+      .promo-banner__remove:focus-visible {
+        background: rgba(15, 23, 42, 0.28);
+        transform: translateY(-1px);
+      }
+
+      .promo-banner__body {
+        display: grid;
+        gap: 0.4rem;
+      }
+
+      .promo-banner__body h3 {
+        margin: 0;
+        font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+        letter-spacing: -0.01em;
+      }
+
+      .promo-banner__body p {
+        margin: 0;
+        font-size: 0.95rem;
+        color: inherit;
+        opacity: 0.92;
+      }
+
+      .promo-banner__footer {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .promo-banner__cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.55rem 1.1rem;
+        border-radius: 999px;
+        font-weight: 600;
+        text-decoration: none;
+        background: rgba(255, 255, 255, 0.2);
+        color: inherit;
+        transition: background var(--transition), transform var(--transition);
+      }
+
+      .promo-banner__cta:hover,
+      .promo-banner__cta:focus-visible {
+        background: rgba(255, 255, 255, 0.32);
+        transform: translateY(-1px);
+      }
+
+      .promo-banners__item[data-theme="midnight"] {
+        background: linear-gradient(135deg, #111827 0%, #312e81 55%, #6366f1 110%);
+        color: #f8fafc;
+      }
+
+      .promo-banners__item[data-theme="sunrise"] {
+        background: linear-gradient(135deg, #fbbf24 -5%, #f97316 45%, #ec4899 105%);
+        color: #111827;
+      }
+
+      .promo-banners__item[data-theme="ocean"] {
+        background: linear-gradient(140deg, #0f172a 0%, #0ea5e9 55%, #22d3ee 120%);
+        color: #f8fafc;
+      }
+
+      .promo-banners__item[data-theme="forest"] {
+        background: linear-gradient(140deg, #064e3b 0%, #059669 55%, #34d399 120%);
+        color: #f0fdf4;
+      }
+
+      .promo-banners__item[data-theme="sunrise"] .promo-banner__cta {
+        background: rgba(15, 23, 42, 0.08);
+      }
+
+      .promo-banners__item[data-theme="sunrise"] .promo-banner__cta:hover,
+      .promo-banners__item[data-theme="sunrise"] .promo-banner__cta:focus-visible {
+        background: rgba(15, 23, 42, 0.16);
+      }
+
+      @media (max-width: 960px) {
+        .promo-banners__list {
+          grid-auto-columns: minmax(240px, 82vw);
+        }
+      }
+
+      @media (max-width: 640px) {
+        .promo-banners {
+          padding-bottom: 2.4rem;
+        }
+
+        .promo-banners__header h2 {
+          font-size: 1.35rem;
+        }
+
+        .promo-banners__actions {
+          width: 100%;
+          justify-content: flex-start;
+        }
+      }
+
       .visually-hidden {
         position: absolute;
         width: 1px;
@@ -4891,6 +5142,31 @@
       </div>
     </header>
 
+    <section class="promo-banners" aria-label="Banners publicitarios destacados">
+      <div class="promo-banners__shell">
+        <div class="promo-banners__header">
+          <div>
+            <span class="promo-banners__eyebrow"><i class="fa-solid fa-bullhorn" aria-hidden="true"></i> Publicidad</span>
+            <h2>Aliados estratégicos y campañas premium</h2>
+            <p>
+              Gestiona espacios publicitarios alargados para resaltar beneficios, alianzas corporativas y promociones
+              exclusivas para la comunidad Cambalaches.
+            </p>
+          </div>
+          <div class="promo-banners__actions">
+            <button class="btn btn-outline" type="button" id="promo-banners-add">
+              <i class="fa-solid fa-plus" aria-hidden="true"></i>
+              <span>Agregar banner</span>
+            </button>
+          </div>
+        </div>
+        <div class="promo-banners__empty hidden" id="promo-banners-empty">
+          No hay campañas activas. Utiliza «Agregar banner» para destacar una nueva alianza.
+        </div>
+        <div class="promo-banners__list" id="promo-banners-list" role="list" aria-live="polite"></div>
+      </div>
+    </section>
+
     <main>
       <div class="app-shell">
         <aside class="app-sidebar" id="app-sidebar" aria-label="Navegación principal">
@@ -7708,8 +7984,39 @@
                 : ""),
             createdAt: storedUser.createdAt || new Date().toISOString(),
             updatedAt: storedUser.updatedAt || storedUser.createdAt || new Date().toISOString(),
-          }
+        }
         : null;
+
+      const initialPromoBanners = [
+        {
+          id: generateId("banner"),
+          label: "Publicidad",
+          title: "Impulsa tus canjes corporativos",
+          description:
+            "Conecta tu marca con comunidades verificadas y cierra alianzas estratégicas en cuestión de horas.",
+          ctaLabel: "Ver paquetes",
+          ctaLink: "#",
+          theme: "midnight",
+        },
+        {
+          id: generateId("banner"),
+          label: "Aliado destacado",
+          title: "Tarjetas regalo hasta 30% OFF",
+          description: "Integra beneficios exclusivos y multiplica los incentivos en tus negociaciones premium.",
+          ctaLabel: "Descubrir ofertas",
+          ctaLink: "#",
+          theme: "sunrise",
+        },
+        {
+          id: generateId("banner"),
+          label: "Publicidad",
+          title: "Haz match con vendedores verificados",
+          description: "Reserva espacios destacados y muestra tus productos en la portada diaria del marketplace.",
+          ctaLabel: "Reservar espacio",
+          ctaLink: "#",
+          theme: "ocean",
+        },
+      ];
 
       const state = {
         currentUser: initialUser,
@@ -7722,6 +8029,7 @@
         reports: 0,
         modals: {},
         pendingSales: [],
+        promoBanners: initialPromoBanners,
       };
 
       let activePage = "feed-section";
@@ -7733,6 +8041,8 @@
       let sidebarBackdropElement = null;
       let activeSellIntent = "productos";
       const mobileSidebarQuery = window.matchMedia("(max-width: 1023px)");
+      const PROMO_BANNER_THEMES = ["midnight", "sunrise", "ocean", "forest"];
+      let promoBannersScrollController = null;
 
       const isMobileSidebar = () => mobileSidebarQuery.matches;
 
@@ -8095,6 +8405,155 @@
         toastEl.classList.add("show");
         clearTimeout(toastTimeout);
         toastTimeout = setTimeout(() => toastEl.classList.remove("show"), 3800);
+      }
+
+      function ensurePromoBannersScrollEnhancement() {
+        const list = $("#promo-banners-list");
+        if (!list) {
+          return;
+        }
+        if (!promoBannersScrollController) {
+          promoBannersScrollController = enhanceHorizontalScroll(list, {
+            snapToChildren: true,
+            snapSelector: ".promo-banners__item",
+            snapAlign: "start",
+            dragThreshold: 4,
+            snapOnWheel: false,
+          });
+        } else {
+          promoBannersScrollController.refresh();
+        }
+      }
+
+      function handlePromoBannerRemove(id) {
+        const before = state.promoBanners.length;
+        state.promoBanners = state.promoBanners.filter((banner) => banner.id !== id);
+        if (before !== state.promoBanners.length) {
+          renderPromoBanners();
+          showToast("Banner eliminado de la sección publicitaria.", "warning");
+        }
+      }
+
+      function handlePromoBannerAdd() {
+        const rawTitle = window.prompt("Título del banner publicitario:");
+        if (rawTitle === null) {
+          return;
+        }
+        const rawDescription = window.prompt("Descripción breve para el banner:");
+        if (rawDescription === null) {
+          return;
+        }
+        const rawCtaLabel = window.prompt("Texto del botón de llamada a la acción (opcional):") || "";
+        const rawCtaLink = window.prompt("Enlace del botón (opcional):") || "";
+
+        const title = rawTitle.trim() || "Campaña destacada";
+        const description =
+          rawDescription.trim() || "Personaliza este espacio para destacar alianzas y beneficios clave.";
+        const ctaLabel = rawCtaLabel.trim() || "Ver más";
+        const ctaLink = rawCtaLink.trim() || "#";
+        const theme = PROMO_BANNER_THEMES[state.promoBanners.length % PROMO_BANNER_THEMES.length] || "midnight";
+
+        state.promoBanners = [
+          ...state.promoBanners,
+          {
+            id: generateId("banner"),
+            label: "Publicidad",
+            title,
+            description,
+            ctaLabel,
+            ctaLink,
+            theme,
+          },
+        ];
+
+        renderPromoBanners();
+        showToast("Nuevo banner agregado correctamente.", "success");
+      }
+
+      function renderPromoBanners() {
+        const list = $("#promo-banners-list");
+        const emptyState = $("#promo-banners-empty");
+        if (!list || !emptyState) {
+          return;
+        }
+
+        list.innerHTML = "";
+        const banners = Array.isArray(state.promoBanners) ? state.promoBanners : [];
+
+        if (!banners.length) {
+          emptyState.classList.remove("hidden");
+          list.setAttribute("aria-hidden", "true");
+          ensurePromoBannersScrollEnhancement();
+          return;
+        }
+
+        emptyState.classList.add("hidden");
+        list.removeAttribute("aria-hidden");
+
+        banners.forEach((banner) => {
+          const item = document.createElement("article");
+          item.className = "promo-banners__item";
+          item.dataset.theme = banner.theme || PROMO_BANNER_THEMES[0];
+          item.setAttribute("role", "listitem");
+
+          const meta = document.createElement("div");
+          meta.className = "promo-banner__meta";
+
+          const tag = document.createElement("span");
+          tag.className = "promo-banner__tag";
+          tag.textContent = banner.label || "Publicidad";
+
+          const removeBtn = document.createElement("button");
+          removeBtn.type = "button";
+          removeBtn.className = "promo-banner__remove";
+          removeBtn.setAttribute("data-remove-banner", banner.id);
+          removeBtn.setAttribute("aria-label", `Eliminar banner “${banner.title}”`);
+          removeBtn.innerHTML = '<i class="fa-solid fa-xmark" aria-hidden="true"></i>';
+          removeBtn.addEventListener("click", () => handlePromoBannerRemove(banner.id));
+
+          meta.appendChild(tag);
+          meta.appendChild(removeBtn);
+
+          const body = document.createElement("div");
+          body.className = "promo-banner__body";
+
+          const titleEl = document.createElement("h3");
+          titleEl.textContent = banner.title || "Campaña destacada";
+
+          const descEl = document.createElement("p");
+          descEl.textContent = banner.description || "Maximiza tu visibilidad dentro del marketplace.";
+
+          body.appendChild(titleEl);
+          body.appendChild(descEl);
+
+          const footer = document.createElement("div");
+          footer.className = "promo-banner__footer";
+
+          const cta = document.createElement("a");
+          cta.className = "promo-banner__cta";
+          cta.textContent = banner.ctaLabel || "Ver más";
+          const hasExternalLink = Boolean(banner.ctaLink && banner.ctaLink !== "#");
+          cta.href = hasExternalLink ? banner.ctaLink : "#";
+          if (hasExternalLink) {
+            cta.target = "_blank";
+            cta.rel = "noopener noreferrer";
+          }
+          const ctaIcon = document.createElement("i");
+          ctaIcon.className = "fa-solid fa-arrow-up-right-from-square";
+          ctaIcon.setAttribute("aria-hidden", "true");
+          cta.appendChild(ctaIcon);
+
+          footer.appendChild(cta);
+
+          item.appendChild(meta);
+          item.appendChild(body);
+          item.appendChild(footer);
+
+          list.appendChild(item);
+        });
+
+        list.scrollLeft = 0;
+        ensurePromoBannersScrollEnhancement();
       }
 
       function getMediaConstraints(input) {
@@ -9969,6 +10428,7 @@
         updateProfileSection();
         updateProfileCard();
         updateAuthButton();
+        renderPromoBanners();
         renderMostViewed();
         renderFeed();
         renderCoupons();
@@ -10032,6 +10492,7 @@
         ensureLocationSelectorsInitialized();
         updateUI();
 
+        on("#promo-banners-add", "click", handlePromoBannerAdd);
         on("#cta-register", "click", () => {
           profileMode = state.currentUser ? "view" : "create";
           switchToPage("profile");
