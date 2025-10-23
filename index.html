@@ -6457,7 +6457,7 @@
                 <i class="fa-regular fa-user" aria-hidden="true"></i>
               </div>
               <div class="profile-photo-actions">
-                <input type="file" id="auth-photo" accept="image/*" required class="visually-hidden" />
+                <input type="file" id="auth-photo" accept="image/*" class="visually-hidden" />
                 <label class="profile-upload btn btn-outline" for="auth-photo" role="button" tabindex="0">
                   <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>
                   <span>Subir imagen</span>
@@ -6469,19 +6469,23 @@
           <div class="profile-grid" data-columns="two">
             <label class="profile-field">
               <span>Nombre completo</span>
-              <input type="text" id="auth-name" required placeholder="Tu nombre" />
+              <input type="text" id="auth-name" required autocomplete="name" placeholder="Tu nombre" />
             </label>
             <label class="profile-field">
               <span>Correo electrónico</span>
-              <input type="email" id="auth-email" required placeholder="nombre@correo.com" />
+              <input type="email" id="auth-email" required autocomplete="email" placeholder="nombre@correo.com" />
+            </label>
+            <label class="profile-field">
+              <span>Contraseña</span>
+              <input type="password" id="auth-password" required minlength="6" autocomplete="new-password" placeholder="Crea una contraseña segura" />
             </label>
             <label class="profile-field">
               <span>Teléfono verificado</span>
-              <input type="tel" id="auth-phone" required placeholder="300 000 0000" />
+              <input type="tel" id="auth-phone" required autocomplete="tel" placeholder="300 000 0000" />
             </label>
             <label class="profile-field">
               <span>Ciudad y país</span>
-              <input type="text" id="auth-location" required placeholder="Bogotá, Colombia" />
+              <input type="text" id="auth-location" required autocomplete="address-level2" placeholder="Bogotá, Colombia" />
             </label>
           </div>
           <label class="checkbox-field auth-form__terms">
@@ -6680,7 +6684,61 @@
       </div>
     </dialog>
 
-    <script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import { getAnalytics, isSupported as isAnalyticsSupported } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+      import {
+        getAuth,
+        createUserWithEmailAndPassword,
+        signInWithEmailAndPassword,
+        signOut as firebaseSignOut,
+        onAuthStateChanged,
+        updateProfile,
+        sendEmailVerification,
+        fetchSignInMethodsForEmail,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        getDoc,
+        setDoc,
+        collection,
+        getDocs,
+        query,
+        orderBy,
+        limit,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+      import {
+        getStorage as getFirebaseStorage,
+        ref as firebaseStorageRef,
+        uploadBytes,
+        getDownloadURL,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBG035jZHTgsqZKIYCHGAUshwRukSccrjU",
+        authDomain: "mercadocanje-ffca0.firebaseapp.com",
+        projectId: "mercadocanje-ffca0",
+        storageBucket: "mercadocanje-ffca0.firebasestorage.app",
+        messagingSenderId: "1069590620221",
+        appId: "1:1069590620221:web:ea68de5b49395ce42be254",
+        measurementId: "G-9KEBKJ84CR",
+      };
+
+      const firebaseApp = initializeApp(firebaseConfig);
+      const auth = getAuth(firebaseApp);
+      const db = getFirestore(firebaseApp);
+      const firebaseStorage = getFirebaseStorage(firebaseApp);
+
+      isAnalyticsSupported()
+        .then((supported) => {
+          if (supported) {
+            getAnalytics(firebaseApp);
+          }
+        })
+        .catch((error) => {
+          console.warn("Firebase Analytics no disponible", error);
+        });
       const $ = (selector, scope = document) => scope.querySelector(selector);
       const $$ = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
 
@@ -8547,15 +8605,12 @@
         }
       }
 
-      function logout({ toast = true } = {}) {
-        setCurrentUser(null, { silent: true });
-        state.offersSent = [];
-        state.offersReceived = [];
-        state.activeAgreements = [];
-        state.history = [];
-        state.reviews = [];
-        profileMode = "create";
-        updateUI();
+      async function logout({ toast = true } = {}) {
+        try {
+          await firebaseSignOut(auth);
+        } catch (error) {
+          console.warn("No se pudo cerrar sesión en Firebase", error);
+        }
         if (toast) {
           showToast("Sesión cerrada. Hasta pronto.", "info");
         }
@@ -9029,15 +9084,6 @@
         reader.readAsDataURL(file);
       }
 
-      function readFileAsDataURL(file) {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result);
-          reader.onerror = () => reject(new Error("No se pudo procesar el archivo"));
-          reader.readAsDataURL(file);
-        });
-      }
-
       async function handlePromoBannerFormSubmit(event) {
         event.preventDefault();
         ensurePromoBannerElements();
@@ -9077,11 +9123,12 @@
           return;
         }
 
-        let imageData = "";
+        let imageUrl = "";
         try {
-          imageData = await readFileAsDataURL(imageFile);
+          imageUrl = await uploadPromoBannerMedia(state.currentUser?.id || "admin", imageFile);
         } catch (error) {
-          showToast("Ocurrió un error al procesar la imagen.", "danger");
+          console.error("No se pudo subir la imagen del banner", error);
+          showToast("No pudimos subir la imagen seleccionada.", "danger");
           return;
         }
 
@@ -9093,22 +9140,34 @@
         const textColor = normalizeHexColor(textColorValue) || themeDefaults.textColor;
         const buttonColor = normalizeHexColor(buttonColorValue) || themeDefaults.buttonColor;
 
-        state.promoBanners = [
-          ...state.promoBanners,
-          {
-            id: generateId("banner"),
-            label,
-            title,
-            description,
-            ctaLabel,
-            ctaLink,
-            theme,
-            textColor,
-            buttonColor,
-            image: imageData,
-            expiresAt: expiresAt.getTime(),
-          },
-        ];
+        const bannerId = generateId("banner");
+        const now = new Date().toISOString();
+        const banner = {
+          id: bannerId,
+          label,
+          title,
+          description,
+          ctaLabel,
+          ctaLink,
+          theme,
+          textColor,
+          buttonColor,
+          image: imageUrl,
+          createdAt: now,
+          updatedAt: now,
+          expiresAt: expiresAt.getTime(),
+          ownerId: state.currentUser?.id || "admin",
+        };
+
+        try {
+          await setDoc(doc(db, "promoBanners", bannerId), banner);
+        } catch (error) {
+          console.error("No se pudo guardar el banner en Firebase", error);
+          showToast("No pudimos guardar el banner. Intenta nuevamente.", "danger");
+          return;
+        }
+
+        state.promoBanners = [...state.promoBanners, banner];
 
         renderPromoBanners();
         showToast("Nuevo banner agregado correctamente.", "success");
@@ -9553,6 +9612,69 @@
         });
       }
 
+      const toIsoString = (value) => {
+        if (!value) {
+          return "";
+        }
+        if (typeof value.toDate === "function") {
+          return value.toDate().toISOString();
+        }
+        if (typeof value === "number") {
+          return new Date(value).toISOString();
+        }
+        if (typeof value === "string") {
+          return value;
+        }
+        try {
+          return new Date(value).toISOString();
+        } catch (error) {
+          return "";
+        }
+      };
+
+      const sanitizeFileName = (value = "") =>
+        value
+          .toString()
+          .trim()
+          .replace(/[^a-z0-9._-]+/gi, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "") || "asset";
+
+      async function uploadFileToStorage(path, file) {
+        if (!file) {
+          throw new Error("Archivo inválido");
+        }
+        const fileRef = firebaseStorageRef(firebaseStorage, path);
+        const metadata = file.type ? { contentType: file.type } : undefined;
+        await uploadBytes(fileRef, file, metadata);
+        return getDownloadURL(fileRef);
+      }
+
+      async function uploadUserAvatarFile(userId, file) {
+        if (!userId || !file) {
+          return null;
+        }
+        const fileName = `${Date.now()}-${sanitizeFileName(file.name || "avatar")}`;
+        return uploadFileToStorage(`users/${userId}/avatar/${fileName}`, file);
+      }
+
+      function uploadProductMediaFiles(userId, productId, files) {
+        return Promise.all(
+          files.map((file, index) => {
+            const fileName = `${Date.now()}-${index}-${sanitizeFileName(file.name || "media")}`;
+            return uploadFileToStorage(`products/${userId}/${productId}/${fileName}`, file);
+          })
+        );
+      }
+
+      async function uploadPromoBannerMedia(ownerId, file) {
+        if (!file) {
+          throw new Error("Se requiere una imagen para el banner");
+        }
+        const fileName = `${Date.now()}-${sanitizeFileName(file.name || "banner")}`;
+        return uploadFileToStorage(`promoBanners/${ownerId || "public"}/${fileName}`, file);
+      }
+
       function ensureAuthenticated(callback) {
         if (!state.currentUser) {
           showToast("Debes crear tu perfil verificado para continuar.", "danger");
@@ -9753,7 +9875,7 @@
           });
       }
 
-      function handleProfileSubmit(event) {
+      async function handleProfileSubmit(event) {
         event.preventDefault();
         const form = event?.currentTarget;
         const nameInput = $("#profile-name");
@@ -9771,59 +9893,78 @@
         const location = department && city ? `${city}, ${department}` : "";
         const bio = bioInput ? bioInput.value.trim() : "";
         const file = photoInput && photoInput.files ? photoInput.files[0] : null;
-        const existingAvatar = state.currentUser && state.currentUser.avatar;
+        const previous = state.currentUser || {};
+        const existingAvatar = previous.avatar || "";
+
+        if (!auth.currentUser || !previous.id) {
+          showToast("Inicia sesión para actualizar tu perfil verificado.", "danger");
+          return;
+        }
 
         if (!name || !email || !phone || !department || !city) {
           showToast("Completa todos los campos obligatorios del perfil.", "danger");
           return;
         }
 
-        const finalize = (avatar) => {
-          const now = new Date().toISOString();
-          const previous = state.currentUser || {};
-          const user = {
-            ...previous,
-            id: previous.id || generateId("user"),
-            name,
-            email,
-            phone,
-            location,
-            department,
-            city,
-            bio,
-            avatar: avatar || previous.avatar || "",
-            rating: Number(previous.rating || 5),
-            createdAt: previous.createdAt || now,
-            updatedAt: now,
-          };
-          profileMode = "view";
-          setCurrentUser(user);
-          if (photoInput) {
-            photoInput.value = "";
-          }
-          if (form && typeof form.reset === "function") {
-            form.reset();
-          }
-          applyLocationToForm({ department: "", city: "" });
-          showToast(previous && previous.id ? "Perfil actualizado correctamente." : "Perfil creado correctamente.", "success");
-          switchToPage("profile", { scroll: false });
-        };
+        let avatarUrl = existingAvatar;
 
         if (file) {
           if (file.type && !file.type.startsWith("image")) {
             showToast("Selecciona una imagen válida para tu perfil.", "danger");
             return;
           }
-          readFile(file)
-            .then((data) => finalize(data))
-            .catch(() => {
-              showToast("No pudimos procesar la imagen seleccionada.", "danger");
-            });
-        } else if (existingAvatar) {
-          finalize(existingAvatar);
-        } else {
+          try {
+            avatarUrl = await uploadUserAvatarFile(previous.id, file);
+          } catch (error) {
+            console.error("No se pudo subir la foto de perfil", error);
+            showToast("No pudimos subir la imagen seleccionada.", "danger");
+            return;
+          }
+        } else if (!existingAvatar) {
           showToast("Agrega una foto de perfil para completar tu registro.", "danger");
+          return;
         }
+
+        const now = new Date().toISOString();
+        const user = {
+          ...previous,
+          id: previous.id,
+          name,
+          email,
+          phone,
+          location,
+          department,
+          city,
+          bio,
+          avatar: avatarUrl,
+          rating: Number(previous.rating || 5),
+          createdAt: previous.createdAt || now,
+          updatedAt: now,
+        };
+
+        try {
+          await setDoc(doc(db, "users", previous.id), user, { merge: true });
+          await updateProfile(auth.currentUser, {
+            displayName: name,
+            photoURL: avatarUrl || auth.currentUser.photoURL || "",
+          });
+        } catch (error) {
+          console.error("Error al guardar el perfil en Firebase", error);
+          showToast("No pudimos guardar tu perfil. Intenta nuevamente.", "danger");
+          return;
+        }
+
+        profileMode = "view";
+        setCurrentUser(user);
+        if (photoInput) {
+          photoInput.value = "";
+        }
+        if (form && typeof form.reset === "function") {
+          form.reset();
+        }
+        applyLocationToForm({ department: "", city: "" });
+        showToast(previous && previous.createdAt ? "Perfil actualizado correctamente." : "Perfil creado correctamente.", "success");
+        switchToPage("profile", { scroll: false });
       }
 
       function startProfileEdit() {
@@ -10938,51 +11079,176 @@
         };
       }
 
-      function handleAuth(event) {
+      const AUTH_ERROR_MESSAGES = {
+        "auth/email-already-in-use": "El correo electrónico ya está registrado. Usa tu contraseña para ingresar.",
+        "auth/invalid-email": "El correo electrónico no es válido.",
+        "auth/invalid-login-credentials": "Las credenciales proporcionadas no son correctas.",
+        "auth/missing-password": "Debes ingresar una contraseña válida.",
+        "auth/weak-password": "La contraseña debe tener al menos 6 caracteres.",
+        "auth/wrong-password": "La contraseña no coincide con este correo.",
+        "auth/user-not-found": "No encontramos una cuenta con ese correo.",
+      };
+
+      function getAuthErrorMessage(error) {
+        if (!error) {
+          return "No pudimos procesar tu solicitud. Intenta nuevamente.";
+        }
+        if (AUTH_ERROR_MESSAGES[error.code]) {
+          return AUTH_ERROR_MESSAGES[error.code];
+        }
+        return error.message || "Ocurrió un error de autenticación. Intenta de nuevo.";
+      }
+
+      async function handleAuth(event) {
         event.preventDefault();
+        const form = event?.currentTarget;
         const nameInput = $("#auth-name");
         const emailInput = $("#auth-email");
+        const passwordInput = $("#auth-password");
         const phoneInput = $("#auth-phone");
         const locationInput = $("#auth-location");
         const fileInput = $("#auth-photo");
         const termsCheckbox = $("#auth-terms");
+        const preview = $("#auth-photo-preview");
         const name = nameInput ? nameInput.value.trim() : "";
         const email = emailInput ? emailInput.value.trim() : "";
+        const password = passwordInput ? passwordInput.value : "";
         const phone = phoneInput ? phoneInput.value.trim() : "";
         const location = locationInput ? locationInput.value.trim() : "";
         const file = fileInput && fileInput.files ? fileInput.files[0] : null;
         const acceptedTerms = termsCheckbox ? Boolean(termsCheckbox.checked) : false;
-        if (!name || !email || !phone || !location || !file || !acceptedTerms) {
+
+        if (!name || !email || !password || !phone || !location) {
           showToast("Completa todos los campos de verificación.", "danger");
           return;
         }
-        readFile(file)
-          .then((avatar) => {
-            const now = new Date().toISOString();
-            const user = {
-              id: generateId("user"),
-              name,
-              email,
-              phone,
-              location,
-              bio: "",
-              avatar,
-              rating: 5,
-              createdAt: now,
-              updatedAt: now,
-            };
-            closeModal("auth-modal");
-            profileMode = "view";
-            setCurrentUser(user);
-            showToast("Cuenta verificada creada. ¡Ya puedes publicar!", "success");
-            switchToPage("profile", { scroll: false });
-          })
-          .catch(() => {
-            showToast("No pudimos procesar la imagen seleccionada.", "danger");
-          });
+
+        if (!acceptedTerms) {
+          showToast("Debes aceptar las políticas para continuar.", "danger");
+          return;
+        }
+
+        let signInMethods = [];
+        try {
+          signInMethods = await fetchSignInMethodsForEmail(auth, email);
+        } catch (error) {
+          console.warn("No se pudo validar el correo en Firebase", error);
+        }
+
+        const isExistingAccount = Array.isArray(signInMethods) && signInMethods.length > 0;
+
+        if (!isExistingAccount && !file) {
+          showToast("Agrega una foto de perfil para crear tu cuenta.", "danger");
+          return;
+        }
+
+        const locationData = parseLocationString(location);
+        const finalizeProfileUpdate = async (userCredential, { isNewAccount }) => {
+          const { user } = userCredential;
+          let existingProfile = null;
+          if (!isNewAccount) {
+            existingProfile = await fetchUserProfile(user.uid);
+          }
+          let photoURL = user.photoURL || existingProfile?.avatar || "";
+
+          if (file) {
+            try {
+              photoURL = await uploadUserAvatarFile(user.uid, file);
+            } catch (error) {
+              console.error("Error subiendo avatar", error);
+              showToast("No pudimos subir la imagen seleccionada.", "danger");
+              return false;
+            }
+          }
+
+          const nowIso = new Date().toISOString();
+          const profileData = {
+            name,
+            email,
+            phone,
+            location,
+            department: locationData.department,
+            city: locationData.city,
+            bio: existingProfile?.bio || state.currentUser?.bio || "",
+            avatar: photoURL,
+            rating: Number(existingProfile?.rating || state.currentUser?.rating || 5),
+            updatedAt: nowIso,
+          };
+
+          if (isNewAccount) {
+            profileData.createdAt = nowIso;
+          } else if (existingProfile?.createdAt) {
+            profileData.createdAt = existingProfile.createdAt;
+          }
+
+          try {
+            await setDoc(
+              doc(db, "users", user.uid),
+              profileData,
+              { merge: true }
+            );
+          } catch (error) {
+            console.error("No se pudo guardar el perfil", error);
+            showToast("No pudimos guardar tu perfil. Intenta nuevamente.", "danger");
+            return false;
+          }
+
+          try {
+            await updateProfile(user, { displayName: name, photoURL });
+          } catch (error) {
+            console.warn("No se pudo actualizar el perfil de autenticación", error);
+          }
+
+          if (isNewAccount) {
+            try {
+              await sendEmailVerification(user);
+            } catch (error) {
+              console.warn("No se pudo enviar el correo de verificación", error);
+            }
+          }
+
+          if (fileInput) {
+            fileInput.value = "";
+          }
+          if (preview) {
+            preview.innerHTML = '<i class="fa-regular fa-user" aria-hidden="true"></i>';
+          }
+          if (form && typeof form.reset === "function") {
+            form.reset();
+          }
+          closeModal("auth-modal");
+          profileMode = "view";
+          showToast(
+            isNewAccount
+              ? "Cuenta verificada creada. ¡Ya puedes publicar!"
+              : "Sesión iniciada correctamente.",
+            "success"
+          );
+          switchToPage("profile", { scroll: false });
+          return true;
+        };
+
+        try {
+          if (isExistingAccount) {
+            const credential = await signInWithEmailAndPassword(auth, email, password);
+            const updated = await finalizeProfileUpdate(credential, { isNewAccount: false });
+            if (updated) {
+              await syncUserFromAuth(auth.currentUser);
+            }
+          } else {
+            const credential = await createUserWithEmailAndPassword(auth, email, password);
+            const updated = await finalizeProfileUpdate(credential, { isNewAccount: true });
+            if (updated) {
+              await syncUserFromAuth(auth.currentUser);
+            }
+          }
+        } catch (error) {
+          console.error("Error en autenticación", error);
+          showToast(getAuthErrorMessage(error), "danger");
+        }
       }
 
-      function handlePublish(event) {
+      async function handlePublish(event) {
         event.preventDefault();
         if (!ensureAuthenticated()) return;
         const titleField = $("#product-name");
@@ -10999,6 +11265,11 @@
         const location = locationField ? locationField.value.trim() : "";
         const files = Array.from((imagesInput && imagesInput.files) || []);
 
+        if (!state.currentUser || !state.currentUser.id) {
+          showToast("Debes iniciar sesión con tu cuenta verificada.", "danger");
+          return;
+        }
+
         if (!title || !category || !description || !price || !location) {
           showToast("Completa todos los campos obligatorios.", "danger");
           return;
@@ -11011,31 +11282,58 @@
           return;
         }
 
-        Promise.all(files.map((file) => readFile(file))).then((images) => {
-          const product = {
-            id: generateId("prod"),
-            title,
-            description,
-            category,
-            price,
-            location,
-            images,
-            views: 0,
-            owner: state.currentUser,
-          };
-          state.products.unshift(product);
-          closeModal("publish-modal");
-          showToast("Producto publicado en el feed.", "success");
-          event.target.reset();
-          if (imagesInput) {
-            resetMediaInput(imagesInput);
-          }
-          updateUI();
-          setTimeout(() => simulateIncomingOffer(product), 5500);
-        });
+        const productId = generateId("prod");
+        let imageUrls = [];
+        try {
+          imageUrls = await uploadProductMediaFiles(state.currentUser.id, productId, files);
+        } catch (error) {
+          console.error("No se pudieron subir las imágenes del producto", error);
+          showToast("No pudimos subir las imágenes seleccionadas.", "danger");
+          return;
+        }
+
+        const now = new Date().toISOString();
+        const owner = {
+          id: state.currentUser.id,
+          name: state.currentUser.name,
+          avatar: state.currentUser.avatar || "",
+          rating: Number(state.currentUser.rating || 5),
+        };
+        const product = {
+          id: productId,
+          title,
+          description,
+          category,
+          price,
+          location,
+          images: imageUrls,
+          views: 0,
+          owner,
+          ownerId: owner.id,
+          createdAt: now,
+          updatedAt: now,
+        };
+
+        try {
+          await setDoc(doc(db, "products", productId), product);
+        } catch (error) {
+          console.error("No se pudo guardar el producto en Firebase", error);
+          showToast("No pudimos publicar el producto. Inténtalo nuevamente.", "danger");
+          return;
+        }
+
+        state.products.unshift(product);
+        closeModal("publish-modal");
+        showToast("Producto publicado en el feed.", "success");
+        event.target.reset();
+        if (imagesInput) {
+          resetMediaInput(imagesInput);
+        }
+        updateUI();
+        setTimeout(() => simulateIncomingOffer(product), 5500);
       }
 
-      function handleSell(event) {
+      async function handleSell(event) {
         event.preventDefault();
         const intentField = $("#sell-intent");
         const nameField = $("#sell-name");
@@ -11047,7 +11345,7 @@
         const feedToggle = $("#sell-feed-toggle");
         const { min: minFiles, max: maxFiles } = getMediaConstraints(imagesInput);
 
-        if (!state.currentUser) {
+        if (!state.currentUser || !state.currentUser.id) {
           showToast("Debes crear tu perfil verificado para vender en Cambalaches.", "danger");
           closeModal("sell-modal");
           openModal("auth-modal");
@@ -11077,41 +11375,69 @@
           return;
         }
 
-        Promise.all(files.map((file) => readFile(file))).then((images) => {
-          const product = {
-            id: generateId("sale"),
-            title,
-            description,
-            category,
-            price,
-            location,
-            images,
-            views: 0,
-            owner: state.currentUser,
-            listingType: "venta",
-            sellIntent: intentKey,
-            publishedToFeed,
-            createdAt: new Date().toISOString(),
-          };
+        const saleId = generateId("sale");
+        let imageUrls = [];
+        try {
+          imageUrls = await uploadProductMediaFiles(state.currentUser.id, saleId, files);
+        } catch (error) {
+          console.error("No se pudieron subir las imágenes del anuncio", error);
+          showToast("No pudimos subir las imágenes seleccionadas.", "danger");
+          return;
+        }
 
+        const now = new Date().toISOString();
+        const owner = {
+          id: state.currentUser.id,
+          name: state.currentUser.name,
+          avatar: state.currentUser.avatar || "",
+          rating: Number(state.currentUser.rating || 5),
+        };
+        const product = {
+          id: saleId,
+          title,
+          description,
+          category,
+          price,
+          location,
+          images: imageUrls,
+          views: 0,
+          owner,
+          ownerId: owner.id,
+          listingType: "venta",
+          sellIntent: intentKey,
+          publishedToFeed,
+          createdAt: now,
+          updatedAt: now,
+        };
+
+        try {
           if (publishToFeed) {
+            await setDoc(doc(db, "products", saleId), product);
             state.products.unshift(product);
             showToast(`Anuncio de ${intent.label.toLowerCase()} publicado en el feed.`, "success");
             updateUI();
             setTimeout(() => simulateIncomingOffer(product), 5500);
           } else {
+            await setDoc(doc(db, "salesDrafts", saleId), {
+              ...product,
+              publishedToFeed: false,
+            });
             state.pendingSales.unshift(product);
             showToast("Borrador guardado. Podrás publicarlo cuando quieras.", "info");
           }
+        } catch (error) {
+          console.error("No se pudo guardar la publicación en Firebase", error);
+          showToast("No pudimos guardar tu anuncio. Intenta nuevamente.", "danger");
+          return;
+        }
 
-          closeModal("sell-modal");
-          event.target.reset();
-          if (imagesInput) {
-            resetMediaInput(imagesInput);
-          }
-          activeSellIntent = intentKey;
-          configureSellModal(intentKey, { resetForm: false });
-        });
+        closeModal("sell-modal");
+        event.target.reset();
+        if (imagesInput) {
+          resetMediaInput(imagesInput);
+        }
+        activeSellIntent = intentKey;
+        configureSellModal(intentKey, { resetForm: false });
       }
 
       function simulateIncomingOffer(product) {
@@ -11198,6 +11524,218 @@
         renderReviews();
       }
 
+      async function fetchUserProfile(uid) {
+        if (!uid) {
+          return null;
+        }
+        try {
+          const snapshot = await getDoc(doc(db, "users", uid));
+          const firebaseUser = auth.currentUser;
+          if (!snapshot.exists()) {
+            if (!firebaseUser || firebaseUser.uid !== uid) {
+              return null;
+            }
+            const fallbackIso = new Date().toISOString();
+            return {
+              id: uid,
+              name: firebaseUser.displayName || firebaseUser.email || "",
+              email: firebaseUser.email || "",
+              phone: "",
+              location: "",
+              department: "",
+              city: "",
+              bio: "",
+              avatar: firebaseUser.photoURL || "",
+              rating: 5,
+              createdAt: fallbackIso,
+              updatedAt: fallbackIso,
+            };
+          }
+          const data = snapshot.data() || {};
+          return {
+            id: uid,
+            name: data.name || auth.currentUser?.displayName || data.email || "",
+            email: data.email || auth.currentUser?.email || "",
+            phone: data.phone || "",
+            location: data.location || "",
+            department: data.department || "",
+            city: data.city || "",
+            bio: data.bio || "",
+            avatar: data.avatar || auth.currentUser?.photoURL || "",
+            rating: Number(data.rating || 5),
+            createdAt: toIsoString(data.createdAt) || new Date().toISOString(),
+            updatedAt: toIsoString(data.updatedAt) || new Date().toISOString(),
+          };
+        } catch (error) {
+          console.error("No se pudo cargar el perfil del usuario", error);
+          return null;
+        }
+      }
+
+      let pendingFirebaseUser = null;
+      let syncingAuthState = false;
+
+      async function applyAuthState(firebaseUser) {
+        syncingAuthState = true;
+        try {
+          if (!firebaseUser) {
+            setCurrentUser(null, { silent: true });
+            state.offersSent = [];
+            state.offersReceived = [];
+            state.activeAgreements = [];
+            state.history = [];
+            state.reviews = [];
+            state.pendingSales = [];
+            profileMode = "create";
+            updateUI();
+            return;
+          }
+
+          const profile = await fetchUserProfile(firebaseUser.uid);
+          const nowIso = new Date().toISOString();
+          const userData = {
+            id: firebaseUser.uid,
+            name:
+              (profile && profile.name) ||
+              firebaseUser.displayName ||
+              firebaseUser.email ||
+              "",
+            email: (profile && profile.email) || firebaseUser.email || "",
+            phone: (profile && profile.phone) || "",
+            location: (profile && profile.location) || "",
+            department: (profile && profile.department) || "",
+            city: (profile && profile.city) || "",
+            bio: (profile && profile.bio) || "",
+            avatar: (profile && profile.avatar) || firebaseUser.photoURL || "",
+            rating: Number((profile && profile.rating) || 5),
+            createdAt: (profile && profile.createdAt) || nowIso,
+            updatedAt: (profile && profile.updatedAt) || nowIso,
+          };
+
+          setCurrentUser(userData, { silent: true });
+          profileMode = "view";
+          updateUI();
+        } catch (error) {
+          console.error("No se pudo sincronizar el estado de autenticación", error);
+        } finally {
+          syncingAuthState = false;
+          pendingFirebaseUser = null;
+        }
+      }
+
+      function scheduleAuthSync(firebaseUser) {
+        pendingFirebaseUser = firebaseUser;
+        if (document.readyState === "loading" || syncingAuthState) {
+          return;
+        }
+        applyAuthState(firebaseUser);
+      }
+
+      async function syncUserFromAuth(firebaseUser) {
+        scheduleAuthSync(firebaseUser || null);
+        if (document.readyState !== "loading" && !syncingAuthState) {
+          await applyAuthState(firebaseUser || null);
+        }
+      }
+
+      let remoteDataInitialized = false;
+
+      async function fetchProductsFromFirestore() {
+        try {
+          const productsQuery = query(
+            collection(db, "products"),
+            orderBy("createdAt", "desc"),
+            limit(60)
+          );
+          const snapshot = await getDocs(productsQuery);
+          const products = snapshot.docs.map((docSnapshot) => {
+            const data = docSnapshot.data() || {};
+            const owner = data.owner || {};
+            return {
+              id: docSnapshot.id,
+              title: data.title || "Artículo sin título",
+              description: data.description || "",
+              category: data.category || "otros",
+              price: Number(data.price || 0),
+              location: data.location || "",
+              images:
+                Array.isArray(data.images) && data.images.length
+                  ? data.images
+                  : [FALLBACK_IMAGE],
+              views: Number(data.views || 0),
+              owner: {
+                id: owner.id || data.ownerId || "",
+                name: owner.name || data.ownerName || "",
+                avatar: owner.avatar || "",
+                rating: Number(owner.rating || data.ownerRating || 5),
+              },
+              listingType: data.listingType || "canje",
+              sellIntent: data.sellIntent || "productos",
+              publishedToFeed: data.publishedToFeed !== false,
+              createdAt: toIsoString(data.createdAt) || new Date().toISOString(),
+              updatedAt: toIsoString(data.updatedAt) || new Date().toISOString(),
+            };
+          });
+
+          if (products.length) {
+            state.products = products;
+          }
+        } catch (error) {
+          console.warn("No se pudieron cargar los productos desde Firebase", error);
+        }
+      }
+
+      async function fetchPromoBannersFromFirestore() {
+        try {
+          const bannersQuery = query(
+            collection(db, "promoBanners"),
+            orderBy("createdAt", "desc"),
+            limit(20)
+          );
+          const snapshot = await getDocs(bannersQuery);
+          const banners = snapshot.docs.map((docSnapshot) => {
+            const data = docSnapshot.data() || {};
+            return {
+              id: docSnapshot.id,
+              label: data.label || "Publicidad",
+              title: data.title || "Campaña destacada",
+              description: data.description || "",
+              ctaLabel: data.ctaLabel || "Ver más",
+              ctaLink: data.ctaLink || "#",
+              theme: data.theme || "midnight",
+              textColor: data.textColor || "#f8fafc",
+              buttonColor: data.buttonColor || "#4338ca",
+              image: data.image || FALLBACK_IMAGE,
+              expiresAt: data.expiresAt || Date.now() + PROMO_BANNER_DEFAULT_DURATION,
+              createdAt: toIsoString(data.createdAt) || new Date().toISOString(),
+              updatedAt: toIsoString(data.updatedAt) || new Date().toISOString(),
+            };
+          });
+
+          if (banners.length) {
+            state.promoBanners = banners;
+          }
+        } catch (error) {
+          console.warn("No se pudieron cargar los banners desde Firebase", error);
+        }
+      }
+
+      async function initializeRemoteData() {
+        if (remoteDataInitialized) {
+          return;
+        }
+        remoteDataInitialized = true;
+        await Promise.allSettled([
+          fetchProductsFromFirestore(),
+          fetchPromoBannersFromFirestore(),
+        ]);
+        updateUI();
+      }
+
+      onAuthStateChanged(auth, (firebaseUser) => {
+        scheduleAuthSync(firebaseUser);
+      });
+
       function registerNavigation() {
         const navButtons = $$("[data-target]");
         const pageGroups = new Set($$("[data-page-group]").map((section) => section.dataset.pageGroup));
@@ -11249,7 +11787,14 @@
 
         registerNavigation();
         ensureLocationSelectorsInitialized();
-        updateUI();
+
+        if (pendingFirebaseUser !== null) {
+          applyAuthState(pendingFirebaseUser);
+        } else {
+          updateUI();
+        }
+
+        initializeRemoteData();
 
         ensurePromoBannerElements();
         resetPromoBannerForm();
