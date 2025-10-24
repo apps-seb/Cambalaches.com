@@ -859,7 +859,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const storage = getStorage(app, "gs://mercadocanje-ffca0.firebasestorage.app");
+        const storage = getStorage(app);
         let analytics;
 
         document.addEventListener('DOMContentLoaded', async () => {
