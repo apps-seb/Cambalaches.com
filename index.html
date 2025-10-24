@@ -843,14 +843,14 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAnalytics, isSupported as isAnalyticsSupported } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
         import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, query, where, serverTimestamp, deleteDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { initializeFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, query, where, serverTimestamp, deleteDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBG035jZHTgsqZKIYCHGAUshwRukSccrjU",
             authDomain: "mercadocanje-ffca0.firebaseapp.com",
             projectId: "mercadocanje-ffca0",
-            storageBucket: "mercadocanje-ffca0.firebasestorage.app",
+            storageBucket: "mercadocanje-ffca0.appspot.com",
             messagingSenderId: "1069590620221",
             appId: "1:1069590620221:web:ea68de5b49395ce42be254",
             measurementId: "G-9KEBKJ84CR"
@@ -858,9 +858,67 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
-        const storage = getStorage(app, "gs://mercadocanje-ffca0.firebasestorage.app");
+        const db = initializeFirestore(app, {
+            experimentalAutoDetectLongPolling: true,
+            useFetchStreams: false,
+        });
+        const storage = getStorage(app, `gs://${firebaseConfig.storageBucket}`);
         let analytics;
+
+        function withTimeout(promise, ms, timeoutLabel) {
+            let timeoutId;
+            return new Promise((resolve, reject) => {
+                timeoutId = setTimeout(() => {
+                    const error = new Error(timeoutLabel || 'timeout');
+                    error.code = timeoutLabel || 'timeout';
+                    reject(error);
+                }, ms);
+
+                promise
+                    .then((value) => {
+                        clearTimeout(timeoutId);
+                        resolve(value);
+                    })
+                    .catch((error) => {
+                        clearTimeout(timeoutId);
+                        reject(error);
+                    });
+            });
+        }
+
+        function getFirebasePublishErrorMessage(error) {
+            if (!error) {
+                return 'Ocurrió un error desconocido. Verifica tu conexión e inténtalo nuevamente.';
+            }
+
+            const code = (error.code || error.message || '').toString();
+
+            if (code.includes('storage/unauthorized') || code.includes('storage/object-not-found')) {
+                return 'No tienes permisos para escribir en Firebase Storage. Revisa las reglas de Storage para permitir cargas autenticadas.';
+            }
+
+            if (code.includes('storage/quota-exceeded')) {
+                return 'Se superó la cuota del bucket de Storage. Libera espacio o amplía el plan antes de volver a publicar.';
+            }
+
+            if (code.includes('firestore/permission-denied')) {
+                return 'Las reglas de Firestore están impidiendo guardar el artículo. Ajusta las reglas para permitir escrituras del usuario autenticado.';
+            }
+
+            if (code.includes('failed-precondition') || code.includes('unavailable')) {
+                return 'No fue posible conectarse con Firestore. Comprueba tu conexión a internet o habilita el modo de compatibilidad con redes restringidas.';
+            }
+
+            if (code.includes('auth/network-request-failed') || code.includes('network-error') || code.includes('timeout')) {
+                return 'La publicación tardó demasiado en completarse. Revisa tu conexión y asegúrate de que firebaseapp.com esté permitido.';
+            }
+
+            if (error.message && error.message.toLowerCase().includes('domain')) {
+                return 'Agrega tu dominio (por ejemplo, codepen.io) en la lista de dominios autorizados de Firebase Authentication.';
+            }
+
+            return error.message || 'Ocurrió un error al publicar tu artículo. Intenta nuevamente.';
+        }
 
         document.addEventListener('DOMContentLoaded', async () => {
             try {
@@ -2319,6 +2377,7 @@
                 let productDocRef = null;
                 let userItemDocCreated = false;
                 let statsIncremented = false;
+                let publishSucceeded = false;
 
                 try {
                     const firebaseUser = auth.currentUser;
@@ -2347,8 +2406,8 @@
                         const sanitizedName = file.name.replace(/\s+/g, '-');
                         const uniquePath = `productImages/${state.currentUser.uid}/${Date.now()}-${index}-${sanitizedName}`;
                         const fileRef = storageRef(storage, uniquePath);
-                        const uploadResult = await uploadBytes(fileRef, file);
-                        const downloadURL = await getDownloadURL(uploadResult.ref);
+                        const uploadResult = await withTimeout(uploadBytes(fileRef, file), 45000, 'storage/timeout');
+                        const downloadURL = await withTimeout(getDownloadURL(uploadResult.ref), 30000, 'storage/url-timeout');
                         imageUrls.push(downloadURL);
                         imagePaths.push(uploadResult.metadata && uploadResult.metadata.fullPath ? uploadResult.metadata.fullPath : fileRef.fullPath);
                         index += 1;
@@ -2370,9 +2429,9 @@
                         updatedAt: serverTimestamp(),
                     };
 
-                    productDocRef = await addDoc(collection(db, 'items'), productPayload);
+                    productDocRef = await withTimeout(addDoc(collection(db, 'items'), productPayload), 45000, 'firestore/timeout');
 
-                    await setDoc(doc(db, 'users', state.currentUser.uid, 'items', productDocRef.id), {
+                    await withTimeout(setDoc(doc(db, 'users', state.currentUser.uid, 'items', productDocRef.id), {
                         productId: productDocRef.id,
                         productName: productPayload.name,
                         imageUrl: productPayload.imageUrl,
@@ -2380,13 +2439,13 @@
                         value: productPayload.value,
                         createdAt: serverTimestamp(),
                         updatedAt: serverTimestamp(),
-                    });
+                    }), 30000, 'firestore/timeout');
                     userItemDocCreated = true;
 
-                    await setDoc(doc(db, 'users', state.currentUser.uid), {
+                    await withTimeout(setDoc(doc(db, 'users', state.currentUser.uid), {
                         'stats.listedCount': increment(1),
                         updatedAt: serverTimestamp(),
-                    }, { merge: true });
+                    }, { merge: true }), 30000, 'firestore/timeout');
                     statsIncremented = true;
 
                     state.currentUser.stats = state.currentUser.stats || { listedCount: 0, completedTrades: 0 };
@@ -2397,6 +2456,7 @@
 
                     submitBtn.textContent = '¡Publicado con Éxito!';
                     submitBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                    publishSucceeded = true;
 
                     setTimeout(() => {
                         submitBtn.disabled = false;
@@ -2414,7 +2474,7 @@
                         await Promise.allSettled(imagePaths.map(path => {
                             try {
                                 const fileRef = storageRef(storage, path);
-                                return deleteObject(fileRef);
+                                return withTimeout(deleteObject(fileRef), 20000, 'storage/timeout');
                             } catch (storageError) {
                                 console.error('Error al preparar la eliminación de imagenes fallidas:', storageError);
                                 return Promise.resolve();
@@ -2423,31 +2483,35 @@
                     }
                     if (productDocRef) {
                         try {
-                            await deleteDoc(productDocRef);
+                            await withTimeout(deleteDoc(productDocRef), 20000, 'firestore/timeout');
                         } catch (productCleanupError) {
                             console.warn('No se pudo eliminar el producto incompleto:', productCleanupError);
                         }
                     }
                     if (userItemDocCreated && productDocRef) {
                         try {
-                            await deleteDoc(doc(db, 'users', state.currentUser.uid, 'items', productDocRef.id));
+                            await withTimeout(deleteDoc(doc(db, 'users', state.currentUser.uid, 'items', productDocRef.id)), 20000, 'firestore/timeout');
                         } catch (userItemCleanupError) {
                             console.warn('No se pudo limpiar el registro del artículo del usuario:', userItemCleanupError);
                         }
                     }
                     if (statsIncremented) {
                         try {
-                            await setDoc(doc(db, 'users', state.currentUser.uid), {
+                            await withTimeout(setDoc(doc(db, 'users', state.currentUser.uid), {
                                 'stats.listedCount': increment(-1),
                                 updatedAt: serverTimestamp(),
-                            }, { merge: true });
+                            }, { merge: true }), 20000, 'firestore/timeout');
                             state.currentUser.stats = state.currentUser.stats || { listedCount: 0, completedTrades: 0 };
                             state.currentUser.stats.listedCount = Math.max(0, (state.currentUser.stats.listedCount || 1) - 1);
                         } catch (statsCleanupError) {
                             console.warn('No se pudo revertir el contador de publicaciones:', statsCleanupError);
                         }
                     }
-                    showPublicarError('Ocurrió un error al publicar tu artículo. Intenta nuevamente.', submitBtn);
+                    showPublicarError(getFirebasePublishErrorMessage(error), submitBtn);
+                } finally {
+                    if (!publishSucceeded) {
+                        submitBtn.disabled = false;
+                    }
                 }
             });
 
