@@ -718,10 +718,52 @@
             measurementId: "G-9KEBKJ84CR"
         };
 
+        function resolveStorageBucket(config, appOptions = {}) {
+            const rawBucket = (config?.storageBucket || appOptions.storageBucket || '').trim();
+            if (!rawBucket) {
+                return null;
+            }
+
+            if (rawBucket.startsWith('gs://')) {
+                return rawBucket;
+            }
+
+            if (rawBucket.includes('://')) {
+                try {
+                    const url = new URL(rawBucket);
+                    if (url.protocol === 'gs:') {
+                        return `gs://${url.host.replace(/^\/+/, '')}`;
+                    }
+                    return `gs://${url.host.replace(/^\/+/, '')}`;
+                } catch (parseError) {
+                    console.warn('No se pudo interpretar storageBucket como URL, se usará la ruta literal.', parseError);
+                }
+            }
+
+            if (!rawBucket.includes('.')) {
+                return `gs://${rawBucket}.appspot.com`;
+            }
+
+            return `gs://${rawBucket}`;
+        }
+
         const app = initializeApp(firebaseConfig);
+        const resolvedStorageBucketUrl = resolveStorageBucket(firebaseConfig, app.options || {});
+        const resolvedStorageBucketName = resolvedStorageBucketUrl ? resolvedStorageBucketUrl.replace(/^gs:\/\//, '') : null;
+        if (!resolvedStorageBucketUrl) {
+            console.error('No se encontró un bucket de Storage válido. Verifica firebaseConfig.storageBucket en index.html.');
+        }
+        window.__resolvedStorageBucketUrl = resolvedStorageBucketUrl;
+        window.__resolvedStorageBucketName = resolvedStorageBucketName;
+
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const storage = getStorage(app); 
+        let storage;
+        try {
+            storage = resolvedStorageBucketUrl ? getStorage(app, resolvedStorageBucketUrl) : getStorage(app);
+        } catch (storageInitError) {
+            console.error('No se pudo inicializar Firebase Storage:', storageInitError);
+        }
         let analytics;
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -2621,6 +2663,13 @@ async function handleAdminBannerUpload(event) {
         return;
     }
 
+    if (!resolvedStorageBucketUrl || !storage) {
+        const bucketLabel = resolvedStorageBucketName || 'sin definir';
+        alert(`❌ No hay un bucket de Storage disponible (valor actual: ${bucketLabel}).\n\nAbre index.html y asegúrate de que firebaseConfig.storageBucket apunte a tu bucket (por ejemplo, 'mercadocanje-ffca0.appspot.com').`);
+        coverFileInput.value = null;
+        return;
+    }
+
     const originalButtonContent = uploadCoverBtn.innerHTML;
 
     // 1. Inicia el feedback visual: deshabilita el botón y muestra el spinner.
@@ -2634,9 +2683,25 @@ async function handleAdminBannerUpload(event) {
 
     try {
         // 2. Intenta subir el archivo
-        const uniquePath = `banners/${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
+        const sanitizedFileName = file.name
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-zA-Z0-9._-]/g, '-')
+            .replace(/-+/g, '-')
+            .toLowerCase();
+        const fileExtension = (() => {
+            const parts = file.name.split('.');
+            if (parts.length <= 1) return '';
+            return parts.pop().toLowerCase().replace(/[^a-z0-9]/g, '');
+        })();
+        const cleanedFileName = sanitizedFileName.replace(/^-+|-+$/g, '');
+        const safeFileName = cleanedFileName || (fileExtension ? `archivo.${fileExtension}` : 'archivo');
+        const uniquePath = `banners/${Date.now()}-${safeFileName}`;
         const fileRef = storageRef(storage, uniquePath);
-        const uploadResult = await uploadBytes(fileRef, file);
+        const uploadResult = await uploadBytes(fileRef, file, {
+            contentType: file.type || 'image/jpeg',
+            cacheControl: 'public,max-age=3600'
+        });
         const downloadURL = await getDownloadURL(uploadResult.ref);
 
         // 3. Prepara los datos para Firestore
@@ -2662,7 +2727,21 @@ async function handleAdminBannerUpload(event) {
     } catch (error) {
         // 6. Si algo falla, notifica el error
         console.error("Error al subir el nuevo banner:", error);
-        alert(`❌ Error al subir la portada:\n\n${error.message}\n\nRevisa la configuración de 'storageBucket' y las reglas de seguridad de Storage.`);
+
+        const errorCode = error?.code || 'desconocido';
+        let friendlyHint = "Verifica las reglas de Firebase Storage y que el usuario tenga permisos de escritura en la carpeta 'banners/'.";
+
+        if (errorCode === 'storage/unauthorized') {
+            friendlyHint = `El usuario autenticado no tiene permisos para escribir en Storage. Ajusta las reglas para permitir escritura a los administradores. Bucket en uso: ${resolvedStorageBucketName || 'desconocido'}.`;
+        } else if (errorCode === 'storage/canceled') {
+            friendlyHint = "La carga fue cancelada. Intenta nuevamente.";
+        } else if (errorCode === 'storage/invalid-root-operation' || errorCode === 'storage/invalid-path') {
+            friendlyHint = "La ruta del archivo contiene caracteres inválidos. Intenta renombrar el archivo sin caracteres especiales.";
+        } else if (errorCode === 'storage/no-default-bucket') {
+            friendlyHint = "Define correctamente firebaseConfig.storageBucket con el nombre de tu bucket (por ejemplo, mercadocanje-ffca0.appspot.com) y vuelve a publicar el sitio.";
+        }
+
+        alert(`❌ Error al subir la portada (código: ${errorCode}):\n\n${error.message || error}\n\n${friendlyHint}`);
     } finally {
         // 7. Se ejecuta siempre: restaura el botón a su estado original
         uploadCoverBtn.disabled = false;
