@@ -292,55 +292,7 @@
                 
                 <div id="promo-carousel" class="relative w-full h-48 mb-6 overflow-hidden bg-gray-200 rounded-lg md:h-64">
                     <div id="carousel-slider" class="flex h-full transition-transform duration-500 ease-in-out">
-                        
-                        <div class="relative flex-shrink-0 w-full h-full carousel-slide" data-end-time="2025-12-24T23:59:59">
-                            <img src="https://placehold.co/1200x300/4285F4/FFFFFF?text=¡Gran+Canjetón+Navideño!" alt="Banner 1" class="object-cover w-full h-full">
-                            <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-white bg-black bg-opacity-30">
-                                <h2 class="text-2xl font-bold md:text-4xl">¡Canjetón Navideño!</h2>
-                                <p class="mt-2 text-sm md:text-lg">Publica y gana premios</p>
-                            </div>
-                            <div class="absolute top-2 right-2 md:top-4 md:right-4 flex items-center space-x-2">
-                                <div class="promo-timer"> <span>Cargando...</span>
-                                </div>
-                                <button class="p-1 text-white bg-black rounded-full admin-only hidden hover:bg-opacity-70 bg-opacity-40 admin-edit-timer-btn">
-                                    <i data-lucide="pencil" class="w-4 h-4"></i>
-                                </button>
-                            </div>
                         </div>
-                        
-                        <div class="relative flex-shrink-0 w-full h-full carousel-slide" data-end-time="2025-11-30T20:00:00">
-                            <img src="https://placehold.co/1200x300/34A853/FFFFFF?text=Canjea+Tecnología+Verde" alt="Banner 2" class="object-cover w-full h-full">
-                            <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-white bg-black bg-opacity-30">
-                                <h2 class="text-2xl font-bold md:text-4xl">Tecnología Verde</h2>
-                                <p class="mt-2 text-sm md:text-lg">Canjea tus aparatos electrónicos</p>
-                            </div>
-                            <div class="absolute top-2 right-2 md:top-4 md:right-4 flex items-center space-x-2">
-                                <div class="promo-timer">
-                                    <span>Cargando...</span>
-                                </div>
-                                <button class="p-1 text-white bg-black rounded-full admin-only hidden hover:bg-opacity-70 bg-opacity-40 admin-edit-timer-btn">
-                                    <i data-lucide="pencil" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="relative flex-shrink-0 w-full h-full carousel-slide" data-end-time="2025-10-25T18:00:00">
-                            <img src="https://placehold.co/1200x300/FBBC05/333333?text=Moda+Circular" alt="Banner 3" class="object-cover w-full h-full">
-                            <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-gray-900 bg-white bg-opacity-30">
-                                <h2 class="text-2xl font-bold md:text-4xl">Moda Circular</h2>
-                                <p class="mt-2 text-sm md:text-lg">Intercambia tu ropa favorita</p>
-                            </div>
-                            <div class="absolute top-2 right-2 md:top-4 md:right-4 flex items-center space-x-2">
-                                <div class="promo-timer">
-                                    <span>Cargando...</span>
-                                </div>
-                                <button class="p-1 text-white bg-black rounded-full admin-only hidden hover:bg-opacity-70 bg-opacity-40 admin-edit-timer-btn">
-                                    <i data-lucide="pencil" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                    </div>
                     
                     <button id="carousel-prev" class="absolute top-1/2 left-2 md:left-4 p-2 -translate-y-1/2 text-white bg-black rounded-full bg-opacity-40 hover:bg-opacity-70">
                         <i data-lucide="chevron-left" class="w-5 h-5 md:w-6 md:h-6"></i>
@@ -350,7 +302,7 @@
                     </button>
 
                     <input type="file" id="cover-file-input" class="hidden" accept="image/*">
-                    <button id="upload-cover-btn" class="absolute bottom-2 left-2 md:bottom-4 md:left-4 p-2 text-white bg-black rounded-full bg-opacity-40 hover:bg-opacity-70 admin-only hidden" title="Subir foto de portada (Admin)">
+                    <button id="upload-cover-btn" class="absolute bottom-2 left-2 md:bottom-4 md:left-4 p-2 text-white bg-black rounded-full bg-opacity-40 hover:bg-opacity-70 admin-only hidden" title="Subir nueva portada (Admin)">
                         <i data-lucide="upload-cloud" class="w-5 h-5 md:w-6 md:h-6"></i>
                     </button>
                 </div>
@@ -417,12 +369,12 @@
             <section id="page-vender" class="page hidden max-w-2xl mx-auto">
                 <div id="vender-auth-required" class="hidden">
                          <div class="flex flex-col items-center justify-center p-10 text-center bg-white border border-gray-200 rounded-lg shadow-sm">
-                             <i data-lucide="lock" class="w-16 h-16 text-gray-400"></i>
-                             <h2 class="mt-4 text-2xl font-semibold">Acceso Restringido</h2>
-                             <p class="mt-2 text-gray-600">Debes iniciar sesión para publicar un artículo.</p>
-                             <button class="nav-link px-6 py-2 mt-6 text-white bg-brand rounded-lg hover:bg-brand-dark" data-page="page-perfil">
-                                 Iniciar Sesión
-                             </button>
+                               <i data-lucide="lock" class="w-16 h-16 text-gray-400"></i>
+                               <h2 class="mt-4 text-2xl font-semibold">Acceso Restringido</h2>
+                               <p class="mt-2 text-gray-600">Debes iniciar sesión para publicar un artículo.</p>
+                               <button class="nav-link px-6 py-2 mt-6 text-white bg-brand rounded-lg hover:bg-brand-dark" data-page="page-perfil">
+                                   Iniciar Sesión
+                               </button>
                          </div>
                 </div>
 
@@ -448,7 +400,7 @@
                             <input type="file" id="product-photo-upload" class="sr-only" multiple accept="image/*">
                             
                             <div id="photo-preview-container" class="grid grid-cols-3 gap-4 mt-4 sm:grid-cols-4 md:grid-cols-5">
-                                </div>
+                                 </div>
                             
                             <p id="photo-error-msg" class="hidden mt-2 text-sm text-red-600"></p>
                         </div>
@@ -553,7 +505,7 @@
                             <input type="email" id="email-reg" class="w-full mt-1 border-gray-300 rounded-lg shadow-sm focus:border-brand focus:ring-brand" required>
                         </div>
                         <div>
-                            <label for="pass-reg" class="block text-sm font-medium text-gray-700">Contraseña</Dlabel>
+                            <label for="pass-reg" class="block text-sm font-medium text-gray-700">Contraseña</dlabel>
                             <input type="password" id="pass-reg" class="w-full mt-1 border-gray-300 rounded-lg shadow-sm focus:border-brand focus:ring-brand" required>
                         </div>
                         <button type="submit" class="w-full px-4 py-2 font-medium text-white bg-brand rounded-lg hover:bg-brand-dark">
@@ -753,7 +705,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAnalytics, isSupported as isAnalyticsSupported } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
         import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, query, where, serverTimestamp, deleteDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, query, where, serverTimestamp, deleteDoc, increment, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
         const firebaseConfig = {
@@ -769,7 +721,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const storage = getStorage(app); // <-- CORRECCIÓN IMPORTANTE
+        const storage = getStorage(app); 
         let analytics;
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -873,15 +825,16 @@
             const formProponerCanje = document.getElementById('form-proponer-canje');
             const modalErrorMsg = document.getElementById('modal-error-msg');
 
-            // Carrusel
+            // --- SELECTORES DEL CARRUSEL (ACTUALIZADOS) ---
+            const promoCarousel = document.getElementById('promo-carousel');
             const carouselSlider = document.getElementById('carousel-slider');
-            const carouselSlides = document.querySelectorAll('.carousel-slide');
             const carouselPrevBtn = document.getElementById('carousel-prev');
             const carouselNextBtn = document.getElementById('carousel-next');
             let currentSlide = 0;
-            const totalSlides = carouselSlides.length;
+            let totalSlides = 0; // Se actualizará dinámicamente
             let carouselInterval;
 
+            
             // --- NUEVOS SELECTORES ---
             const mobileMenuBtn = document.getElementById('mobile-menu-btn');
             const mobileMenuPanel = document.getElementById('mobile-menu-panel');
@@ -1405,24 +1358,7 @@
                 });
             }
 
-            /**
-             * Maneja la subida de una foto de portada (simulación).
-             */
-            function handleCoverUpload(event) {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const activeSlide = carouselSlides[currentSlide];
-                        const img = activeSlide.querySelector('img');
-                        if (img) {
-                            img.src = e.target.result;
-                        }
-                    };
-                    reader.readAsDataURL(file);
-                }
-            }
-
+            
             /**
              * Abre el modal de edición de tiempo (Admin).
              */
@@ -1453,18 +1389,7 @@
                 modalEditTimer.classList.remove('open');
                 state.editingTimerSlide = null;
             }
-
-            /**
-             * Asigna los listeners a los botones de edición de admin.
-             */
-            function assignAdminTimerListeners() {
-                document.querySelectorAll('.admin-edit-timer-btn').forEach(btn => {
-                    // Remover listener anterior para evitar duplicados
-                    btn.removeEventListener('click', openTimerModal);  
-                    btn.addEventListener('click', openTimerModal);
-                });
-            }
-
+            
             // --- NUEVAS FUNCIONES (Renderizado Dinámico) ---
 
             /**
@@ -1554,7 +1479,7 @@
                 explorarProductGrid.innerHTML = ''; // Limpiar grilla
                 if (state.allProducts.length === 0) {
                      explorarProductGrid.innerHTML = '<p class="text-gray-500 col-span-full">No hay artículos publicados por el momento.</p>';
-                       return;
+                         return;
                 }
                 
                 state.allProducts.forEach(product => {
@@ -1833,25 +1758,98 @@
             }
 
 
-            // --- LÓGICA DE CARRUSEL Y TEMPORIZADOR ---
+            // --- LÓGICA DE CARRUSEL Y TEMPORIZADOR (MODIFICADA PARA DINAMISMO) ---
+
+            /**
+             * Carga los banners desde Firestore y los renderiza en el carrusel.
+             */
+            async function loadAndRenderBanners() {
+                try {
+                    const bannersQuery = query(collection(db, "banners"), orderBy("createdAt", "desc"));
+                    const snapshot = await getDocs(bannersQuery);
+                    
+                    carouselSlider.innerHTML = ''; // Vaciar el carrusel antes de llenarlo
+                    
+                    if (snapshot.empty) {
+                        carouselSlider.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-500">No hay banners para mostrar.</div>`;
+                        totalSlides = 0;
+                        return;
+                    }
+
+                    snapshot.forEach(docSnap => {
+                        const banner = docSnap.data();
+                        const endTime = banner.endTime && banner.endTime.toDate ? banner.endTime.toDate().toISOString() : new Date().toISOString();
+                        
+                        const slideHtml = `
+                            <div class="relative flex-shrink-0 w-full h-full carousel-slide" data-end-time="${endTime}" data-banner-id="${docSnap.id}" data-image-path="${banner.imagePath || ''}">
+                                <img src="${banner.imageUrl}" alt="${banner.title}" class="object-cover w-full h-full">
+                                <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-white bg-black bg-opacity-30">
+                                    <h2 class="text-2xl font-bold md:text-4xl">${banner.title || ''}</h2>
+                                    <p class="mt-2 text-sm md:text-lg">${banner.subtitle || ''}</p>
+                                </div>
+                                <div class="absolute top-2 right-2 md:top-4 md:right-4 flex items-center space-x-2">
+                                    <div class="promo-timer"><span>Cargando...</span></div>
+                                    <button class="p-1 text-white bg-black rounded-full admin-only hidden hover:bg-opacity-70 bg-opacity-40 admin-edit-timer-btn">
+                                        <i data-lucide="pencil" class="w-4 h-4"></i>
+                                    </button>
+                                    <button class="p-1 text-white bg-red-600 rounded-full admin-only hidden hover:bg-red-700 bg-opacity-80 btn-delete-banner">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        carouselSlider.insertAdjacentHTML('beforeend', slideHtml);
+                    });
+
+                    // Reinicializar la lógica del carrusel con los nuevos slides
+                    resetCarousel();
+
+                } catch (error) {
+                    console.error("Error cargando los banners:", error);
+                    carouselSlider.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-gray-100 text-red-500">Error al cargar banners.</div>`;
+                }
+            }
+
+            /**
+             * Reinicia el carrusel después de cargar contenido dinámico.
+             */
+            function resetCarousel() {
+                const slides = document.querySelectorAll('.carousel-slide');
+                totalSlides = slides.length;
+                currentSlide = 0;
+                updateCarousel();
+                startCarouselAutoPlay();
+                startTimers(); // Inicia los contadores de tiempo
+                updateAuthUI(); // Asegura que los botones de admin se muestren/oculten
+                lucide.createIcons(); // Vuelve a renderizar los iconos
+            }
+
 
             function updateCarousel() {
-                carouselSlider.style.transform = `translateX(-${currentSlide * 100}%)`;
+                 if (totalSlides > 0) {
+                    carouselSlider.style.transform = `translateX(-${currentSlide * 100}%)`;
+                 }
             }
 
             function nextSlide() {
-                currentSlide = (currentSlide + 1) % totalSlides;
-                updateCarousel();
+                if (totalSlides > 0) {
+                    currentSlide = (currentSlide + 1) % totalSlides;
+                    updateCarousel();
+                }
             }
 
             function prevSlide() {
-                currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
-                updateCarousel();
+                if (totalSlides > 0) {
+                    currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+                    updateCarousel();
+                }
             }
             
             function startCarouselAutoPlay() {
                 if (carouselInterval) clearInterval(carouselInterval);
-                carouselInterval = setInterval(nextSlide, 5000); // Cambia cada 5 segundos
+                if (totalSlides > 1) { // Solo auto-play si hay más de un slide
+                    carouselInterval = setInterval(nextSlide, 5000);
+                }
             }
 
             function stopCarouselAutoPlay() {
@@ -1860,15 +1858,16 @@
 
             function startTimers() {
                 document.querySelectorAll('.promo-timer').forEach(timerEl => {
-                    const endTimeAttr = timerEl.closest('.carousel-slide').dataset.endTime;
+                    const slide = timerEl.closest('.carousel-slide');
+                    if (!slide) return;
+
+                    const endTimeAttr = slide.dataset.endTime;
                     const endTime = new Date(endTimeAttr).getTime();
 
-                    // Limpiar intervalo anterior si existe
                     if (timerEl.dataset.intervalId) {
                         clearInterval(timerEl.dataset.intervalId);
                     }
 
-                    // Función para actualizar este temporizador específico
                     function updateTimer() {
                         const now = new Date().getTime();
                         const distance = endTime - now;
@@ -1879,16 +1878,12 @@
                             return;
                         }
 
-                        // Cálculo
                         const days = Math.floor(distance / (1000 * 60 * 60 * 24));
                         const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-                        // Formato de dos dígitos
                         const f = (n) => n.toString().padStart(2, '0');
 
-                        // Mostrar resultado
                         timerEl.innerHTML = `
                             <span class="font-mono">${f(days)}d</span> :
                             <span class="font-mono">${f(hours)}h</span> :
@@ -1898,7 +1893,7 @@
                     }
                     
                     const intervalId = setInterval(updateTimer, 1000);
-                    timerEl.dataset.intervalId = intervalId; // Guardar ID para limpiar después
+                    timerEl.dataset.intervalId = intervalId;
                     updateTimer(); // Llamada inicial
                 });
             }
@@ -1917,9 +1912,7 @@
                     }
                 });
             });
-
-            // --- NUEVOS LISTENERS ---
-
+            
             // Menú Móvil
             mobileMenuBtn.addEventListener('click', openMobileMenu);
             mobileMenuBackdrop.addEventListener('click', closeMobileMenu);
@@ -1927,41 +1920,44 @@
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
                     const pageId = e.currentTarget.dataset.page;
-                    // Lógica de autenticación
                     if ((pageId === 'page-canjes' || pageId === 'page-vender') && !state.isLoggedIn) {
                         showPage('page-perfil');
                     } else {
                         showPage(pageId);
                     }
-                    closeMobileMenu(); // Cerrar menú después de clic
+                    closeMobileMenu();
                 });
             });
 
-            // Subir Portada
-            uploadCoverBtn.addEventListener('click', () => coverFileInput.click());
-            coverFileInput.addEventListener('change', handleCoverUpload);
-
             // Modal Admin Timer
-            formEditTimer.addEventListener('submit', (e) => {
+            formEditTimer.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 if (!state.editingTimerSlide) return;
-                
+
+                const bannerId = state.editingTimerSlide.dataset.bannerId;
                 const newDateTime = document.getElementById('timer-datetime').value;
-                // Convertir de YYYY-MM-DDTHH:MM a YYYY-MM-DDTHH:MM:SS (formato original)
-                const newEndTime = `${newDateTime}:00`;  
+
+                if (!bannerId || !newDateTime) return;
                 
-                state.editingTimerSlide.dataset.endTime = newEndTime;
-                
-                // Refrescar todos los timers
-                startTimers();  
-                closeTimerModal();
+                try {
+                    const bannerRef = doc(db, "banners", bannerId);
+                    // Firestore espera un objeto Date de JS para los Timestamps
+                    await setDoc(bannerRef, { endTime: new Date(newDateTime) }, { merge: true });
+                    
+                    // Actualizar el dataset localmente y reiniciar los timers
+                    state.editingTimerSlide.dataset.endTime = new Date(newDateTime).toISOString();
+                    startTimers(); 
+                    closeTimerModal();
+
+                } catch (error) {
+                    console.error("Error actualizando el temporizador del banner:", error);
+                    alert("No se pudo actualizar el temporizador.");
+                }
             });
-            // Asignar listeners a los botones de cerrar del modal de admin
+
             modalEditTimer.querySelector('.modal-backdrop').addEventListener('click', closeTimerModal);
             modalEditTimer.querySelector('.modal-close-btn').addEventListener('click', closeTimerModal);
 
-
-            // --- FIN NUEVOS LISTENERS ---
 
             // Tabs de Autenticación
             authTabs.forEach(tab => {
@@ -2613,6 +2609,85 @@
                 }
             });
 
+            /**
+             * Maneja la subida de un nuevo banner por parte del admin.
+             */
+            async function handleAdminBannerUpload(event) {
+                const file = event.target.files[0];
+                if (!file || !state.isAdmin) return;
+
+                const buttonIcon = uploadCoverBtn.querySelector('i');
+                const originalIcon = buttonIcon.dataset.lucide;
+                
+                // Mostrar estado de carga
+                uploadCoverBtn.disabled = true;
+                buttonIcon.removeAttribute('data-lucide');
+                buttonIcon.innerHTML = `<svg class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+
+                try {
+                    const uniquePath = `banners/${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
+                    const fileRef = storageRef(storage, uniquePath);
+                    const uploadResult = await uploadBytes(fileRef, file);
+                    const downloadURL = await getDownloadURL(uploadResult.ref);
+                    
+                    const oneWeekFromNow = new Date();
+                    oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
+
+                    const newBanner = {
+                        title: "Nuevo Banner",
+                        subtitle: "Edita este texto",
+                        imageUrl: downloadURL,
+                        imagePath: uploadResult.ref.fullPath,
+                        endTime: oneWeekFromNow, // Firestore convertirá la fecha JS a Timestamp
+                        createdAt: serverTimestamp()
+                    };
+
+                    await addDoc(collection(db, 'banners'), newBanner);
+                    
+                    // Recargar los banners para mostrar el nuevo
+                    await loadAndRenderBanners();
+
+                } catch (error) {
+                    console.error("Error al subir el nuevo banner:", error);
+                    alert("No se pudo subir la portada. Revisa la consola para más detalles.");
+                } finally {
+                    // Restaurar botón
+                    uploadCoverBtn.disabled = false;
+                    buttonIcon.innerHTML = '';
+                    buttonIcon.setAttribute('data-lucide', originalIcon);
+                    lucide.createIcons();
+                    coverFileInput.value = null; // Resetear el input
+                }
+            }
+
+
+            /**
+             * Maneja la eliminación de un banner por parte del admin.
+             */
+            async function handleDeleteBanner(bannerId, imagePath) {
+                if (!state.isAdmin) return;
+
+                if (confirm("¿Estás seguro de que quieres eliminar este banner permanentemente?")) {
+                    try {
+                        // 1. Eliminar el documento de Firestore
+                        await deleteDoc(doc(db, "banners", bannerId));
+                        
+                        // 2. Eliminar la imagen de Storage (si existe la ruta)
+                        if (imagePath) {
+                            const imageRef = storageRef(storage, imagePath);
+                            await deleteObject(imageRef);
+                        }
+                        
+                        // 3. Recargar los banners
+                        await loadAndRenderBanners();
+
+                    } catch (error) {
+                        console.error("Error eliminando el banner:", error);
+                        alert("No se pudo eliminar el banner. Revisa la consola.");
+                    }
+                }
+            }
+
 
             /**
              * NUEVO: Listeners delegados para contenido dinámico
@@ -2633,7 +2708,27 @@
                     if (eliminarBtn) {
                         e.preventDefault();
                         const itemId = eliminarBtn.dataset.itemId;
-                        await deleteUserItem(itemId);
+                        if (confirm("¿Seguro que quieres eliminar este artículo?")) {
+                           await deleteUserItem(itemId);
+                        }
+                    }
+                });
+
+                // Listener para botones de admin en el carrusel (editar timer, eliminar)
+                promoCarousel.addEventListener('click', (e) => {
+                    const deleteBtn = e.target.closest('.btn-delete-banner');
+                    if (deleteBtn) {
+                        e.stopPropagation();
+                        const slide = deleteBtn.closest('.carousel-slide');
+                        const bannerId = slide.dataset.bannerId;
+                        const imagePath = slide.dataset.imagePath;
+                        handleDeleteBanner(bannerId, imagePath);
+                        return; // Evita que se abra el modal de editar
+                    }
+
+                    const editBtn = e.target.closest('.admin-edit-timer-btn');
+                    if(editBtn){
+                        openTimerModal(e);
                     }
                 });
             }
@@ -2655,15 +2750,14 @@
                     stopCarouselAutoPlay();
                     startCarouselAutoPlay();
                 });
-                startCarouselAutoPlay();
-
-                // Inicializar Temporizadores
-                startTimers();
+                
+                // Listener para subir banner
+                uploadCoverBtn.addEventListener('click', () => coverFileInput.click());
+                coverFileInput.addEventListener('change', handleAdminBannerUpload);
 
                 // --- NUEVAS LLAMADAS DE INICIALIZACIÓN ---
                 populateCategoryList();
                 populateCategorySelect();
-                assignAdminTimerListeners(); // Asignar listeners para los botones de admin
                 
                 // Renderizar contenido dinámico
                 renderProducts(); // Renderiza los productos iniciales
@@ -2675,6 +2769,7 @@
                 // Inicializar iconos (MOVIDO AL FINAL)
                 lucide.createIcons();
 
+                await loadAndRenderBanners(); // Carga banners desde Firebase
                 await loadAllProducts();
             }
 
