@@ -107,6 +107,22 @@
             transition: transform 0.5s ease-in-out;
         }
 
+        #most-viewed-container .popular-card {
+            width: clamp(11rem, 38vw, 15rem);
+        }
+
+        @media (min-width: 640px) {
+            #most-viewed-container .popular-card {
+                width: clamp(12rem, 28vw, 14.5rem);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            #most-viewed-container .popular-card {
+                width: clamp(12.5rem, 20vw, 15rem);
+            }
+        }
+
         /* --- NUEVOS ESTILOS --- */
 
         /* Estilo Glassmorphism para Timer */
@@ -1532,7 +1548,7 @@
                     const skeletonCount = 4;
                     for (let i = 0; i < skeletonCount; i++) {
                         const skeletonCard = `
-                            <div class="flex-shrink-0 w-64 overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
+                            <div class="popular-card flex-shrink-0 overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
                                 <div class="w-full h-40 skeleton"></div>
                                 <div class="p-4 space-y-3">
                                     <div class="w-3/4 h-4 skeleton rounded"></div>
@@ -1590,7 +1606,7 @@
 
                 productsToShow.forEach(product => {
                     const cardHtml = `
-                        <div class="flex-shrink-0 w-64 overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
+                        <div class="popular-card flex-shrink-0 overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
                             <img src="${product.imageUrl}" alt="${product.name}" class="object-cover w-full h-40" loading="lazy">
                             <div class="p-4">
                                 <h4 class="font-semibold text-gray-900 truncate">${product.name}</h4>
