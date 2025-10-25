@@ -380,9 +380,7 @@
                 
                 <div id="promo-carousel" class="relative w-full h-48 mb-6 overflow-hidden bg-gray-200 rounded-lg md:h-64">
                     <div id="carousel-slider" class="flex h-full transition-transform duration-500 ease-in-out">
-                        </div>
-
-                    <div id="carousel-timer" class="promo-timer hidden absolute top-3 right-3 md:top-4 md:right-4" aria-live="polite"></div>
+                    </div>
 
                     <button id="carousel-prev" class="absolute top-1/2 left-2 md:left-4 p-2 -translate-y-1/2 text-white bg-black rounded-full bg-opacity-40 hover:bg-opacity-70">
                         <i data-lucide="chevron-left" class="w-5 h-5 md:w-6 md:h-6"></i>
@@ -933,12 +931,12 @@
             const carouselMeta = document.getElementById('carousel-meta');
             const carouselTitleEl = document.getElementById('carousel-title');
             const carouselSubtitleEl = document.getElementById('carousel-subtitle');
-            const carouselTimerEl = document.getElementById('carousel-timer');
             const appPreloader = document.getElementById('app-preloader');
             let currentSlide = 0;
             let totalSlides = 0; // Se actualizará dinámicamente
             let carouselInterval;
             let carouselTimerInterval;
+            let activeTimerEl = null;
 
             
             // --- NUEVOS SELECTORES ---
@@ -1958,6 +1956,7 @@
                         const slideHtml = `
                             <div class="relative flex-shrink-0 w-full h-full carousel-slide" data-end-time="${endTime}" data-banner-id="${docSnap.id}" data-image-path="${banner.imagePath || ''}">
                                 <img src="${safeImage}" alt="${safeAlt}" class="object-cover w-full h-full" loading="lazy">
+                                <div class="promo-timer hidden absolute top-3 right-3 md:top-4 md:right-4 z-30" data-role="carousel-timer" aria-live="polite"></div>
                                 <div class="absolute bottom-3 right-3 flex items-center gap-2 admin-only hidden md:bottom-4 md:right-4">
                                     <button class="p-1 text-gray-800 bg-white/90 rounded-full shadow-sm hover:bg-white admin-edit-timer-btn" title="Editar temporizador">
                                         <i data-lucide="pencil" class="w-4 h-4"></i>
@@ -1985,45 +1984,96 @@
             /**
              * Reinicia el carrusel después de cargar contenido dinámico.
              */
-            function clearCarouselTimer() {
+            function stopCarouselTimerInterval() {
                 if (carouselTimerInterval) {
                     clearInterval(carouselTimerInterval);
                     carouselTimerInterval = null;
                 }
             }
 
+            function resetTimerElement(timerEl) {
+                if (!timerEl) return;
+                timerEl.textContent = '';
+                timerEl.classList.add('hidden');
+                timerEl.classList.remove('is-finished');
+                timerEl.removeAttribute('aria-label');
+            }
+
+            function resetAllCarouselTimers() {
+                if (!carouselSlider) return;
+                const timers = carouselSlider.querySelectorAll('[data-role="carousel-timer"]');
+                timers.forEach(resetTimerElement);
+            }
+
+            function clearCarouselTimer() {
+                stopCarouselTimerInterval();
+                if (activeTimerEl) {
+                    resetTimerElement(activeTimerEl);
+                    activeTimerEl = null;
+                }
+            }
+
+            function getActiveSlideTimerEl() {
+                if (!carouselSlider) return null;
+                const slides = carouselSlider.querySelectorAll('.carousel-slide');
+                if (!slides.length) return null;
+                const slide = slides[currentSlide] || null;
+                return slide ? slide.querySelector('[data-role="carousel-timer"]') : null;
+            }
+
             function startActiveBannerTimer(endTime) {
-                if (!carouselTimerEl) return;
-                clearCarouselTimer();
+                const timerEl = getActiveSlideTimerEl();
 
-                if (!endTime) {
-                    carouselTimerEl.textContent = '';
-                    carouselTimerEl.classList.add('hidden');
-                    carouselTimerEl.classList.remove('is-finished');
+                if (!timerEl) {
+                    clearCarouselTimer();
                     return;
                 }
 
-                const target = new Date(endTime).getTime();
+                stopCarouselTimerInterval();
+
+                if (activeTimerEl && activeTimerEl !== timerEl) {
+                    resetTimerElement(activeTimerEl);
+                }
+
+                const slide = timerEl.closest('.carousel-slide');
+                if (slide && endTime) {
+                    slide.dataset.endTime = endTime;
+                }
+
+                const rawEndTime = endTime || (slide ? slide.dataset.endTime : '');
+
+                if (!rawEndTime) {
+                    resetTimerElement(timerEl);
+                    activeTimerEl = timerEl;
+                    return;
+                }
+
+                const target = new Date(rawEndTime).getTime();
                 if (Number.isNaN(target)) {
-                    carouselTimerEl.textContent = '';
-                    carouselTimerEl.classList.add('hidden');
-                    carouselTimerEl.classList.remove('is-finished');
+                    resetTimerElement(timerEl);
+                    activeTimerEl = timerEl;
                     return;
                 }
 
-                carouselTimerEl.classList.remove('hidden');
+                activeTimerEl = timerEl;
+                timerEl.classList.remove('hidden');
 
                 const formatter = (value) => value.toString().padStart(2, '0');
 
                 const render = () => {
+                    if (!activeTimerEl) {
+                        stopCarouselTimerInterval();
+                        return;
+                    }
+
                     const now = Date.now();
                     const distance = target - now;
 
                     if (distance <= 0) {
-                        clearCarouselTimer();
-                        carouselTimerEl.classList.add('is-finished');
-                        carouselTimerEl.innerHTML = `<span class="promo-timer-dot"></span><span>Expirado</span>`;
-                        carouselTimerEl.setAttribute('aria-label', 'Promoción expirada');
+                        stopCarouselTimerInterval();
+                        timerEl.classList.add('is-finished');
+                        timerEl.innerHTML = `<span class="promo-timer-dot"></span><span>Expirado</span>`;
+                        timerEl.setAttribute('aria-label', 'Promoción expirada');
                         return;
                     }
 
@@ -2040,9 +2090,9 @@
                     segments.push(`${formatter(minutes)}m`);
                     segments.push(`${formatter(seconds)}s`);
 
-                    carouselTimerEl.classList.remove('is-finished');
-                    carouselTimerEl.innerHTML = `<span class="promo-timer-dot"></span><span class="font-mono">${segments.join(' · ')}</span>`;
-                    carouselTimerEl.setAttribute('aria-label', `Tiempo restante ${segments.join(' ')}`);
+                    timerEl.classList.remove('is-finished');
+                    timerEl.innerHTML = `<span class="promo-timer-dot"></span><span class="font-mono">${segments.join(' · ')}</span>`;
+                    timerEl.setAttribute('aria-label', `Tiempo restante ${segments.join(' ')}`);
                 };
 
                 render();
@@ -2057,11 +2107,7 @@
                     if (carouselTitleEl) carouselTitleEl.textContent = '';
                     if (carouselSubtitleEl) carouselSubtitleEl.textContent = '';
                     clearCarouselTimer();
-                    if (carouselTimerEl) {
-                        carouselTimerEl.textContent = '';
-                        carouselTimerEl.classList.add('hidden');
-                        carouselTimerEl.classList.remove('is-finished');
-                    }
+                    resetAllCarouselTimers();
                     return;
                 }
 
@@ -2073,11 +2119,7 @@
                 if (!activeBanner) {
                     carouselMeta.classList.add('hidden');
                     clearCarouselTimer();
-                    if (carouselTimerEl) {
-                        carouselTimerEl.textContent = '';
-                        carouselTimerEl.classList.add('hidden');
-                        carouselTimerEl.classList.remove('is-finished');
-                    }
+                    resetAllCarouselTimers();
                     return;
                 }
 
@@ -2093,9 +2135,7 @@
                     carouselSubtitleEl.classList.toggle('hidden', !activeBanner.subtitle);
                 }
 
-                if (carouselTimerEl) {
-                    startActiveBannerTimer(activeBanner.endTime);
-                }
+                startActiveBannerTimer(activeBanner.endTime);
             }
 
             function resetCarousel() {
