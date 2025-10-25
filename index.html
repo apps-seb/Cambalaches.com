@@ -2614,6 +2614,7 @@
              */
 
 async function handleAdminBannerUpload(event) {
+    console.log('Verificando UID del usuario actual:', auth.currentUser.uid); // <-- AÑADE ESTA LÍNEA
     const file = event.target.files[0];
     if (!file || !state.isAdmin) return;
 
