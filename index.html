@@ -111,17 +111,85 @@
 
         /* Estilo Glassmorphism para Timer */
         .promo-timer {
-            background: rgba(255, 255, 255, 0.2); /* Fondo de vidrio */
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3); /* Borde sutil */
-            color: white;
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.5rem;
-            font-size: 0.875rem; /* text-sm */
-            font-weight: 600; /* font-semibold */
-            letter-spacing: 0.05em; /* tracking-wider */
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2); /* Sombra de texto para legibilidad */
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: #111827;
+            color: #FFE600;
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            box-shadow: 0 10px 25px -20px rgba(17, 24, 39, 0.9);
+        }
+        .promo-timer span {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .promo-timer-dot {
+            width: 0.45rem;
+            height: 0.45rem;
+            border-radius: 9999px;
+            background: #FFE600;
+            box-shadow: 0 0 0 3px rgba(255, 230, 0, 0.3);
+        }
+
+        .promo-timer.is-finished {
+            background: #DC2626;
+            color: #fff;
+            letter-spacing: 0.05em;
+        }
+
+        .promo-timer.is-finished .promo-timer-dot {
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+        }
+
+        .skeleton {
+            position: relative;
+            overflow: hidden;
+            background-color: #E5E7EB;
+        }
+
+        .skeleton::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            transform: translateX(-100%);
+            background-image: linear-gradient(90deg, rgba(229, 231, 235, 0), rgba(255, 255, 255, 0.75), rgba(229, 231, 235, 0));
+            animation: shimmer 1.35s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        #app-preloader {
+            transition: opacity 0.35s ease, visibility 0.35s ease;
+        }
+
+        #app-preloader.is-hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .preloader-spinner {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 9999px;
+            border: 4px solid rgba(255, 230, 0, 0.25);
+            border-top-color: #FFE600;
+            animation: spin 0.85s linear infinite;
         }
         
         /* Menú Móvil */
@@ -203,6 +271,11 @@
     </style>
 </head>
 <body class="text-gray-800">
+
+    <div id="app-preloader" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm">
+        <div class="preloader-spinner"></div>
+        <p class="mt-4 text-sm font-medium text-gray-700">Cargando experiencia...</p>
+    </div>
 
     <div id="mobile-menu-backdrop" class="fixed inset-0 z-30 hidden bg-black bg-opacity-50 lg:hidden"></div>
     <aside id="mobile-menu-panel" class="fixed top-0 left-0 z-40 flex flex-col w-64 h-screen max-w-[80vw] bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out -translate-x-full lg:hidden">
@@ -293,7 +366,7 @@
                 <div id="promo-carousel" class="relative w-full h-48 mb-6 overflow-hidden bg-gray-200 rounded-lg md:h-64">
                     <div id="carousel-slider" class="flex h-full transition-transform duration-500 ease-in-out">
                         </div>
-                    
+
                     <button id="carousel-prev" class="absolute top-1/2 left-2 md:left-4 p-2 -translate-y-1/2 text-white bg-black rounded-full bg-opacity-40 hover:bg-opacity-70">
                         <i data-lucide="chevron-left" class="w-5 h-5 md:w-6 md:h-6"></i>
                     </button>
@@ -305,6 +378,16 @@
                     <button id="upload-cover-btn" data-icon-name="upload-cloud" class="absolute bottom-2 left-2 md:bottom-4 md:left-4 p-2 text-white bg-black rounded-full bg-opacity-40 hover:bg-opacity-70 admin-only hidden" title="Subir nueva portada (Admin)">
     <i data-lucide="upload-cloud" class="w-5 h-5 md:w-6 md:h-6"></i>
 </button>
+                </div>
+
+                <div id="carousel-meta" class="flex items-start justify-between gap-4 px-1 mt-3 hidden">
+                    <div class="flex-1 min-w-0">
+                        <h2 id="carousel-title" class="text-lg font-semibold text-gray-900 truncate"></h2>
+                        <p id="carousel-subtitle" class="mt-1 text-sm text-gray-600"></p>
+                    </div>
+                    <div class="flex flex-col items-end gap-2">
+                        <div id="carousel-timer" class="promo-timer" aria-live="polite"></div>
+                    </div>
                 </div>
 
                 <h3 class="mb-4 text-xl font-semibold text-gray-900">Categorías Premium</h3>
@@ -776,11 +859,14 @@
                 },
                 viewedCategoryHistory: {},
                 allProducts: [],
+                banners: [],
                 receivedOffers: [],
                 itemToSwap: null,
                 editingTimerSlide: null,
                 productFiles: [],
                 profilePicFile: null,
+                isLoadingProducts: true,
+                isLoadingBanners: true,
             };
 
 
@@ -830,9 +916,15 @@
             const carouselSlider = document.getElementById('carousel-slider');
             const carouselPrevBtn = document.getElementById('carousel-prev');
             const carouselNextBtn = document.getElementById('carousel-next');
+            const carouselMeta = document.getElementById('carousel-meta');
+            const carouselTitleEl = document.getElementById('carousel-title');
+            const carouselSubtitleEl = document.getElementById('carousel-subtitle');
+            const carouselTimerEl = document.getElementById('carousel-timer');
+            const appPreloader = document.getElementById('app-preloader');
             let currentSlide = 0;
             let totalSlides = 0; // Se actualizará dinámicamente
             let carouselInterval;
+            let carouselTimerInterval;
 
             
             // --- NUEVOS SELECTORES ---
@@ -897,6 +989,17 @@
                         link.classList.toggle('text-gray-600', !isActive);
                     }
                 });
+            }
+
+            function hidePreloader() {
+                if (!appPreloader) return;
+                if (appPreloader.classList.contains('is-hidden')) return;
+                appPreloader.classList.add('is-hidden');
+                setTimeout(() => {
+                    if (appPreloader && appPreloader.parentElement) {
+                        appPreloader.parentElement.removeChild(appPreloader);
+                    }
+                }, 400);
             }
 
             /**
@@ -1010,6 +1113,9 @@
              * Carga todos los productos publicados en Firestore.
              */
             async function loadAllProducts() {
+                state.isLoadingProducts = true;
+                renderProducts();
+                renderMostViewedProducts();
                 try {
                     const snapshot = await getDocs(collection(db, 'items'));
                     const products = [];
@@ -1021,10 +1127,12 @@
                     });
                     products.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
                     state.allProducts = products;
-                    renderProducts();
-                    renderMostViewedProducts();
                 } catch (error) {
                     console.error('Error al cargar los productos:', error);
+                } finally {
+                    state.isLoadingProducts = false;
+                    renderProducts();
+                    renderMostViewedProducts();
                 }
             }
 
@@ -1362,11 +1470,9 @@
             /**
              * Abre el modal de edición de tiempo (Admin).
              */
-            function openTimerModal(e) {
-                e.stopPropagation(); // Evitar que el clic active otra cosa
-                const slide = e.currentTarget.closest('.carousel-slide');
+            function openTimerModal(slide) {
                 if (!slide) return;
-                
+
                 state.editingTimerSlide = slide;
                 const currentEndTime = slide.dataset.endTime;
                 // Formatear para datetime-local input (requiere YYYY-MM-DDTHH:MM)
@@ -1408,6 +1514,25 @@
              * Renderiza el carrusel de "Productos más vistos".
              */
             function renderMostViewedProducts() {
+                mostViewedContainer.innerHTML = '';
+                if (state.isLoadingProducts) {
+                    const skeletonCount = 4;
+                    for (let i = 0; i < skeletonCount; i++) {
+                        const skeletonCard = `
+                            <div class="flex-shrink-0 w-64 overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
+                                <div class="w-full h-40 skeleton"></div>
+                                <div class="p-4 space-y-3">
+                                    <div class="w-3/4 h-4 skeleton rounded"></div>
+                                    <div class="w-2/3 h-3 skeleton rounded"></div>
+                                    <div class="w-1/2 h-3 skeleton rounded"></div>
+                                </div>
+                            </div>
+                        `;
+                        mostViewedContainer.insertAdjacentHTML('beforeend', skeletonCard);
+                    }
+                    return;
+                }
+
                 let productsToShow = [];
                 let title = "Populares"; // Título por defecto
 
@@ -1445,7 +1570,6 @@
                 }
 
                 // 6. Renderizar las tarjetas del carrusel
-                mostViewedContainer.innerHTML = ''; // Limpiar
                 if (productsToShow.length === 0) {
                     mostViewedContainer.innerHTML = '<p class="text-gray-500 pl-2">No hay artículos en esta sección.</p>';
                     return;
@@ -1454,7 +1578,7 @@
                 productsToShow.forEach(product => {
                     const cardHtml = `
                         <div class="flex-shrink-0 w-64 overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
-                            <img src="${product.imageUrl}" alt="${product.name}" class="object-cover w-full h-40">
+                            <img src="${product.imageUrl}" alt="${product.name}" class="object-cover w-full h-40" loading="lazy">
                             <div class="p-4">
                                 <h4 class="font-semibold text-gray-900 truncate">${product.name}</h4>
                                 <p class="text-sm text-gray-500 truncate">Busca: ${product.wants}</p>
@@ -1477,15 +1601,34 @@
              */
             function renderProducts() {
                 explorarProductGrid.innerHTML = ''; // Limpiar grilla
-                if (state.allProducts.length === 0) {
-                     explorarProductGrid.innerHTML = '<p class="text-gray-500 col-span-full">No hay artículos publicados por el momento.</p>';
-                         return;
+                if (state.isLoadingProducts) {
+                    const skeletonCount = 8;
+                    for (let i = 0; i < skeletonCount; i++) {
+                        const skeletonCard = `
+                            <div class="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
+                                <div class="w-full h-40 skeleton"></div>
+                                <div class="p-4 space-y-3">
+                                    <div class="w-3/4 h-4 skeleton rounded"></div>
+                                    <div class="w-2/3 h-3 skeleton rounded"></div>
+                                    <div class="w-1/2 h-3 skeleton rounded"></div>
+                                    <div class="w-full h-9 skeleton rounded"></div>
+                                </div>
+                            </div>
+                        `;
+                        explorarProductGrid.insertAdjacentHTML('beforeend', skeletonCard);
+                    }
+                    return;
                 }
-                
+
+                if (state.allProducts.length === 0) {
+                    explorarProductGrid.innerHTML = '<p class="text-gray-500 col-span-full">No hay artículos publicados por el momento.</p>';
+                    return;
+                }
+
                 state.allProducts.forEach(product => {
                     const productHtml = `
                         <div class="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
-                            <img src="${product.imageUrl}" alt="${product.name}" class="object-cover w-full h-40">
+                            <img src="${product.imageUrl}" alt="${product.name}" class="object-cover w-full h-40" loading="lazy">
                             <div class="p-4">
                                 <h4 class="font-semibold text-gray-900 truncate">${product.name}</h4>
                                 <p class="text-sm text-gray-500 truncate">Busca: ${product.wants}</p>
@@ -1516,7 +1659,7 @@
                 state.currentUser.items.forEach(item => {
                     const itemHtml = `
                         <div class="flex items-center p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
-                            <img src="${item.imageUrl}" alt="${item.name}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+                            <img src="${item.imageUrl}" alt="${item.name}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0" loading="lazy">
                             <div class="ml-4 flex-1 min-w-0">
                                 <h4 class="font-semibold text-gray-900 truncate">${item.name}</h4>
                                 <p class="text-sm text-gray-500">Valor: <span class="text-green-600">${formatCOP(item.value)}</span></p>
@@ -1764,35 +1907,47 @@
              * Carga los banners desde Firestore y los renderiza en el carrusel.
              */
             async function loadAndRenderBanners() {
+                state.isLoadingBanners = true;
+                state.banners = [];
+
                 try {
                     const bannersQuery = query(collection(db, "banners"), orderBy("createdAt", "desc"));
                     const snapshot = await getDocs(bannersQuery);
-                    
-                    carouselSlider.innerHTML = ''; // Vaciar el carrusel antes de llenarlo
-                    
+
+                    carouselSlider.innerHTML = '';
+
                     if (snapshot.empty) {
                         carouselSlider.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-500">No hay banners para mostrar.</div>`;
                         totalSlides = 0;
+                        updateCarouselMeta();
                         return;
                     }
 
                     snapshot.forEach(docSnap => {
                         const banner = docSnap.data();
-                        const endTime = banner.endTime && banner.endTime.toDate ? banner.endTime.toDate().toISOString() : new Date().toISOString();
-                        
+                        const endTime = banner.endTime && banner.endTime.toDate ? banner.endTime.toDate().toISOString() : '';
+                        const safeTitle = banner.title || '';
+                        const safeSubtitle = banner.subtitle || '';
+                        const safeImage = banner.imageUrl || '';
+                        const safeAlt = safeTitle || 'Banner destacado';
+
+                        state.banners.push({
+                            id: docSnap.id,
+                            title: safeTitle,
+                            subtitle: safeSubtitle,
+                            endTime,
+                            imageUrl: safeImage,
+                            imagePath: banner.imagePath || '',
+                        });
+
                         const slideHtml = `
                             <div class="relative flex-shrink-0 w-full h-full carousel-slide" data-end-time="${endTime}" data-banner-id="${docSnap.id}" data-image-path="${banner.imagePath || ''}">
-                                <img src="${banner.imageUrl}" alt="${banner.title}" class="object-cover w-full h-full">
-                                <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-white bg-black bg-opacity-30">
-                                    <h2 class="text-2xl font-bold md:text-4xl">${banner.title || ''}</h2>
-                                    <p class="mt-2 text-sm md:text-lg">${banner.subtitle || ''}</p>
-                                </div>
-                                <div class="absolute top-2 right-2 md:top-4 md:right-4 flex items-center space-x-2">
-                                    <div class="promo-timer"><span>Cargando...</span></div>
-                                    <button class="p-1 text-white bg-black rounded-full admin-only hidden hover:bg-opacity-70 bg-opacity-40 admin-edit-timer-btn">
+                                <img src="${safeImage}" alt="${safeAlt}" class="object-cover w-full h-full" loading="lazy">
+                                <div class="absolute top-3 right-3 flex items-center gap-2 admin-only hidden">
+                                    <button class="p-1 text-gray-800 bg-white/90 rounded-full shadow-sm hover:bg-white admin-edit-timer-btn" title="Editar temporizador">
                                         <i data-lucide="pencil" class="w-4 h-4"></i>
                                     </button>
-                                    <button class="p-1 text-white bg-red-600 rounded-full admin-only hidden hover:bg-red-700 bg-opacity-80 btn-delete-banner">
+                                    <button class="p-1 text-white bg-red-600 rounded-full shadow-sm hover:bg-red-700 btn-delete-banner" title="Eliminar banner">
                                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                                     </button>
                                 </div>
@@ -1801,34 +1956,149 @@
                         carouselSlider.insertAdjacentHTML('beforeend', slideHtml);
                     });
 
-                    // Reinicializar la lógica del carrusel con los nuevos slides
                     resetCarousel();
 
                 } catch (error) {
                     console.error("Error cargando los banners:", error);
                     carouselSlider.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-gray-100 text-red-500">Error al cargar banners.</div>`;
+                    updateCarouselMeta();
+                } finally {
+                    state.isLoadingBanners = false;
                 }
             }
 
             /**
              * Reinicia el carrusel después de cargar contenido dinámico.
              */
+            function clearCarouselTimer() {
+                if (carouselTimerInterval) {
+                    clearInterval(carouselTimerInterval);
+                    carouselTimerInterval = null;
+                }
+            }
+
+            function startActiveBannerTimer(endTime) {
+                if (!carouselTimerEl) return;
+                clearCarouselTimer();
+
+                if (!endTime) {
+                    carouselTimerEl.textContent = '';
+                    carouselTimerEl.classList.add('hidden');
+                    carouselTimerEl.classList.remove('is-finished');
+                    return;
+                }
+
+                const target = new Date(endTime).getTime();
+                if (Number.isNaN(target)) {
+                    carouselTimerEl.textContent = '';
+                    carouselTimerEl.classList.add('hidden');
+                    carouselTimerEl.classList.remove('is-finished');
+                    return;
+                }
+
+                carouselTimerEl.classList.remove('hidden');
+
+                const formatter = (value) => value.toString().padStart(2, '0');
+
+                const render = () => {
+                    const now = Date.now();
+                    const distance = target - now;
+
+                    if (distance <= 0) {
+                        clearCarouselTimer();
+                        carouselTimerEl.classList.add('is-finished');
+                        carouselTimerEl.innerHTML = `<span class="promo-timer-dot"></span><span>Expirado</span>`;
+                        carouselTimerEl.setAttribute('aria-label', 'Promoción expirada');
+                        return;
+                    }
+
+                    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    const segments = [];
+                    if (days > 0) {
+                        segments.push(`${formatter(days)}d`);
+                    }
+                    segments.push(`${formatter(hours)}h`);
+                    segments.push(`${formatter(minutes)}m`);
+                    segments.push(`${formatter(seconds)}s`);
+
+                    carouselTimerEl.classList.remove('is-finished');
+                    carouselTimerEl.innerHTML = `<span class="promo-timer-dot"></span><span class="font-mono">${segments.join(' · ')}</span>`;
+                    carouselTimerEl.setAttribute('aria-label', `Tiempo restante ${segments.join(' ')}`);
+                };
+
+                render();
+                carouselTimerInterval = setInterval(render, 1000);
+            }
+
+            function updateCarouselMeta() {
+                if (!carouselMeta) return;
+
+                if (!state.banners || state.banners.length === 0 || totalSlides === 0) {
+                    carouselMeta.classList.add('hidden');
+                    if (carouselTitleEl) carouselTitleEl.textContent = '';
+                    if (carouselSubtitleEl) carouselSubtitleEl.textContent = '';
+                    clearCarouselTimer();
+                    if (carouselTimerEl) {
+                        carouselTimerEl.textContent = '';
+                        carouselTimerEl.classList.add('hidden');
+                        carouselTimerEl.classList.remove('is-finished');
+                    }
+                    return;
+                }
+
+                if (currentSlide >= totalSlides) {
+                    currentSlide = 0;
+                }
+
+                const activeBanner = state.banners[currentSlide];
+                if (!activeBanner) {
+                    carouselMeta.classList.add('hidden');
+                    clearCarouselTimer();
+                    if (carouselTimerEl) {
+                        carouselTimerEl.textContent = '';
+                        carouselTimerEl.classList.add('hidden');
+                        carouselTimerEl.classList.remove('is-finished');
+                    }
+                    return;
+                }
+
+                carouselMeta.classList.remove('hidden');
+
+                if (carouselTitleEl) {
+                    carouselTitleEl.textContent = activeBanner.title || '';
+                    carouselTitleEl.classList.toggle('hidden', !activeBanner.title);
+                }
+
+                if (carouselSubtitleEl) {
+                    carouselSubtitleEl.textContent = activeBanner.subtitle || '';
+                    carouselSubtitleEl.classList.toggle('hidden', !activeBanner.subtitle);
+                }
+
+                if (carouselTimerEl) {
+                    startActiveBannerTimer(activeBanner.endTime);
+                }
+            }
+
             function resetCarousel() {
-                const slides = document.querySelectorAll('.carousel-slide');
+                const slides = carouselSlider ? carouselSlider.querySelectorAll('.carousel-slide') : [];
                 totalSlides = slides.length;
                 currentSlide = 0;
                 updateCarousel();
                 startCarouselAutoPlay();
-                startTimers(); // Inicia los contadores de tiempo
                 updateAuthUI(); // Asegura que los botones de admin se muestren/oculten
                 lucide.createIcons(); // Vuelve a renderizar los iconos
             }
 
 
             function updateCarousel() {
-                 if (totalSlides > 0) {
+                if (totalSlides > 0) {
                     carouselSlider.style.transform = `translateX(-${currentSlide * 100}%)`;
-                 }
+                }
+                updateCarouselMeta();
             }
 
             function nextSlide() {
@@ -1854,48 +2124,6 @@
 
             function stopCarouselAutoPlay() {
                 clearInterval(carouselInterval);
-            }
-
-            function startTimers() {
-                document.querySelectorAll('.promo-timer').forEach(timerEl => {
-                    const slide = timerEl.closest('.carousel-slide');
-                    if (!slide) return;
-
-                    const endTimeAttr = slide.dataset.endTime;
-                    const endTime = new Date(endTimeAttr).getTime();
-
-                    if (timerEl.dataset.intervalId) {
-                        clearInterval(timerEl.dataset.intervalId);
-                    }
-
-                    function updateTimer() {
-                        const now = new Date().getTime();
-                        const distance = endTime - now;
-
-                        if (distance < 0) {
-                            clearInterval(timerEl.dataset.intervalId);
-                            timerEl.innerHTML = "<span>¡Expirado!</span>";
-                            return;
-                        }
-
-                        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                        const f = (n) => n.toString().padStart(2, '0');
-
-                        timerEl.innerHTML = `
-                            <span class="font-mono">${f(days)}d</span> :
-                            <span class="font-mono">${f(hours)}h</span> :
-                            <span class="font-mono">${f(minutes)}m</span> :
-                            <span class="font-mono">${f(seconds)}s</span>
-                        `;
-                    }
-                    
-                    const intervalId = setInterval(updateTimer, 1000);
-                    timerEl.dataset.intervalId = intervalId;
-                    updateTimer(); // Llamada inicial
-                });
             }
 
             // --- EVENT LISTENERS ---
@@ -1943,10 +2171,15 @@
                     const bannerRef = doc(db, "banners", bannerId);
                     // Firestore espera un objeto Date de JS para los Timestamps
                     await setDoc(bannerRef, { endTime: new Date(newDateTime) }, { merge: true });
-                    
+
                     // Actualizar el dataset localmente y reiniciar los timers
-                    state.editingTimerSlide.dataset.endTime = new Date(newDateTime).toISOString();
-                    startTimers(); 
+                    const updatedEndTime = new Date(newDateTime).toISOString();
+                    state.editingTimerSlide.dataset.endTime = updatedEndTime;
+                    const bannerIndex = state.banners.findIndex(b => b.id === bannerId);
+                    if (bannerIndex !== -1) {
+                        state.banners[bannerIndex].endTime = updatedEndTime;
+                    }
+                    updateCarouselMeta();
                     closeTimerModal();
 
                 } catch (error) {
@@ -2734,8 +2967,13 @@ async function handleAdminBannerUpload(event) {
                     }
 
                     const editBtn = e.target.closest('.admin-edit-timer-btn');
-                    if(editBtn){
-                        openTimerModal(e);
+                    if (editBtn) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const slide = editBtn.closest('.carousel-slide');
+                        if (slide) {
+                            openTimerModal(slide);
+                        }
                     }
                 });
             }
@@ -2776,12 +3014,18 @@ async function handleAdminBannerUpload(event) {
                 // Inicializar iconos (MOVIDO AL FINAL)
                 lucide.createIcons();
 
-                await loadAndRenderBanners(); // Carga banners desde Firebase
-                await loadAllProducts();
+                await Promise.all([
+                    loadAndRenderBanners(),
+                    loadAllProducts(),
+                ]);
+                hidePreloader();
             }
 
             // Arrancar la aplicación
-            init().catch(error => console.error('Error al inicializar la aplicación:', error));
+            init().catch(error => {
+                console.error('Error al inicializar la aplicación:', error);
+                hidePreloader();
+            });
         });
     </script>
 
