@@ -712,7 +712,7 @@
             apiKey: "AIzaSyBG035jZHTgsqZKIYCHGAUshwRukSccrjU",
             authDomain: "mercadocanje-ffca0.firebaseapp.com",
             projectId: "mercadocanje-ffca0",
-            storageBucket: "mercadocanje-ffca0.firebasestorage.app",
+            storageBucket: "mercadocanje-ffca0.appspot.com",
             messagingSenderId: "1069590620221",
             appId: "1:1069590620221:web:ea68de5b49395ce42be254",
             measurementId: "G-9KEBKJ84CR"
@@ -2613,16 +2613,24 @@
              * Maneja la subida de un nuevo banner por parte del admin.
              */
 async function handleAdminBannerUpload(event) {
-    const file = event.target.files[0];
-    if (!file || !state.isAdmin) return;
+    if (!uploadCoverBtn || !coverFileInput) return;
 
-    const buttonIcon = uploadCoverBtn.querySelector('i');
-    const originalIcon = buttonIcon.dataset.lucide;
+    const file = event.target.files[0];
+    if (!file || !state.isAdmin) {
+        coverFileInput.value = null;
+        return;
+    }
+
+    const originalButtonContent = uploadCoverBtn.innerHTML;
 
     // 1. Inicia el feedback visual: deshabilita el botón y muestra el spinner.
     uploadCoverBtn.disabled = true;
-    buttonIcon.removeAttribute('data-lucide');
-    buttonIcon.innerHTML = `<svg class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+    uploadCoverBtn.innerHTML = `<span class="flex items-center justify-center">
+        <svg class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+    </span>`;
 
     try {
         // 2. Intenta subir el archivo
@@ -2658,9 +2666,10 @@ async function handleAdminBannerUpload(event) {
     } finally {
         // 7. Se ejecuta siempre: restaura el botón a su estado original
         uploadCoverBtn.disabled = false;
-        buttonIcon.innerHTML = '';
-        buttonIcon.setAttribute('data-lucide', originalIcon);
-        lucide.createIcons();
+        uploadCoverBtn.innerHTML = originalButtonContent;
+        if (typeof lucide !== 'undefined' && lucide?.createIcons) {
+            lucide.createIcons();
+        }
         coverFileInput.value = null; // Resetea el input para poder subir el mismo archivo otra vez
     }
 }
