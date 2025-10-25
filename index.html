@@ -871,6 +871,8 @@
 
 
             // --- SELECTORES ---
+            const DEFAULT_PAGE_ID = 'page-explorar';
+
             const pages = document.querySelectorAll('.page');
             const navLinks = document.querySelectorAll('.nav-link');
             const authTabs = document.querySelectorAll('.auth-tab-btn');
@@ -967,14 +969,15 @@
             /**
              * Muestra una página y oculta las demás.
              */
-            function showPage(pageId) {
+            function showPage(pageId = DEFAULT_PAGE_ID) {
+                const targetPageId = pageId || DEFAULT_PAGE_ID;
                 pages.forEach(page => page.classList.add('hidden'));
-                const activePage = document.getElementById(pageId);
+                const activePage = document.getElementById(targetPageId);
                 if (activePage) {
                     activePage.classList.remove('hidden');
                     window.scrollTo(0, 0);
                 }
-                updateActiveNav(pageId);
+                updateActiveNav(targetPageId);
             }
 
             /**
@@ -2132,7 +2135,7 @@
             navLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
-                    const pageId = e.currentTarget.dataset.page;
+                    const pageId = e.currentTarget.dataset.page || DEFAULT_PAGE_ID;
                     if ((pageId === 'page-canjes' || pageId === 'page-vender') && !state.isLoggedIn) {
                         showPage('page-perfil');
                     } else {
@@ -2147,7 +2150,7 @@
             mobileMenuLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
-                    const pageId = e.currentTarget.dataset.page;
+                    const pageId = e.currentTarget.dataset.page || DEFAULT_PAGE_ID;
                     if ((pageId === 'page-canjes' || pageId === 'page-vender') && !state.isLoggedIn) {
                         showPage('page-perfil');
                     } else {
@@ -2982,7 +2985,7 @@ async function handleAdminBannerUpload(event) {
             // --- INICIALIZACIÓN ---
             async function init() {
                 updateAuthUI();
-                showPage('page-explorar');
+                showPage(DEFAULT_PAGE_ID);
 
                 // Inicializar Carrusel
                 carouselPrevBtn.addEventListener('click', () => {
