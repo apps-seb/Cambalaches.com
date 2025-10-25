@@ -292,54 +292,6 @@
                 
                 <div id="promo-carousel" class="relative w-full h-48 mb-6 overflow-hidden bg-gray-200 rounded-lg md:h-64">
                     <div id="carousel-slider" class="flex h-full transition-transform duration-500 ease-in-out">
-                        
-                        <div class="relative flex-shrink-0 w-full h-full carousel-slide" data-end-time="2025-12-24T23:59:59">
-                            <img src="https://placehold.co/1200x300/4285F4/FFFFFF?text=¡Gran+Canjetón+Navideño!" alt="Banner 1" class="object-cover w-full h-full">
-                            <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-white bg-black bg-opacity-30">
-                                <h2 class="text-2xl font-bold md:text-4xl">¡Canjetón Navideño!</h2>
-                                <p class="mt-2 text-sm md:text-lg">Publica y gana premios</p>
-                            </div>
-                            <div class="absolute top-2 right-2 md:top-4 md:right-4 flex items-center space-x-2">
-                                <div class="promo-timer"> <span>Cargando...</span>
-                                </div>
-                                <button class="p-1 text-white bg-black rounded-full admin-only hidden hover:bg-opacity-70 bg-opacity-40 admin-edit-timer-btn">
-                                    <i data-lucide="pencil" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="relative flex-shrink-0 w-full h-full carousel-slide" data-end-time="2025-11-30T20:00:00">
-                            <img src="https://placehold.co/1200x300/34A853/FFFFFF?text=Canjea+Tecnología+Verde" alt="Banner 2" class="object-cover w-full h-full">
-                            <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-white bg-black bg-opacity-30">
-                                <h2 class="text-2xl font-bold md:text-4xl">Tecnología Verde</h2>
-                                <p class="mt-2 text-sm md:text-lg">Canjea tus aparatos electrónicos</p>
-                            </div>
-                            <div class="absolute top-2 right-2 md:top-4 md:right-4 flex items-center space-x-2">
-                                <div class="promo-timer">
-                                    <span>Cargando...</span>
-                                </div>
-                                <button class="p-1 text-white bg-black rounded-full admin-only hidden hover:bg-opacity-70 bg-opacity-40 admin-edit-timer-btn">
-                                    <i data-lucide="pencil" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="relative flex-shrink-0 w-full h-full carousel-slide" data-end-time="2025-10-25T18:00:00">
-                            <img src="https://placehold.co/1200x300/FBBC05/333333?text=Moda+Circular" alt="Banner 3" class="object-cover w-full h-full">
-                            <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-gray-900 bg-white bg-opacity-30">
-                                <h2 class="text-2xl font-bold md:text-4xl">Moda Circular</h2>
-                                <p class="mt-2 text-sm md:text-lg">Intercambia tu ropa favorita</p>
-                            </div>
-                            <div class="absolute top-2 right-2 md:top-4 md:right-4 flex items-center space-x-2">
-                                <div class="promo-timer">
-                                    <span>Cargando...</span>
-                                </div>
-                                <button class="p-1 text-white bg-black rounded-full admin-only hidden hover:bg-opacity-70 bg-opacity-40 admin-edit-timer-btn">
-                                    <i data-lucide="pencil" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                        </div>
-
                     </div>
                     
                     <button id="carousel-prev" class="absolute top-1/2 left-2 md:left-4 p-2 -translate-y-1/2 text-white bg-black rounded-full bg-opacity-40 hover:bg-opacity-70">
@@ -753,7 +705,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAnalytics, isSupported as isAnalyticsSupported } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
         import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, query, where, serverTimestamp, deleteDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, query, where, serverTimestamp, deleteDoc, increment, onSnapshot, orderBy, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
         const firebaseConfig = {
@@ -824,9 +776,11 @@
                 },
                 viewedCategoryHistory: {},
                 allProducts: [],
+                banners: [],
                 receivedOffers: [],
                 itemToSwap: null,
                 editingTimerSlide: null,
+                editingBannerId: null,
                 productFiles: [],
                 profilePicFile: null,
             };
@@ -875,12 +829,12 @@
 
             // Carrusel
             const carouselSlider = document.getElementById('carousel-slider');
-            const carouselSlides = document.querySelectorAll('.carousel-slide');
             const carouselPrevBtn = document.getElementById('carousel-prev');
             const carouselNextBtn = document.getElementById('carousel-next');
             let currentSlide = 0;
-            const totalSlides = carouselSlides.length;
+            let totalSlides = 0;
             let carouselInterval;
+            let bannersUnsubscribe = null;
 
             // --- NUEVOS SELECTORES ---
             const mobileMenuBtn = document.getElementById('mobile-menu-btn');
@@ -946,6 +900,16 @@
                 });
             }
 
+            function refreshAdminOnlyElements() {
+                document.querySelectorAll('.admin-only').forEach(el => {
+                    if (state.isAdmin) {
+                        el.classList.remove('hidden');
+                    } else {
+                        el.classList.add('hidden');
+                    }
+                });
+            }
+
             /**
              * Actualiza la UI basada en el estado de autenticación.
              */
@@ -973,11 +937,10 @@
                     // Lógica de Admin
                     if (state.isAdmin) {
                         adminBadge.classList.remove('hidden');
-                        document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
                     } else {
                         adminBadge.classList.add('hidden');
-                        document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
                     }
+                    refreshAdminOnlyElements();
 
                     // Actualizar contadores
                     ofertasCount.textContent = state.receivedOffers.length;
@@ -1005,7 +968,7 @@
 
                     // Ocultar elementos de admin
                     adminBadge.classList.add('hidden');
-                    document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
+                    refreshAdminOnlyElements();
 
                     // Limpiar contadores y contenido
                     ofertasCount.textContent = 0;
@@ -1405,21 +1368,265 @@
                 });
             }
 
-            /**
-             * Maneja la subida de una foto de portada (simulación).
-             */
-            function handleCoverUpload(event) {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const activeSlide = carouselSlides[currentSlide];
-                        const img = activeSlide.querySelector('img');
-                        if (img) {
-                            img.src = e.target.result;
-                        }
+            async function handleBannerUpload(event) {
+                const file = event.target.files ? event.target.files[0] : null;
+                if (!file) {
+                    if (coverFileInput) coverFileInput.value = '';
+                    return;
+                }
+
+                if (!state.isAdmin) {
+                    alert('Solo los administradores pueden subir nuevas portadas.');
+                    coverFileInput.value = '';
+                    return;
+                }
+
+                if (!file.type.startsWith('image/')) {
+                    alert('Selecciona un archivo de imagen válido.');
+                    coverFileInput.value = '';
+                    return;
+                }
+
+                const titlePrompt = prompt('Título de la portada:', '');
+                if (titlePrompt === null) {
+                    coverFileInput.value = '';
+                    return;
+                }
+                let title = titlePrompt.trim() || 'Nueva portada';
+
+                const subtitlePrompt = prompt('Descripción breve (opcional):', '');
+                if (subtitlePrompt === null) {
+                    coverFileInput.value = '';
+                    return;
+                }
+                let subtitle = subtitlePrompt.trim();
+
+                const endTimePrompt = prompt('Fecha y hora de finalización (YYYY-MM-DDTHH:MM, opcional):', '');
+                if (endTimePrompt === null) {
+                    coverFileInput.value = '';
+                    return;
+                }
+                let endTimeInput = endTimePrompt.trim();
+
+                let endTimeIso = '';
+                if (endTimeInput) {
+                    const parsedDate = new Date(endTimeInput);
+                    if (Number.isNaN(parsedDate.getTime())) {
+                        alert('La fecha ingresada no es válida.');
+                        coverFileInput.value = '';
+                        return;
+                    }
+                    endTimeIso = parsedDate.toISOString();
+                }
+
+                const overlayPreference = (prompt('Tipo de fondo (oscuro/claro). Deja en blanco para oscuro:', '') || '').trim().toLowerCase();
+                const overlayColorClass = ['claro', 'clara', 'light'].includes(overlayPreference)
+                    ? 'bg-white bg-opacity-30'
+                    : 'bg-black bg-opacity-30';
+
+                const textPreference = (prompt('Color del texto (claro/oscuro). Deja en blanco para claro:', '') || '').trim().toLowerCase();
+                const textColorClass = ['oscuro', 'dark'].includes(textPreference)
+                    ? 'text-gray-900'
+                    : 'text-white';
+
+                const previousDisabled = uploadCoverBtn ? uploadCoverBtn.disabled : false;
+                if (uploadCoverBtn) {
+                    uploadCoverBtn.disabled = true;
+                    uploadCoverBtn.classList.add('opacity-50', 'pointer-events-none');
+                }
+
+                try {
+                    const storagePath = `banners/${Date.now()}-${file.name}`;
+                    const bannerStorageRef = storageRef(storage, storagePath);
+                    await uploadBytes(bannerStorageRef, file);
+                    const downloadUrl = await getDownloadURL(bannerStorageRef);
+
+                    const payload = {
+                        title,
+                        subtitle,
+                        imageUrl: downloadUrl,
+                        imagePath: storagePath,
+                        endTime: endTimeIso,
+                        textColorClass,
+                        overlayColorClass,
+                        createdAt: serverTimestamp(),
+                        createdBy: state.currentUser.uid || null,
                     };
-                    reader.readAsDataURL(file);
+
+                    await addDoc(collection(db, 'banners'), payload);
+                    alert('Portada subida correctamente.');
+                } catch (error) {
+                    console.error('Error al subir la portada:', error);
+                    alert(`No se pudo subir la portada: ${error.message}`);
+                } finally {
+                    if (coverFileInput) coverFileInput.value = '';
+                    if (uploadCoverBtn) {
+                        uploadCoverBtn.disabled = previousDisabled;
+                        uploadCoverBtn.classList.remove('opacity-50', 'pointer-events-none');
+                    }
+                }
+            }
+
+            async function deleteBanner(bannerId, imagePath) {
+                if (!bannerId || !state.isAdmin) return;
+
+                try {
+                    await deleteDoc(doc(db, 'banners', bannerId));
+                    if (imagePath) {
+                        try {
+                            const fileRef = storageRef(storage, imagePath);
+                            await deleteObject(fileRef);
+                        } catch (storageError) {
+                            console.warn('No se pudo eliminar la imagen asociada a la portada:', storageError);
+                        }
+                    }
+                    alert('Portada eliminada correctamente.');
+                } catch (error) {
+                    console.error('Error al eliminar la portada:', error);
+                    alert('No se pudo eliminar la portada.');
+                }
+            }
+
+            function renderBanners() {
+                if (!carouselSlider) return;
+
+                stopCarouselAutoPlay();
+                carouselSlider.innerHTML = '';
+
+                const banners = Array.isArray(state.banners) ? state.banners : [];
+                if (banners.length === 0) {
+                    const emptyState = document.createElement('div');
+                    emptyState.className = 'flex items-center justify-center w-full h-full text-sm text-gray-500 bg-white/60';
+                    emptyState.textContent = 'No hay portadas disponibles en este momento.';
+                    carouselSlider.appendChild(emptyState);
+                    totalSlides = 0;
+                    currentSlide = 0;
+                    updateCarousel();
+                    return;
+                }
+
+                banners.forEach(banner => {
+                    const slide = document.createElement('div');
+                    slide.className = 'relative flex-shrink-0 w-full h-full carousel-slide';
+                    slide.dataset.bannerId = banner.id || '';
+
+                    let endTimeIso = '';
+                    if (banner.endTime) {
+                        if (typeof banner.endTime === 'string') {
+                            const parsed = new Date(banner.endTime);
+                            if (!Number.isNaN(parsed.getTime())) {
+                                endTimeIso = parsed.toISOString();
+                            }
+                        } else if (banner.endTime && typeof banner.endTime.toDate === 'function') {
+                            endTimeIso = banner.endTime.toDate().toISOString();
+                        }
+                    }
+                    if (endTimeIso) {
+                        slide.dataset.endTime = endTimeIso;
+                    } else {
+                        slide.dataset.endTime = '';
+                    }
+
+                    const image = document.createElement('img');
+                    image.src = banner.imageUrl || DEFAULT_PRODUCT_IMAGE;
+                    image.alt = banner.title || 'Portada destacada';
+                    image.className = 'object-cover w-full h-full';
+                    slide.appendChild(image);
+
+                    const overlay = document.createElement('div');
+                    overlay.className = `absolute inset-0 flex flex-col items-center justify-center p-6 ${banner.overlayColorClass || 'bg-black bg-opacity-30'} ${banner.textColorClass || 'text-white'}`;
+
+                    const titleEl = document.createElement('h2');
+                    titleEl.className = 'text-2xl font-bold md:text-4xl text-center';
+                    titleEl.textContent = banner.title || 'Portada destacada';
+                    overlay.appendChild(titleEl);
+
+                    if (banner.subtitle) {
+                        const subtitleEl = document.createElement('p');
+                        subtitleEl.className = 'mt-2 text-sm md:text-lg text-center';
+                        subtitleEl.textContent = banner.subtitle;
+                        overlay.appendChild(subtitleEl);
+                    }
+
+                    slide.appendChild(overlay);
+
+                    const controls = document.createElement('div');
+                    controls.className = 'absolute top-2 right-2 md:top-4 md:right-4 flex items-center space-x-2';
+
+                    const timerEl = document.createElement('div');
+                    timerEl.className = 'promo-timer';
+                    timerEl.innerHTML = '<span>Cargando...</span>';
+                    controls.appendChild(timerEl);
+
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'p-1 text-white bg-black rounded-full admin-only hidden hover:bg-opacity-70 bg-opacity-40 admin-edit-timer-btn';
+                    editBtn.dataset.bannerId = banner.id || '';
+                    const editIcon = document.createElement('i');
+                    editIcon.setAttribute('data-lucide', 'pencil');
+                    editIcon.className = 'w-4 h-4';
+                    editBtn.appendChild(editIcon);
+                    controls.appendChild(editBtn);
+
+                    slide.appendChild(controls);
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'absolute top-2 left-2 md:top-4 md:left-4 p-2 text-white bg-black rounded-full bg-opacity-40 hover:bg-opacity-70 admin-only hidden btn-delete-banner';
+                    deleteBtn.dataset.bannerId = banner.id || '';
+                    if (banner.imagePath) {
+                        deleteBtn.dataset.imagePath = banner.imagePath;
+                    }
+                    deleteBtn.title = 'Eliminar portada';
+                    const deleteIcon = document.createElement('i');
+                    deleteIcon.setAttribute('data-lucide', 'trash-2');
+                    deleteIcon.className = 'w-4 h-4';
+                    deleteBtn.appendChild(deleteIcon);
+                    slide.appendChild(deleteBtn);
+
+                    carouselSlider.appendChild(slide);
+                });
+
+                totalSlides = banners.length;
+                if (currentSlide >= totalSlides) {
+                    currentSlide = 0;
+                }
+
+                updateCarousel();
+                startTimers();
+                assignAdminTimerListeners();
+                lucide.createIcons();
+                refreshAdminOnlyElements();
+                startCarouselAutoPlay();
+            }
+
+            function listenToBanners() {
+                if (bannersUnsubscribe) {
+                    bannersUnsubscribe();
+                    bannersUnsubscribe = null;
+                }
+
+                try {
+                    const bannersRef = collection(db, 'banners');
+                    const bannersQuery = query(bannersRef, orderBy('createdAt', 'desc'));
+                    bannersUnsubscribe = onSnapshot(bannersQuery, (snapshot) => {
+                        state.banners = snapshot.docs.map(docSnap => {
+                            const data = docSnap.data() || {};
+                            return {
+                                id: docSnap.id,
+                                title: data.title || '',
+                                subtitle: data.subtitle || '',
+                                imageUrl: data.imageUrl || '',
+                                imagePath: data.imagePath || '',
+                                endTime: data.endTime || '',
+                                textColorClass: data.textColorClass || '',
+                                overlayColorClass: data.overlayColorClass || '',
+                            };
+                        });
+                        renderBanners();
+                    }, (error) => {
+                        console.error('Error al escuchar la colección de portadas:', error);
+                    });
+                } catch (error) {
+                    console.error('No se pudo inicializar la escucha de portadas:', error);
                 }
             }
 
@@ -1430,8 +1637,9 @@
                 e.stopPropagation(); // Evitar que el clic active otra cosa
                 const slide = e.currentTarget.closest('.carousel-slide');
                 if (!slide) return;
-                
+
                 state.editingTimerSlide = slide;
+                state.editingBannerId = slide.dataset.bannerId || e.currentTarget.dataset.bannerId || null;
                 const currentEndTime = slide.dataset.endTime;
                 // Formatear para datetime-local input (requiere YYYY-MM-DDTHH:MM)
                 try {
@@ -1452,6 +1660,7 @@
                 modalEditTimer.classList.add('hidden');
                 modalEditTimer.classList.remove('open');
                 state.editingTimerSlide = null;
+                state.editingBannerId = null;
             }
 
             /**
@@ -1836,59 +2045,85 @@
             // --- LÓGICA DE CARRUSEL Y TEMPORIZADOR ---
 
             function updateCarousel() {
-                carouselSlider.style.transform = `translateX(-${currentSlide * 100}%)`;
+                if (!carouselSlider) return;
+                const offset = totalSlides > 0 ? currentSlide * 100 : 0;
+                carouselSlider.style.transform = `translateX(-${offset}%)`;
             }
 
             function nextSlide() {
+                if (totalSlides === 0) return;
                 currentSlide = (currentSlide + 1) % totalSlides;
                 updateCarousel();
             }
 
             function prevSlide() {
+                if (totalSlides === 0) return;
                 currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
                 updateCarousel();
             }
-            
+
             function startCarouselAutoPlay() {
-                if (carouselInterval) clearInterval(carouselInterval);
+                if (carouselInterval) {
+                    clearInterval(carouselInterval);
+                    carouselInterval = null;
+                }
+                if (totalSlides <= 1) return;
                 carouselInterval = setInterval(nextSlide, 5000); // Cambia cada 5 segundos
             }
 
             function stopCarouselAutoPlay() {
-                clearInterval(carouselInterval);
+                if (carouselInterval) {
+                    clearInterval(carouselInterval);
+                    carouselInterval = null;
+                }
             }
 
             function startTimers() {
                 document.querySelectorAll('.promo-timer').forEach(timerEl => {
-                    const endTimeAttr = timerEl.closest('.carousel-slide').dataset.endTime;
-                    const endTime = new Date(endTimeAttr).getTime();
-
-                    // Limpiar intervalo anterior si existe
-                    if (timerEl.dataset.intervalId) {
-                        clearInterval(timerEl.dataset.intervalId);
+                    const previousInterval = timerEl.dataset.intervalId;
+                    if (previousInterval) {
+                        clearInterval(Number(previousInterval));
+                        delete timerEl.dataset.intervalId;
                     }
 
-                    // Función para actualizar este temporizador específico
+                    const slide = timerEl.closest('.carousel-slide');
+                    if (!slide) {
+                        timerEl.innerHTML = '<span>Sin fecha</span>';
+                        return;
+                    }
+
+                    const endTimeAttr = slide.dataset.endTime;
+                    if (!endTimeAttr) {
+                        timerEl.innerHTML = '<span>Sin fecha</span>';
+                        return;
+                    }
+
+                    const endTime = new Date(endTimeAttr).getTime();
+                    if (Number.isNaN(endTime)) {
+                        timerEl.innerHTML = '<span>Fecha inválida</span>';
+                        return;
+                    }
+
                     function updateTimer() {
-                        const now = new Date().getTime();
+                        const now = Date.now();
                         const distance = endTime - now;
 
-                        if (distance < 0) {
-                            clearInterval(timerEl.dataset.intervalId);
-                            timerEl.innerHTML = "<span>¡Expirado!</span>";
+                        if (distance <= 0) {
+                            if (timerEl.dataset.intervalId) {
+                                clearInterval(Number(timerEl.dataset.intervalId));
+                                delete timerEl.dataset.intervalId;
+                            }
+                            timerEl.innerHTML = '<span>¡Expirado!</span>';
                             return;
                         }
 
-                        // Cálculo
                         const days = Math.floor(distance / (1000 * 60 * 60 * 24));
                         const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-                        // Formato de dos dígitos
                         const f = (n) => n.toString().padStart(2, '0');
 
-                        // Mostrar resultado
                         timerEl.innerHTML = `
                             <span class="font-mono">${f(days)}d</span> :
                             <span class="font-mono">${f(hours)}h</span> :
@@ -1896,10 +2131,10 @@
                             <span class="font-mono">${f(seconds)}s</span>
                         `;
                     }
-                    
+
                     const intervalId = setInterval(updateTimer, 1000);
-                    timerEl.dataset.intervalId = intervalId; // Guardar ID para limpiar después
-                    updateTimer(); // Llamada inicial
+                    timerEl.dataset.intervalId = intervalId;
+                    updateTimer();
                 });
             }
 
@@ -1938,23 +2173,65 @@
             });
 
             // Subir Portada
-            uploadCoverBtn.addEventListener('click', () => coverFileInput.click());
-            coverFileInput.addEventListener('change', handleCoverUpload);
+            if (uploadCoverBtn && coverFileInput) {
+                uploadCoverBtn.addEventListener('click', () => coverFileInput.click());
+                coverFileInput.addEventListener('change', handleBannerUpload);
+            }
+
+            if (carouselSlider) {
+                carouselSlider.addEventListener('click', async (e) => {
+                    const deleteBtn = e.target.closest('.btn-delete-banner');
+                    if (deleteBtn) {
+                        e.preventDefault();
+                        if (!state.isAdmin) {
+                            alert('Solo un administrador puede eliminar portadas.');
+                            return;
+                        }
+
+                        const bannerId = deleteBtn.dataset.bannerId;
+                        const imagePath = deleteBtn.dataset.imagePath || '';
+                        if (!bannerId) return;
+
+                        const shouldDelete = confirm('¿Eliminar esta portada?');
+                        if (!shouldDelete) return;
+
+                        await deleteBanner(bannerId, imagePath);
+                    }
+                });
+            }
 
             // Modal Admin Timer
-            formEditTimer.addEventListener('submit', (e) => {
+            formEditTimer.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                if (!state.editingTimerSlide) return;
-                
+                if (!state.editingTimerSlide || !state.editingBannerId) return;
+
                 const newDateTime = document.getElementById('timer-datetime').value;
-                // Convertir de YYYY-MM-DDTHH:MM a YYYY-MM-DDTHH:MM:SS (formato original)
-                const newEndTime = `${newDateTime}:00`;  
-                
-                state.editingTimerSlide.dataset.endTime = newEndTime;
-                
-                // Refrescar todos los timers
-                startTimers();  
-                closeTimerModal();
+                if (!newDateTime) {
+                    alert('Selecciona una fecha y hora válidas.');
+                    return;
+                }
+
+                const newEndDate = new Date(newDateTime);
+                if (Number.isNaN(newEndDate.getTime())) {
+                    alert('La fecha ingresada no es válida.');
+                    return;
+                }
+
+                const isoString = newEndDate.toISOString();
+
+                try {
+                    await updateDoc(doc(db, 'banners', state.editingBannerId), {
+                        endTime: isoString,
+                        updatedAt: serverTimestamp(),
+                    });
+
+                    state.editingTimerSlide.dataset.endTime = isoString;
+                    startTimers();
+                    closeTimerModal();
+                } catch (error) {
+                    console.error('Error al actualizar la fecha de la portada:', error);
+                    alert('No se pudo actualizar la fecha de finalización.');
+                }
             });
             // Asignar listeners a los botones de cerrar del modal de admin
             modalEditTimer.querySelector('.modal-backdrop').addEventListener('click', closeTimerModal);
@@ -2655,10 +2932,8 @@
                     stopCarouselAutoPlay();
                     startCarouselAutoPlay();
                 });
-                startCarouselAutoPlay();
-
-                // Inicializar Temporizadores
-                startTimers();
+                renderBanners();
+                listenToBanners();
 
                 // --- NUEVAS LLAMADAS DE INICIALIZACIÓN ---
                 populateCategoryList();
