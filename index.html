@@ -2612,53 +2612,58 @@
             /**
              * Maneja la subida de un nuevo banner por parte del admin.
              */
-            async function handleAdminBannerUpload(event) {
-                const file = event.target.files[0];
-                if (!file || !state.isAdmin) return;
+async function handleAdminBannerUpload(event) {
+    const file = event.target.files[0];
+    if (!file || !state.isAdmin) return;
 
-                const buttonIcon = uploadCoverBtn.querySelector('i');
-                const originalIcon = buttonIcon.dataset.lucide;
-                
-                // Mostrar estado de carga
-                uploadCoverBtn.disabled = true;
-                buttonIcon.removeAttribute('data-lucide');
-                buttonIcon.innerHTML = `<svg class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+    const buttonIcon = uploadCoverBtn.querySelector('i');
+    const originalIcon = buttonIcon.dataset.lucide;
 
-                try {
-                    const uniquePath = `banners/${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
-                    const fileRef = storageRef(storage, uniquePath);
-                    const uploadResult = await uploadBytes(fileRef, file);
-                    const downloadURL = await getDownloadURL(uploadResult.ref);
-                    
-                    const oneWeekFromNow = new Date();
-                    oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
+    // 1. Inicia el feedback visual: deshabilita el botón y muestra el spinner.
+    uploadCoverBtn.disabled = true;
+    buttonIcon.removeAttribute('data-lucide');
+    buttonIcon.innerHTML = `<svg class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
 
-                    const newBanner = {
-                        title: "Nuevo Banner",
-                        subtitle: "Edita este texto",
-                        imageUrl: downloadURL,
-                        imagePath: uploadResult.ref.fullPath,
-                        endTime: oneWeekFromNow, // Firestore convertirá la fecha JS a Timestamp
-                        createdAt: serverTimestamp()
-                    };
+    try {
+        // 2. Intenta subir el archivo
+        const uniquePath = `banners/${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
+        const fileRef = storageRef(storage, uniquePath);
+        const uploadResult = await uploadBytes(fileRef, file);
+        const downloadURL = await getDownloadURL(uploadResult.ref);
 
-                    await addDoc(collection(db, 'banners'), newBanner);
-                    
-                    // Recargar los banners para mostrar el nuevo
-                    await loadAndRenderBanners();
+        // 3. Prepara los datos para Firestore
+        const oneWeekFromNow = new Date();
+        oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
 
-                } catch (error) {
-                    console.error("Error al subir el nuevo banner:", error);
-                    alert("No se pudo subir la portada. Revisa la consola para más detalles.");
-                } finally {
-                    // Restaurar botón
-                    uploadCoverBtn.disabled = false;
-                    buttonIcon.innerHTML = '';
-                    buttonIcon.setAttribute('data-lucide', originalIcon);
-                    lucide.createIcons();
-                    coverFileInput.value = null; // Resetear el input
-                }
-            }
+        const newBanner = {
+            title: "Nuevo Banner (Editar)",
+            subtitle: "Haz clic en el lápiz para cambiar la fecha",
+            imageUrl: downloadURL,
+            imagePath: uploadResult.ref.fullPath,
+            endTime: oneWeekFromNow,
+            createdAt: serverTimestamp()
+        };
+
+        // 4. Guarda en Firestore y recarga
+        await addDoc(collection(db, 'banners'), newBanner);
+        await loadAndRenderBanners();
+
+        // 5. Notifica el éxito
+        alert("✅ ¡Banner subido con éxito!");
+
+    } catch (error) {
+        // 6. Si algo falla, notifica el error
+        console.error("Error al subir el nuevo banner:", error);
+        alert(`❌ Error al subir la portada:\n\n${error.message}\n\nRevisa la configuración de 'storageBucket' y las reglas de seguridad de Storage.`);
+    } finally {
+        // 7. Se ejecuta siempre: restaura el botón a su estado original
+        uploadCoverBtn.disabled = false;
+        buttonIcon.innerHTML = '';
+        buttonIcon.setAttribute('data-lucide', originalIcon);
+        lucide.createIcons();
+        coverFileInput.value = null; // Resetea el input para poder subir el mismo archivo otra vez
+    }
+}
 
 
             /**
