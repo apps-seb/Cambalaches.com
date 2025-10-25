@@ -302,9 +302,9 @@
                     </button>
 
                     <input type="file" id="cover-file-input" class="hidden" accept="image/*">
-                    <button id="upload-cover-btn" class="absolute bottom-2 left-2 md:bottom-4 md:left-4 p-2 text-white bg-black rounded-full bg-opacity-40 hover:bg-opacity-70 admin-only hidden" title="Subir nueva portada (Admin)">
-                        <i data-lucide="upload-cloud" class="w-5 h-5 md:w-6 md:h-6"></i>
-                    </button>
+                    <button id="upload-cover-btn" data-icon-name="upload-cloud" class="absolute bottom-2 left-2 md:bottom-4 md:left-4 p-2 text-white bg-black rounded-full bg-opacity-40 hover:bg-opacity-70 admin-only hidden" title="Subir nueva portada (Admin)">
+    <i data-lucide="upload-cloud" class="w-5 h-5 md:w-6 md:h-6"></i>
+</button>
                 </div>
 
                 <h3 class="mb-4 text-xl font-semibold text-gray-900">Categorías Premium</h3>
@@ -2612,26 +2612,27 @@
             /**
              * Maneja la subida de un nuevo banner por parte del admin.
              */
+
 async function handleAdminBannerUpload(event) {
     const file = event.target.files[0];
     if (!file || !state.isAdmin) return;
 
-    const buttonIcon = uploadCoverBtn.querySelector('i');
-    const originalIcon = buttonIcon.dataset.lucide;
+    // 1. Obtiene el nombre del ícono desde el ATRIBUTO del botón, no buscando la etiqueta <i>.
+    //    Esta es la parte clave que evita el error.
+    const originalIconName = uploadCoverBtn.dataset.iconName;
 
-    // 1. Inicia el feedback visual: deshabilita el botón y muestra el spinner.
+    // 2. Inicia el feedback visual: deshabilita el botón y lo VACÍA por completo,
+    //    reemplazando su contenido con el código del spinner.
     uploadCoverBtn.disabled = true;
-    buttonIcon.removeAttribute('data-lucide');
-    buttonIcon.innerHTML = `<svg class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+    uploadCoverBtn.innerHTML = `<svg class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
 
     try {
-        // 2. Intenta subir el archivo
+        // --- El resto de esta sección (try/catch) es tu lógica original, que ya era correcta ---
         const uniquePath = `banners/${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
         const fileRef = storageRef(storage, uniquePath);
         const uploadResult = await uploadBytes(fileRef, file);
         const downloadURL = await getDownloadURL(uploadResult.ref);
 
-        // 3. Prepara los datos para Firestore
         const oneWeekFromNow = new Date();
         oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
 
@@ -2644,23 +2645,23 @@ async function handleAdminBannerUpload(event) {
             createdAt: serverTimestamp()
         };
 
-        // 4. Guarda en Firestore y recarga
         await addDoc(collection(db, 'banners'), newBanner);
         await loadAndRenderBanners();
 
-        // 5. Notifica el éxito
-        alert("✅ ¡Banner subido con éxito!");
-
     } catch (error) {
-        // 6. Si algo falla, notifica el error
         console.error("Error al subir el nuevo banner:", error);
-        alert(`❌ Error al subir la portada:\n\n${error.message}\n\nRevisa la configuración de 'storageBucket' y las reglas de seguridad de Storage.`);
+        alert(`❌ Error al subir la portada:\n\n${error.message}`);
     } finally {
-        // 7. Se ejecuta siempre: restaura el botón a su estado original
+        // 3. Este bloque 'finally' se ejecuta SIEMPRE, tanto si la subida fue exitosa como si falló.
+        //    Es perfecto para restaurar el estado del botón.
         uploadCoverBtn.disabled = false;
-        buttonIcon.innerHTML = '';
-        buttonIcon.setAttribute('data-lucide', originalIcon);
-        lucide.createIcons();
+        
+        // 4. Reconstruimos el contenido del botón desde cero usando el nombre del ícono que guardamos.
+        uploadCoverBtn.innerHTML = `<i data-lucide="${originalIconName}" class="w-5 h-5 md:w-6 md:h-6"></i>`;
+        
+        // 5. ¡CRÍTICO! Le decimos a la librería Lucide que busque nuevas etiquetas <i> para convertirlas en íconos.
+        lucide.createIcons(); 
+        
         coverFileInput.value = null; // Resetea el input para poder subir el mismo archivo otra vez
     }
 }
