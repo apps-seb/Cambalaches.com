@@ -772,6 +772,31 @@
                 
                 <div id="perfil-auth-form" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
                     <div class="border-b border-gray-200">
+            </section>
+
+            <section id="page-chat" class="page hidden">
+                <div class="flex flex-col h-screen">
+                    <header class="flex items-center p-4 bg-white border-b border-gray-200">
+                        <button id="chat-back-btn" class="p-2 text-gray-500 rounded-full hover:bg-gray-100">
+                            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                        </button>
+                        <div class="ml-4">
+                            <h2 id="chat-with-user-name" class="font-semibold"></h2>
+                            <p id="chat-item-name" class="text-sm text-gray-500"></p>
+                        </div>
+                    </header>
+                    <main id="chat-messages" class="flex-1 p-4 overflow-y-auto bg-gray-100">
+                        <!-- Los mensajes del chat se insertarán aquí -->
+                    </main>
+                    <footer class="p-4 bg-white border-t border-gray-200">
+                        <form id="chat-form" class="flex items-center">
+                            <input type="text" id="chat-message-input" class="w-full px-4 py-2 border-gray-300 rounded-lg shadow-sm focus:border-brand focus:ring-brand" placeholder="Escribe tu mensaje..." autocomplete="off">
+                            <button type="submit" class="ml-4 px-4 py-2 font-semibold text-white bg-brand rounded-lg hover:bg-brand-dark">
+                                <i data-lucide="send" class="w-5 h-5"></i>
+                            </button>
+                        </form>
+                    </footer>
+                </div>
                         <nav class="flex -mb-px space-x-6" aria-label="Tabs">
                             <button class="px-1 py-3 text-sm font-medium text-brand border-b-2 border-brand whitespace-nowrap auth-tab-btn" data-auth-tab="auth-login">
                                 Iniciar Sesión
@@ -1151,11 +1176,44 @@
     </div>
 
 
+    <div id="modal-terminos" class="modal hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900 bg-opacity-75">
+        <div class="modal-content relative w-full max-w-4xl h-full flex flex-col bg-white rounded-lg shadow-xl">
+            <header class="flex items-center justify-between p-4 border-b border-gray-200">
+                <h3 class="text-xl font-semibold text-gray-900">Términos y Condiciones del Canje</h3>
+                <button id="modal-terminos-close-btn" class="p-1 text-gray-500 rounded-full hover:bg-gray-100">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </header>
+            <main class="flex-1 p-6 overflow-y-auto">
+                <h4 class="font-semibold text-gray-800">1. Acuerdo entre partes</h4>
+                <p class="mt-2 text-sm text-gray-600">Al aceptar estos términos, usted (en adelante "Usuario Aceptante") y el otro usuario (en adelante "Usuario Proponente") celebran un contrato vinculante para el intercambio de los bienes especificados en la oferta de canje.</p>
+
+                <h4 class="mt-4 font-semibold text-gray-800">2. Estado de los artículos</h4>
+                <p class="mt-2 text-sm text-gray-600">Ambos usuarios declaran que los artículos a intercambiar se encuentran en el estado descrito en sus respectivas publicaciones. Cualquier discrepancia material puede ser motivo de anulación del canje.</p>
+
+                <h4 class="mt-4 font-semibold text-gray-800">3. Logística y entrega</h4>
+                <p class="mt-2 text-sm text-gray-600">Los usuarios son los únicos responsables de coordinar la logística, los costos de envío y la entrega segura de los artículos. CanjeApp no se hace responsable por pérdidas, daños o robos durante el proceso de entrega.</p>
+
+                <h4 class="mt-4 font-semibold text-gray-800">4. Política de no devolución</h4>
+                <p class="mt-2 text-sm text-gray-600">Una vez completado el canje (es decir, ambos usuarios han recibido los artículos), no se admiten devoluciones a través de la plataforma. Cualquier disputa posterior deberá resolverse directamente entre las partes.</p>
+
+                <h4 class="mt-4 font-semibold text-gray-800">5. Responsabilidad</h4>
+                <p class="mt-2 text-sm text-gray-600">CanjeApp actúa únicamente como un intermediario para facilitar el contacto entre usuarios. No verificamos la autenticidad o calidad de los artículos. El canje se realiza bajo el propio riesgo de los usuarios.</p>
+
+                <p class="mt-6 text-sm text-gray-500">Al hacer clic en "Acepto y Continuar", confirmas que has leído, entendido y aceptado todos los términos y condiciones aquí descritos.</p>
+            </main>
+            <footer class="flex justify-end p-4 bg-gray-50 border-t border-gray-200">
+                <button id="modal-terminos-accept-btn" class="px-6 py-2 font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700">Acepto y Continuar al Chat</button>
+            </footer>
+        </div>
+    </div>
+
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAnalytics, isSupported as isAnalyticsSupported } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
         import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, query, where, serverTimestamp, deleteDoc, increment, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, query, where, serverTimestamp, deleteDoc, increment, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
         const firebaseConfig = {
@@ -1239,6 +1297,14 @@
                     items: [],
                     totalQuantity: 0,
                     totalValue: 0,
+                },
+                pendingOffer: null,
+                activeChat: {
+                    id: null,
+                    unsubscribe: null, // To store the listener detachment function
+                    messages: [],
+                    otherUserName: '',
+                    itemName: ''
                 },
             };
 
@@ -2048,6 +2114,17 @@
             const productDetailQuantityIncrease = document.getElementById('quantity-increase');
             const productDetailStock = document.getElementById('product-detail-stock');
             const productDetailAddToCartBtn = document.getElementById('product-detail-add-to-cart');
+            const modalTerminos = document.getElementById('modal-terminos');
+            const modalTerminosCloseBtn = document.getElementById('modal-terminos-close-btn');
+            const modalTerminosAcceptBtn = document.getElementById('modal-terminos-accept-btn');
+            const chatPage = document.getElementById('page-chat');
+            const chatBackButton = document.getElementById('chat-back-btn');
+            const chatWithUserNameEl = document.getElementById('chat-with-user-name');
+            const chatItemNameEl = document.getElementById('chat-item-name');
+            const chatMessagesContainer = document.getElementById('chat-messages');
+            const chatForm = document.getElementById('chat-form');
+            const chatMessageInput = document.getElementById('chat-message-input');
+
 
             // --- SELECTORES DEL CARRUSEL (ACTUALIZADOS) ---
             const promoCarousel = document.getElementById('promo-carousel');
@@ -3075,7 +3152,7 @@
                             </div>
 
                             <div class="flex flex-col mt-4 space-y-2 md:flex-row md:space-y-0 md:space-x-3">
-                                <button class="flex-1 px-4 py-2 text-sm font-medium text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700">Aceptar Canje</button>
+                                <button class="flex-1 px-4 py-2 text-sm font-medium text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700 btn-accept-offer" data-offer-id="${offer.id}">Aceptar Canje</button>
                                 <button class="flex-1 btn-negociar px-4 py-2 text-sm font-medium text-white transition-colors bg-brand rounded-lg hover:bg-brand-dark">Negociar</button>
                                 <button class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 transition-colors bg-gray-100 rounded-lg hover:bg-gray-200">Rechazar</button>
                             </div>
@@ -4389,11 +4466,95 @@ async function handleAdminBannerUpload(event) {
 
 
             /**
+            function renderChatMessages() {
+                if (!chatMessagesContainer) return;
+                chatMessagesContainer.innerHTML = '';
+
+                const messagesHtml = state.activeChat.messages.map(msg => {
+                    const isSender = msg.senderId === state.currentUser.uid;
+                    const bubbleClasses = isSender
+                        ? 'bg-brand text-white self-end'
+                        : 'bg-white text-gray-800 self-start';
+                    const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+
+                    return `
+                        <div class="flex flex-col ${isSender ? 'items-end' : 'items-start'} mb-4">
+                            <div class="max-w-xs md:max-w-md px-4 py-2 rounded-lg shadow ${bubbleClasses}">
+                                <p class="text-sm">${escapeHtml(msg.text)}</p>
+                            </div>
+                            <span class="text-xs text-gray-500 mt-1">${time}</span>
+                        </div>
+                    `;
+                }).join('');
+
+                chatMessagesContainer.innerHTML = messagesHtml;
+                chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+            }
+
+            async function loadChat(chatId) {
+                if (state.activeChat.unsubscribe) {
+                    state.activeChat.unsubscribe();
+                }
+
+                state.activeChat.id = chatId;
+                state.activeChat.messages = [];
+
+                try {
+                    const chatDocRef = doc(db, 'chats', chatId);
+                    const chatSnap = await getDoc(chatDocRef);
+
+                    if (chatSnap.exists()) {
+                        const chatData = chatSnap.data();
+                        state.activeChat.otherUserName = chatData.proposerName === state.currentUser.name ? chatData.receiverName : chatData.proposerName;
+                        state.activeChat.itemName = chatData.itemOfferedName;
+
+                        chatWithUserNameEl.textContent = `Chat con ${state.activeChat.otherUserName}`;
+                        chatItemNameEl.textContent = `Sobre el canje de: ${state.activeChat.itemName}`;
+
+                        const messagesQuery = query(collection(db, 'chats', chatId, 'messages'), orderBy('timestamp', 'asc'));
+
+                        state.activeChat.unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
+                            state.activeChat.messages = [];
+                            snapshot.forEach(doc => {
+                                const data = doc.data();
+                                state.activeChat.messages.push({
+                                    id: doc.id,
+                                    senderId: data.senderId,
+                                    text: data.text,
+                                    timestamp: data.timestamp ? data.timestamp.toMillis() : Date.now()
+                                });
+                            });
+                            renderChatMessages();
+                        });
+                    } else {
+                        console.error("No se pudo encontrar el chat.");
+                    }
+                } catch (error) {
+                    console.error("Error cargando el chat:", error);
+                }
+            }
+
+
              * NUEVO: Listeners delegados para contenido dinámico
              */
             function setupDelegatedListeners() {
-                // Listener para botones "Negociar" en "Mis Canjes"
+                // Listener para botones de acción en ofertas recibidas
                 tabOfertas.addEventListener('click', (e) => {
+                    const acceptBtn = e.target.closest('.btn-accept-offer');
+                    if (acceptBtn) {
+                        e.preventDefault();
+                        const offerId = acceptBtn.dataset.offerId;
+                        const offer = state.receivedOffers.find(o => o.id === offerId);
+                        if (offer) {
+                            state.pendingOffer = offer;
+                            modalTerminos.classList.remove('hidden');
+                            modalTerminos.classList.add('open');
+                        } else {
+                            console.warn('No se encontró la oferta para aceptar:', offerId);
+                        }
+                        return;
+                    }
+
                     const negociarBtn = e.target.closest('.btn-negociar');
                     if (negociarBtn) {
                         const form = negociarBtn.closest('.p-4').querySelector('.negotiation-form');
@@ -4460,6 +4621,81 @@ async function handleAdminBannerUpload(event) {
                 // Listener para subir banner
                 uploadCoverBtn.addEventListener('click', () => coverFileInput.click());
                 coverFileInput.addEventListener('change', handleAdminBannerUpload);
+
+                chatForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const messageText = chatMessageInput.value.trim();
+                    if (messageText === '' || !state.activeChat.id) {
+                        return;
+                    }
+
+                    try {
+                        const messagesColRef = collection(db, 'chats', state.activeChat.id, 'messages');
+                        await addDoc(messagesColRef, {
+                            text: messageText,
+                            senderId: state.currentUser.uid,
+                            timestamp: serverTimestamp()
+                        });
+                        chatMessageInput.value = '';
+                    } catch (error) {
+                        console.error("Error al enviar mensaje:", error);
+                    }
+                });
+
+                chatBackButton.addEventListener('click', () => {
+                    if (state.activeChat.unsubscribe) {
+                        state.activeChat.unsubscribe();
+                    }
+                    state.activeChat = { id: null, unsubscribe: null, messages: [], otherUserName: '', itemName: '' };
+                    showPage('page-canjes');
+                });
+
+                modalTerminosCloseBtn.addEventListener('click', () => {
+                    modalTerminos.classList.add('hidden');
+                    modalTerminos.classList.remove('open');
+                    state.pendingOffer = null;
+                });
+
+                modalTerminosAcceptBtn.addEventListener('click', async () => {
+                    if (!state.pendingOffer) {
+                        console.error('No hay ninguna oferta pendiente para aceptar.');
+                        closeModal(modalTerminos);
+                        return;
+                    }
+
+                    const offer = state.pendingOffer;
+
+                    try {
+                        // 1. Actualizar el estado de la oferta
+                        const offerRef = doc(db, 'offers', offer.id);
+                        await setDoc(offerRef, { status: 'accepted' }, { merge: true });
+
+                        // 2. Crear un nuevo chat
+                        const chatRef = await addDoc(collection(db, 'chats'), {
+                            offerId: offer.id,
+                            participants: [state.currentUser.uid, offer.proposerId],
+                            createdAt: serverTimestamp(),
+                            lastMessage: null,
+                            // Podríamos añadir más metadata si fuera necesario
+                            itemOfferedName: offer.forYourItem.name,
+                            proposerName: offer.fromUser.name,
+                            receiverName: state.currentUser.name
+                        });
+
+                        // 3. Limpiar y redirigir
+                        state.pendingOffer = null;
+                        closeModal(modalTerminos);
+
+                        // Lógica para ir a la página de chat
+                        console.log(`Oferta aceptada y chat creado con ID: ${chatRef.id}`);
+                        loadChat(chatRef.id);
+                        showPage('page-chat');
+
+                    } catch (error) {
+                        console.error('Error al aceptar el canje:', error);
+                        alert('Hubo un error al procesar la aceptación. Inténtalo de nuevo.');
+                    }
+                });
 
                 // --- NUEVAS LLAMADAS DE INICIALIZACIÓN ---
                 populateCategoryList();
