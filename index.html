@@ -11,6 +11,9 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://firebasestorage.googleapis.com" crossorigin>
+    <link rel="dns-prefetch" href="//firebasestorage.googleapis.com">
+    <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <script>
@@ -896,6 +899,245 @@
             };
 
 
+            // --- UTILIDADES DE RENDIMIENTO ---
+            const imagePreloadCache = new Map();
+            const GRID_HIGH_PRIORITY_COUNT = 8;
+            const POPULAR_HIGH_PRIORITY_COUNT = 4;
+            const LAZY_IMAGE_PLACEHOLDER = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+
+            function escapeHtml(value) {
+                if (typeof value !== 'string') return value ?? '';
+                const escapeMap = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;',
+                    '`': '&#96;',
+                };
+                return value.replace(/[&<>"'`]/g, (char) => escapeMap[char] || char);
+            }
+
+            function buildOptimizedImage({ src = '', alt = '', classes = '', priority = 'auto', loading = 'lazy', width, height }) {
+                const safeSrc = escapeHtml(src || '');
+                const safeAlt = escapeHtml(alt || '');
+                const classAttr = classes ? ` class="${classes}"` : '';
+                const widthAttr = width ? ` width="${width}"` : '';
+                const heightAttr = height ? ` height="${height}"` : '';
+                const normalizedPriority = priority === 'high' ? 'high' : (priority === 'low' ? 'low' : 'auto');
+                const resolvedLoading = normalizedPriority === 'high' ? 'eager' : (loading === 'eager' ? 'eager' : 'lazy');
+
+                if (resolvedLoading === 'eager') {
+                    const fetchPriorityAttr = normalizedPriority !== 'auto' ? ` fetchpriority="${normalizedPriority}"` : '';
+                    return `<img src="${safeSrc}" alt="${safeAlt}"${classAttr}${widthAttr}${heightAttr} loading="${resolvedLoading}" decoding="async"${fetchPriorityAttr}>`;
+                }
+
+                const dataFetchPriorityAttr = normalizedPriority !== 'auto' ? ` data-fetchpriority="${normalizedPriority}"` : '';
+                return `<img src="${LAZY_IMAGE_PLACEHOLDER}" data-src="${safeSrc}" alt="${safeAlt}"${classAttr}${widthAttr}${heightAttr} loading="lazy" decoding="async"${dataFetchPriorityAttr}>`;
+            }
+
+            function hydrateLazyImage(img) {
+                if (!img || !img.dataset || !img.dataset.src) return;
+                const priority = img.dataset.fetchpriority;
+                if (priority) {
+                    if ('fetchPriority' in img) {
+                        img.fetchPriority = priority;
+                    } else {
+                        img.setAttribute('fetchpriority', priority);
+                    }
+                }
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+                img.removeAttribute('data-fetchpriority');
+                img.classList.remove('lazy-image');
+            }
+
+            let lazyImageObserver = null;
+
+            function getLazyImageObserver() {
+                if (!('IntersectionObserver' in window)) return null;
+                if (!lazyImageObserver) {
+                    lazyImageObserver = new IntersectionObserver((entries, observer) => {
+                        entries.forEach((entry) => {
+                            if (!entry.isIntersecting) return;
+                            const img = entry.target;
+                            observer.unobserve(img);
+                            hydrateLazyImage(img);
+                        });
+                    }, { rootMargin: '200px 0px', threshold: 0.01 });
+                }
+                return lazyImageObserver;
+            }
+
+            function registerLazyImages(root = document) {
+                const scope = root && typeof root.querySelectorAll === 'function' ? root : document;
+                const images = scope.querySelectorAll('img[data-src]');
+                if (!images.length) return;
+                const observer = getLazyImageObserver();
+                images.forEach((img) => {
+                    if (!img.dataset.src) return;
+                    if (observer) {
+                        observer.observe(img);
+                    } else {
+                        hydrateLazyImage(img);
+                    }
+                });
+            }
+
+            function preloadImage(src, priority = 'auto') {
+                if (!src) return Promise.resolve();
+                if (imagePreloadCache.has(src)) {
+                    return imagePreloadCache.get(src);
+                }
+
+                const preloadPromise = new Promise((resolve) => {
+                    const img = new Image();
+                    img.decoding = 'async';
+                    if ('fetchPriority' in img) {
+                        img.fetchPriority = priority;
+                    }
+                    img.onload = () => resolve(src);
+                    img.onerror = () => resolve(src);
+                    img.src = src;
+                });
+
+                imagePreloadCache.set(src, preloadPromise);
+                return preloadPromise;
+            }
+
+            const idlePrefetchQueue = new Set();
+            let idlePrefetchHandle = null;
+
+            function scheduleIdlePrefetch() {
+                if (!idlePrefetchQueue.size) return;
+
+                if (typeof requestIdleCallback !== 'function') {
+                    idlePrefetchQueue.forEach((url) => preloadImage(url, 'low'));
+                    idlePrefetchQueue.clear();
+                    return;
+                }
+
+                if (idlePrefetchHandle) return;
+
+                idlePrefetchHandle = requestIdleCallback((deadline) => {
+                    while ((deadline.timeRemaining() > 2 || deadline.didTimeout) && idlePrefetchQueue.size) {
+                        const iterator = idlePrefetchQueue.values().next();
+                        if (iterator.done) break;
+                        const url = iterator.value;
+                        idlePrefetchQueue.delete(url);
+                        preloadImage(url, 'low');
+                    }
+                    idlePrefetchHandle = null;
+                    if (idlePrefetchQueue.size) {
+                        scheduleIdlePrefetch();
+                    }
+                }, { timeout: 2000 });
+            }
+
+            function queueIdlePrefetch(urls = []) {
+                urls.forEach((url) => {
+                    if (url) {
+                        idlePrefetchQueue.add(url);
+                    }
+                });
+                scheduleIdlePrefetch();
+            }
+
+            async function preloadImages(urls = [], { highPriorityCount = 0 } = {}) {
+                const uniqueUrls = Array.from(new Set(urls.filter(Boolean)));
+                if (!uniqueUrls.length) return;
+
+                const highPriorityUrls = uniqueUrls.slice(0, highPriorityCount);
+                if (highPriorityUrls.length) {
+                    await Promise.all(highPriorityUrls.map((url) => preloadImage(url, 'high')));
+                }
+
+                const remainingUrls = uniqueUrls.slice(highPriorityUrls.length);
+                if (remainingUrls.length) {
+                    queueIdlePrefetch(remainingUrls);
+                }
+            }
+
+            function buildBannerSlide(banner, index = 0) {
+                const isHighPriority = index === 0;
+                const title = escapeHtml(banner.title || '');
+                const imageUrl = banner.imageUrl || '';
+                const alt = title || 'Banner destacado';
+                const imageMarkup = buildOptimizedImage({
+                    src: imageUrl,
+                    alt,
+                    classes: 'object-cover w-full h-full',
+                    priority: isHighPriority ? 'high' : 'low',
+                    loading: isHighPriority ? 'eager' : 'lazy',
+                });
+
+                return `
+                    <div class="relative flex-shrink-0 w-full h-full carousel-slide" data-end-time="${escapeHtml(banner.endTime || '')}" data-banner-id="${escapeHtml(banner.id)}" data-image-path="${escapeHtml(banner.imagePath || '')}">
+                        ${imageMarkup}
+                        <div class="promo-timer hidden absolute top-3 right-3 md:top-4 md:right-4 z-30" data-role="carousel-timer" aria-live="polite"></div>
+                        <div class="absolute bottom-3 right-3 flex items-center gap-2 admin-only hidden md:bottom-4 md:right-4">
+                            <button class="p-1 text-gray-800 bg-white/90 rounded-full shadow-sm hover:bg-white admin-edit-timer-btn" title="Editar temporizador">
+                                <i data-lucide="pencil" class="w-4 h-4"></i>
+                            </button>
+                            <button class="p-1 text-white bg-red-600 rounded-full shadow-sm hover:bg-red-700 btn-delete-banner" title="Eliminar banner">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function buildProductCard(product, index = 0, highPriorityLimit = GRID_HIGH_PRIORITY_COUNT) {
+                const isHighPriority = index < highPriorityLimit;
+                const imageMarkup = buildOptimizedImage({
+                    src: product.imageUrl,
+                    alt: product.name,
+                    classes: 'object-cover w-full h-40',
+                    priority: isHighPriority ? 'high' : 'low',
+                    loading: isHighPriority ? 'eager' : 'lazy',
+                });
+
+                return `
+                    <div class="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
+                        ${imageMarkup}
+                        <div class="p-4">
+                            <h4 class="font-semibold text-gray-900 truncate">${escapeHtml(product.name)}</h4>
+                            <p class="text-sm text-gray-500 truncate">Busca: ${escapeHtml(product.wants)}</p>
+                            <p class="mt-2 text-sm font-medium text-gray-700">Equivalente a: <span class="text-green-600">${formatCOP(product.value)}</span></p>
+                            <button class="btn-proponer-canje w-full px-4 py-2 mt-3 text-sm font-medium text-white transition-colors bg-brand rounded-lg hover:bg-brand-dark" data-item-id="${escapeHtml(product.id)}" data-item-name="${escapeHtml(product.name)}" data-item-value="${product.value}" data-category-id="${escapeHtml(product.categoryId)}">
+                                Proponer Canje
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function buildPopularCard(product, index = 0, highPriorityLimit = POPULAR_HIGH_PRIORITY_COUNT) {
+                const isHighPriority = index < highPriorityLimit;
+                const imageMarkup = buildOptimizedImage({
+                    src: product.imageUrl,
+                    alt: product.name,
+                    classes: 'object-cover w-full h-40',
+                    priority: isHighPriority ? 'high' : 'low',
+                    loading: isHighPriority ? 'eager' : 'lazy',
+                });
+
+                return `
+                    <div class="popular-card flex-shrink-0 overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
+                        ${imageMarkup}
+                        <div class="p-4">
+                            <h4 class="font-semibold text-gray-900 truncate">${escapeHtml(product.name)}</h4>
+                            <p class="text-sm text-gray-500 truncate">Busca: ${escapeHtml(product.wants)}</p>
+                            <p class="mt-2 text-sm font-medium text-gray-700">Equivalente a: <span class="text-green-600">${formatCOP(product.value)}</span></p>
+                            <button class="btn-proponer-canje w-full px-4 py-2 mt-3 text-sm font-medium text-white transition-colors bg-brand rounded-lg hover:bg-brand-dark" data-item-id="${escapeHtml(product.id)}" data-item-name="${escapeHtml(product.name)}" data-item-value="${product.value}" data-category-id="${escapeHtml(product.categoryId)}">
+                                Proponer Canje
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+
             // --- SELECTORES ---
             const DEFAULT_PAGE_ID = 'page-explorar';
 
@@ -1156,6 +1398,14 @@
                     });
                     products.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
                     state.allProducts = products;
+                    const primaryUrls = products.map(product => product.imageUrl);
+                    const galleryUrls = products.reduce((acc, product) => {
+                        if (Array.isArray(product.imageUrls)) {
+                            acc.push(...product.imageUrls);
+                        }
+                        return acc;
+                    }, []);
+                    await preloadImages([...primaryUrls, ...galleryUrls], { highPriorityCount: GRID_HIGH_PRIORITY_COUNT });
                 } catch (error) {
                     console.error('Error al cargar los productos:', error);
                 } finally {
@@ -1546,19 +1796,17 @@
                 mostViewedContainer.innerHTML = '';
                 if (state.isLoadingProducts) {
                     const skeletonCount = 4;
-                    for (let i = 0; i < skeletonCount; i++) {
-                        const skeletonCard = `
-                            <div class="popular-card flex-shrink-0 overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
-                                <div class="w-full h-40 skeleton"></div>
-                                <div class="p-4 space-y-3">
-                                    <div class="w-3/4 h-4 skeleton rounded"></div>
-                                    <div class="w-2/3 h-3 skeleton rounded"></div>
-                                    <div class="w-1/2 h-3 skeleton rounded"></div>
-                                </div>
+                    const skeletonCard = `
+                        <div class="popular-card flex-shrink-0 overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
+                            <div class="w-full h-40 skeleton"></div>
+                            <div class="p-4 space-y-3">
+                                <div class="w-3/4 h-4 skeleton rounded"></div>
+                                <div class="w-2/3 h-3 skeleton rounded"></div>
+                                <div class="w-1/2 h-3 skeleton rounded"></div>
                             </div>
-                        `;
-                        mostViewedContainer.insertAdjacentHTML('beforeend', skeletonCard);
-                    }
+                        </div>
+                    `;
+                    mostViewedContainer.innerHTML = Array.from({ length: skeletonCount }, () => skeletonCard).join('');
                     return;
                 }
 
@@ -1604,25 +1852,12 @@
                     return;
                 }
 
-                productsToShow.forEach(product => {
-                    const cardHtml = `
-                        <div class="popular-card flex-shrink-0 overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
-                            <img src="${product.imageUrl}" alt="${product.name}" class="object-cover w-full h-40" loading="lazy">
-                            <div class="p-4">
-                                <h4 class="font-semibold text-gray-900 truncate">${product.name}</h4>
-                                <p class="text-sm text-gray-500 truncate">Busca: ${product.wants}</p>
-                                <p class="mt-2 text-sm font-medium text-gray-700">Equivalente a: <span class="text-green-600">${formatCOP(product.value)}</span></p>
-                                <button class="btn-proponer-canje w-full px-4 py-2 mt-3 text-sm font-medium text-white transition-colors bg-brand rounded-lg hover:bg-brand-dark" data-item-id="${product.id}" data-item-name="${product.name}" data-item-value="${product.value}" data-category-id="${product.categoryId}">
-                                    Proponer Canje
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                    mostViewedContainer.insertAdjacentHTML('beforeend', cardHtml);
-                });
+                const cardsHtml = productsToShow.map((product, index) => buildPopularCard(product, index)).join('');
+                mostViewedContainer.innerHTML = cardsHtml;
 
                 // 7. Re-asignar listeners a los *nuevos* botones creados
                 assignProponerCanjeListeners();
+                registerLazyImages(mostViewedContainer);
             }
 
             /**
@@ -1632,20 +1867,18 @@
                 explorarProductGrid.innerHTML = ''; // Limpiar grilla
                 if (state.isLoadingProducts) {
                     const skeletonCount = 8;
-                    for (let i = 0; i < skeletonCount; i++) {
-                        const skeletonCard = `
-                            <div class="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
-                                <div class="w-full h-40 skeleton"></div>
-                                <div class="p-4 space-y-3">
-                                    <div class="w-3/4 h-4 skeleton rounded"></div>
-                                    <div class="w-2/3 h-3 skeleton rounded"></div>
-                                    <div class="w-1/2 h-3 skeleton rounded"></div>
-                                    <div class="w-full h-9 skeleton rounded"></div>
-                                </div>
+                    const skeletonCard = `
+                        <div class="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
+                            <div class="w-full h-40 skeleton"></div>
+                            <div class="p-4 space-y-3">
+                                <div class="w-3/4 h-4 skeleton rounded"></div>
+                                <div class="w-2/3 h-3 skeleton rounded"></div>
+                                <div class="w-1/2 h-3 skeleton rounded"></div>
+                                <div class="w-full h-9 skeleton rounded"></div>
                             </div>
-                        `;
-                        explorarProductGrid.insertAdjacentHTML('beforeend', skeletonCard);
-                    }
+                        </div>
+                    `;
+                    explorarProductGrid.innerHTML = Array.from({ length: skeletonCount }, () => skeletonCard).join('');
                     return;
                 }
 
@@ -1654,25 +1887,12 @@
                     return;
                 }
 
-                state.allProducts.forEach(product => {
-                    const productHtml = `
-                        <div class="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
-                            <img src="${product.imageUrl}" alt="${product.name}" class="object-cover w-full h-40" loading="lazy">
-                            <div class="p-4">
-                                <h4 class="font-semibold text-gray-900 truncate">${product.name}</h4>
-                                <p class="text-sm text-gray-500 truncate">Busca: ${product.wants}</p>
-                                <p class="mt-2 text-sm font-medium text-gray-700">Equivalente a: <span class="text-green-600">${formatCOP(product.value)}</span></p>
-                                <button class="btn-proponer-canje w-full px-4 py-2 mt-3 text-sm font-medium text-white transition-colors bg-brand rounded-lg hover:bg-brand-dark" data-item-id="${product.id}" data-item-name="${product.name}" data-item-value="${product.value}" data-category-id="${product.categoryId}">
-                                    Proponer Canje
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                    explorarProductGrid.insertAdjacentHTML('beforeend', productHtml);
-                });
+                const productsHtml = state.allProducts.map((product, index) => buildProductCard(product, index)).join('');
+                explorarProductGrid.innerHTML = productsHtml;
 
                 // Volver a asignar listeners a los nuevos botones
                 assignProponerCanjeListeners();
+                registerLazyImages(explorarProductGrid);
             }
 
             /**
@@ -1686,9 +1906,16 @@
                 }
 
                 state.currentUser.items.forEach(item => {
+                    const itemImage = buildOptimizedImage({
+                        src: item.imageUrl,
+                        alt: item.name,
+                        classes: 'w-16 h-16 rounded-lg object-cover flex-shrink-0',
+                        priority: 'auto',
+                        loading: 'lazy',
+                    });
                     const itemHtml = `
                         <div class="flex items-center p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
-                            <img src="${item.imageUrl}" alt="${item.name}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0" loading="lazy">
+                            ${itemImage}
                             <div class="ml-4 flex-1 min-w-0">
                                 <h4 class="font-semibold text-gray-900 truncate">${item.name}</h4>
                                 <p class="text-sm text-gray-500">Valor: <span class="text-green-600">${formatCOP(item.value)}</span></p>
@@ -1707,6 +1934,7 @@
                     tabMisArticulos.insertAdjacentHTML('beforeend', itemHtml);
                 });
                 lucide.createIcons();
+                registerLazyImages(tabMisArticulos);
             }
 
             /**
@@ -1720,6 +1948,13 @@
                 }
                 
                 state.receivedOffers.forEach(offer => {
+                    const fromUserAvatar = buildOptimizedImage({
+                        src: offer.fromUser.profilePic,
+                        alt: offer.fromUser.name,
+                        classes: 'w-10 h-10 rounded-full object-cover',
+                        loading: 'lazy',
+                        priority: 'auto',
+                    });
                     const offerHtml = `
                         <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
                             <div class="flex items-center justify-between pb-3 border-b border-gray-200">
@@ -1727,7 +1962,7 @@
                                     <p class="text-sm text-gray-500">Oferta de: <span class="font-medium text-gray-900">${offer.fromUser.name}</span></p>
                                     <p class="text-sm text-gray-500">Quiere tu: <span class="font-medium text-brand-dark">${offer.forYourItem.name}</span></p>
                                 </div>
-                                <img src="${offer.fromUser.profilePic}" alt="${offer.fromUser.name}" class="w-10 h-10 rounded-full">
+                                ${fromUserAvatar}
                             </div>
 
                             <div class="flex flex-col md:flex-row items-center justify-between mt-4">
@@ -1736,7 +1971,13 @@
                                     <div class="mt-2 space-y-2">
                                         ${offer.theirItems.map(item => `
                                             <div class="flex items-center p-2 bg-gray-50 rounded-md">
-                                                <img src="${item.imageUrl}" alt="${item.name}" class="w-10 h-10 rounded-md object-cover flex-shrink-0">
+                                                ${buildOptimizedImage({
+                                                    src: item.imageUrl,
+                                                    alt: item.name,
+                                                    classes: 'w-10 h-10 rounded-md object-cover flex-shrink-0',
+                                                    loading: 'lazy',
+                                                    priority: 'auto',
+                                                })}
                                                 <div class="ml-2 flex-1 min-w-0">
                                                     <p class="text-sm font-medium truncate">${item.name}</p>
                                                     <p class="text-sm text-green-600">${formatCOP(item.value)}</p>
@@ -1766,7 +2007,13 @@
                                     <span class="text-sm font-semibold text-gray-700">A cambio de:</span>
                                     <div class="mt-2 space-y-2">
                                         <div class="flex items-center p-2 bg-gray-50 rounded-md">
-                                            <img src="${offer.forYourItem.imageUrl}" alt="${offer.forYourItem.name}" class="w-10 h-10 rounded-md object-cover flex-shrink-0">
+                                            ${buildOptimizedImage({
+                                                src: offer.forYourItem.imageUrl,
+                                                alt: offer.forYourItem.name,
+                                                classes: 'w-10 h-10 rounded-md object-cover flex-shrink-0',
+                                                loading: 'lazy',
+                                                priority: 'auto',
+                                            })}
                                             <div class="ml-2 flex-1 min-w-0">
                                                 <p class="text-sm font-medium truncate">${offer.forYourItem.name}</p>
                                                 <p class="text-sm text-gray-700">${formatCOP(offer.forYourItem.value)}</p>
@@ -1816,6 +2063,7 @@
                     tabOfertas.insertAdjacentHTML('beforeend', offerHtml);
                 });
                 lucide.createIcons();
+                registerLazyImages(tabOfertas);
             }
 
 
@@ -1943,48 +2191,34 @@
                     const bannersQuery = query(collection(db, "banners"), orderBy("createdAt", "desc"));
                     const snapshot = await getDocs(bannersQuery);
 
-                    carouselSlider.innerHTML = '';
-
                     if (snapshot.empty) {
+                        carouselSlider.innerHTML = '';
                         carouselSlider.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-500">No hay banners para mostrar.</div>`;
                         totalSlides = 0;
                         updateCarouselMeta();
                         return;
                     }
 
+                    const banners = [];
                     snapshot.forEach(docSnap => {
                         const banner = docSnap.data();
                         const endTime = banner.endTime && banner.endTime.toDate ? banner.endTime.toDate().toISOString() : '';
-                        const safeTitle = banner.title || '';
-                        const safeSubtitle = banner.subtitle || '';
-                        const safeImage = banner.imageUrl || '';
-                        const safeAlt = safeTitle || 'Banner destacado';
-
-                        state.banners.push({
+                        banners.push({
                             id: docSnap.id,
-                            title: safeTitle,
-                            subtitle: safeSubtitle,
+                            title: banner.title || '',
+                            subtitle: banner.subtitle || '',
                             endTime,
-                            imageUrl: safeImage,
+                            imageUrl: banner.imageUrl || '',
                             imagePath: banner.imagePath || '',
                         });
-
-                        const slideHtml = `
-                            <div class="relative flex-shrink-0 w-full h-full carousel-slide" data-end-time="${endTime}" data-banner-id="${docSnap.id}" data-image-path="${banner.imagePath || ''}">
-                                <img src="${safeImage}" alt="${safeAlt}" class="object-cover w-full h-full" loading="lazy">
-                                <div class="promo-timer hidden absolute top-3 right-3 md:top-4 md:right-4 z-30" data-role="carousel-timer" aria-live="polite"></div>
-                                <div class="absolute bottom-3 right-3 flex items-center gap-2 admin-only hidden md:bottom-4 md:right-4">
-                                    <button class="p-1 text-gray-800 bg-white/90 rounded-full shadow-sm hover:bg-white admin-edit-timer-btn" title="Editar temporizador">
-                                        <i data-lucide="pencil" class="w-4 h-4"></i>
-                                    </button>
-                                    <button class="p-1 text-white bg-red-600 rounded-full shadow-sm hover:bg-red-700 btn-delete-banner" title="Eliminar banner">
-                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                        carouselSlider.insertAdjacentHTML('beforeend', slideHtml);
                     });
+
+                    state.banners = banners;
+                    await preloadImages(banners.map((banner) => banner.imageUrl), { highPriorityCount: Math.min(2, banners.length) });
+
+                    const slidesHtml = banners.map((banner, index) => buildBannerSlide(banner, index)).join('');
+                    carouselSlider.innerHTML = slidesHtml;
+                    registerLazyImages(carouselSlider);
 
                     resetCarousel();
 
@@ -2751,10 +2985,17 @@
                              listContainer.innerHTML = '<p class="text-sm text-gray-500 p-2">No tienes artículos para canjear. Publica uno en la sección "Vender".</p>';
                         } else {
                             state.currentUser.items.forEach(item => {
+                                const modalItemImage = buildOptimizedImage({
+                                    src: item.imageUrl,
+                                    alt: item.name,
+                                    classes: 'w-10 h-10 rounded-md object-cover ml-3 border flex-shrink-0',
+                                    loading: 'lazy',
+                                    priority: 'auto',
+                                });
                                 const itemHtml = `
                                     <label class="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 cursor-pointer modal-item-checkbox-label">
                                         <input type="checkbox" class="modal-item-checkbox h-5 w-5 text-brand rounded focus:ring-brand" data-value="${item.value}" data-id="${item.id}">
-                                        <img src="${item.imageUrl}" alt="${item.name}" class="w-10 h-10 rounded-md object-cover ml-3 border">
+                                        ${modalItemImage}
                                         <div class="ml-3 flex-1 min-w-0">
                                             <span class="font-medium text-gray-900 truncate">${item.name}</span>
                                             <span class="block text-sm text-green-600">${formatCOP(item.value)}</span>
@@ -2763,6 +3004,7 @@
                                 `;
                                 listContainer.insertAdjacentHTML('beforeend', itemHtml);
                             });
+                            registerLazyImages(listContainer);
                         }
                         
                         // Resetear valores
@@ -3083,11 +3325,13 @@ async function handleAdminBannerUpload(event) {
 
                 // Inicializar iconos (MOVIDO AL FINAL)
                 lucide.createIcons();
+                registerLazyImages(document);
 
                 await Promise.all([
                     loadAndRenderBanners(),
                     loadAllProducts(),
                 ]);
+                registerLazyImages(document);
                 hidePreloader();
             }
 
