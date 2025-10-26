@@ -294,14 +294,34 @@
         .modal-item-checkbox:checked + img {
              border: 2px solid #4285F4;
         }
-        .modal-item-checkbox-label {
-             transition: all 0.2s ease-in-out;
-             border: 2px solid transparent;
+        .modal-item-checkbox-label { 
+             transition: all 0.2s ease-in-out; 
+             border: 2px solid transparent; 
         }
          .modal-item-checkbox-label:has(.modal-item-checkbox:checked) {
              border-color: #4285F4;
              background-color: #E8F0FE;
          }
+
+        #product-detail-view {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        #product-detail-view.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #product-detail-gallery::-webkit-scrollbar {
+            display: none;
+        }
+
+        #product-detail-gallery {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
 <body class="text-gray-800">
@@ -731,10 +751,123 @@
             </a>
         </div>
     </nav>
-    
+
+    <div id="product-detail-view" class="fixed inset-0 z-40 hidden">
+        <div class="flex flex-col w-full h-full bg-[#F5F7FA]">
+            <header class="sticky top-0 z-20 flex items-center justify-between px-4 py-3 text-gray-900 bg-brand-yellow shadow-sm sm:px-6">
+                <div class="flex items-center gap-2">
+                    <button id="product-detail-close" class="p-2 transition-colors bg-black/10 rounded-full hover:bg-black/20">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    </button>
+                    <div class="flex flex-col leading-tight">
+                        <span class="text-xs font-semibold tracking-wider text-black/70 uppercase">Detalle del artículo</span>
+                        <span id="product-detail-breadcrumb" class="text-sm font-medium text-black/80"></span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button class="p-2 transition-colors bg-black/10 rounded-full hover:bg-black/20" title="Compartir">
+                        <i data-lucide="share-2" class="w-5 h-5"></i>
+                    </button>
+                    <button class="p-2 transition-colors bg-black/10 rounded-full hover:bg-black/20" title="Guardar">
+                        <i data-lucide="heart" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto">
+                <div class="max-w-4xl px-4 py-8 mx-auto space-y-8 sm:px-6 lg:px-8">
+                    <div class="grid gap-8 lg:grid-cols-5">
+                        <div class="space-y-4 lg:col-span-3">
+                            <div class="overflow-hidden bg-white rounded-3xl shadow-[0_25px_60px_-35px_rgba(0,0,0,0.35)]">
+                                <div class="relative aspect-[4/5] sm:aspect-square">
+                                    <img id="product-detail-main-image" src="" alt="Detalle del artículo" class="object-cover w-full h-full" loading="eager">
+                                </div>
+                            </div>
+                            <div id="product-detail-gallery" class="flex gap-3 overflow-x-auto">
+                                <!-- Miniaturas generadas dinámicamente -->
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col h-full space-y-6 lg:col-span-2">
+                            <div class="space-y-2">
+                                <span id="product-detail-status" class="inline-flex items-center px-3 py-1 text-xs font-semibold tracking-wider text-green-700 uppercase bg-green-100 rounded-full"></span>
+                                <h1 id="product-detail-title" class="text-2xl font-semibold text-gray-900 sm:text-3xl"></h1>
+                                <p id="product-detail-wants" class="text-sm text-gray-500"></p>
+                            </div>
+
+                            <div class="p-6 space-y-3 bg-white border border-yellow-100 rounded-3xl shadow-[0_22px_50px_-30px_rgba(0,0,0,0.45)]">
+                                <div class="flex items-center gap-2 text-sm font-semibold text-green-600 uppercase">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_0_3px_rgba(34,197,94,0.35)]"></span>
+                                    <span>Oferta destacada</span>
+                                </div>
+                                <div>
+                                    <p id="product-detail-price" class="text-3xl font-bold text-gray-900"></p>
+                                    <p id="product-detail-installments" class="text-sm text-gray-600"></p>
+                                    <button class="text-sm font-medium text-brand-dark hover:underline">Ver medios de pago</button>
+                                </div>
+                                <div class="pt-3 border-t border-gray-100">
+                                    <p class="text-sm font-medium text-gray-700">Stock disponible</p>
+                                    <p id="product-detail-stock" class="text-sm text-gray-500">Entrega pactada con el vendedor</p>
+                                </div>
+                            </div>
+
+                            <div class="p-6 bg-white border border-gray-100 rounded-3xl shadow-sm">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-700 uppercase">Cantidad</p>
+                                        <div class="flex items-center mt-2 overflow-hidden border border-gray-200 rounded-full">
+                                            <button id="quantity-decrease" class="px-3 py-2 text-gray-600 transition-colors hover:bg-gray-100" type="button">-</button>
+                                            <input id="product-detail-quantity" type="number" min="1" value="1" class="w-16 text-center border-0 focus:ring-0" />
+                                            <button id="quantity-increase" class="px-3 py-2 text-gray-600 transition-colors hover:bg-gray-100" type="button">+</button>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-semibold text-gray-700 uppercase">Vendedor</p>
+                                        <p id="product-detail-owner" class="mt-2 text-sm text-gray-600"></p>
+                                        <p id="product-detail-owner-email" class="text-xs text-gray-400"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <section class="p-6 bg-white border border-gray-100 rounded-3xl shadow-sm">
+                            <h2 class="text-lg font-semibold text-gray-900">Descripción</h2>
+                            <p id="product-detail-description" class="mt-3 text-sm leading-relaxed text-gray-600"></p>
+                        </section>
+
+                        <section class="p-6 bg-white border border-gray-100 rounded-3xl shadow-sm">
+                            <div class="flex items-start justify-between gap-4">
+                                <div>
+                                    <h2 class="text-lg font-semibold text-gray-900">Envío y entrega</h2>
+                                    <p class="mt-2 text-sm text-gray-600">Muy pronto podrás seleccionar opciones de envío personalizadas para este artículo.</p>
+                                </div>
+                                <span class="inline-flex items-center px-3 py-1 text-xs font-semibold tracking-wider text-yellow-800 uppercase bg-yellow-100 rounded-full">Próximamente</span>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sticky bottom-0 z-30 w-full px-4 py-4 bg-white border-t border-gray-200 shadow-[0_-10px_40px_-30px_rgba(0,0,0,0.45)] sm:px-6">
+                <div class="max-w-4xl mx-auto flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <button class="flex items-center justify-center w-full px-5 py-3 text-sm font-semibold text-gray-800 transition-colors border border-gray-300 rounded-full hover:bg-gray-50">
+                        <i data-lucide="shopping-cart" class="w-5 h-5 mr-2"></i>
+                        Agregar al carrito
+                    </button>
+                    <button id="product-detail-proponer" class="flex items-center justify-center w-full px-5 py-3 text-sm font-semibold text-white transition-colors rounded-full bg-brand-dark hover:bg-[#1a5dcf]">
+                        <i data-lucide="repeat" class="w-5 h-5 mr-2"></i>
+                        Proponer canje ahora
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="modal-proponer-canje" class="modal hidden fixed inset-0 z-30 flex items-center justify-center p-4">
         <div class="modal-backdrop fixed inset-0 bg-black bg-opacity-50"></div>
-        
+
         <div class="modal-content relative w-full max-w-lg p-6 bg-white rounded-lg shadow-xl">
             <button class="modal-close-btn absolute top-4 right-4 p-1 text-gray-500 rounded-full hover:bg-gray-100">
                 <i data-lucide="x" class="w-5 h-5"></i>
@@ -896,6 +1029,7 @@
                 profilePicFile: null,
                 isLoadingProducts: true,
                 isLoadingBanners: true,
+                currentProductDetail: null,
             };
 
 
@@ -1098,13 +1232,13 @@
                 });
 
                 return `
-                    <div class="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
+                    <div class="product-card overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer transition-transform hover:-translate-y-1" data-product-id="${escapeHtml(product.id)}">
                         ${imageMarkup}
                         <div class="p-4">
                             <h4 class="font-semibold text-gray-900 truncate">${escapeHtml(product.name)}</h4>
                             <p class="text-sm text-gray-500 truncate">Busca: ${escapeHtml(product.wants)}</p>
                             <p class="mt-2 text-sm font-medium text-gray-700">Equivalente a: <span class="text-green-600">${formatCOP(product.value)}</span></p>
-                            <button class="btn-proponer-canje w-full px-4 py-2 mt-3 text-sm font-medium text-white transition-colors bg-brand rounded-lg hover:bg-brand-dark" data-item-id="${escapeHtml(product.id)}" data-item-name="${escapeHtml(product.name)}" data-item-value="${product.value}" data-category-id="${escapeHtml(product.categoryId)}">
+                            <button class="btn-proponer-canje w-full px-4 py-2 mt-3 text-sm font-medium text-white transition-colors bg-brand rounded-lg hover:bg-brand-dark" type="button" data-item-id="${escapeHtml(product.id)}" data-item-name="${escapeHtml(product.name)}" data-item-value="${product.value}" data-category-id="${escapeHtml(product.categoryId)}">
                                 Proponer Canje
                             </button>
                         </div>
@@ -1123,13 +1257,13 @@
                 });
 
                 return `
-                    <div class="popular-card flex-shrink-0 overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm">
+                    <div class="popular-card product-card flex-shrink-0 overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer transition-transform hover:-translate-y-1" data-product-id="${escapeHtml(product.id)}">
                         ${imageMarkup}
                         <div class="p-4">
                             <h4 class="font-semibold text-gray-900 truncate">${escapeHtml(product.name)}</h4>
                             <p class="text-sm text-gray-500 truncate">Busca: ${escapeHtml(product.wants)}</p>
                             <p class="mt-2 text-sm font-medium text-gray-700">Equivalente a: <span class="text-green-600">${formatCOP(product.value)}</span></p>
-                            <button class="btn-proponer-canje w-full px-4 py-2 mt-3 text-sm font-medium text-white transition-colors bg-brand rounded-lg hover:bg-brand-dark" data-item-id="${escapeHtml(product.id)}" data-item-name="${escapeHtml(product.name)}" data-item-value="${product.value}" data-category-id="${escapeHtml(product.categoryId)}">
+                            <button class="btn-proponer-canje w-full px-4 py-2 mt-3 text-sm font-medium text-white transition-colors bg-brand rounded-lg hover:bg-brand-dark" type="button" data-item-id="${escapeHtml(product.id)}" data-item-name="${escapeHtml(product.name)}" data-item-value="${product.value}" data-category-id="${escapeHtml(product.categoryId)}">
                                 Proponer Canje
                             </button>
                         </div>
@@ -1147,6 +1281,7 @@
             const authTabContents = document.querySelectorAll('.auth-tab-content');
             const canjeTabs = document.querySelectorAll('.canje-tab-btn');
             const canjeTabContents = document.querySelectorAll('.canje-tab-content');
+            const bodyEl = document.body;
             
             // Elementos de autenticación
             const perfilAuthForm = document.getElementById('perfil-auth-form');
@@ -1180,6 +1315,32 @@
             const selectTuArticulo = document.getElementById('modal-user-items-list'); // MODIFICADO
             const formProponerCanje = document.getElementById('form-proponer-canje');
             const modalErrorMsg = document.getElementById('modal-error-msg');
+            const modalItemNameEl = document.getElementById('modal-item-name');
+            const modalItemValueEl = document.getElementById('modal-item-value');
+            const deseadoValorEl = document.getElementById('deseado-valor');
+            const tuValorEl = document.getElementById('tu-valor');
+            const diferenciaValorEl = document.getElementById('diferencia-valor');
+            const agregarDineroInput = document.getElementById('agregar-dinero');
+
+            // Detalle de producto
+            const productDetailView = document.getElementById('product-detail-view');
+            const productDetailCloseBtn = document.getElementById('product-detail-close');
+            const productDetailBreadcrumb = document.getElementById('product-detail-breadcrumb');
+            const productDetailStatus = document.getElementById('product-detail-status');
+            const productDetailTitle = document.getElementById('product-detail-title');
+            const productDetailWants = document.getElementById('product-detail-wants');
+            const productDetailPrice = document.getElementById('product-detail-price');
+            const productDetailInstallments = document.getElementById('product-detail-installments');
+            const productDetailDescription = document.getElementById('product-detail-description');
+            const productDetailOwner = document.getElementById('product-detail-owner');
+            const productDetailOwnerEmail = document.getElementById('product-detail-owner-email');
+            const productDetailMainImage = document.getElementById('product-detail-main-image');
+            const productDetailGallery = document.getElementById('product-detail-gallery');
+            const productDetailProponerBtn = document.getElementById('product-detail-proponer');
+            const productDetailQuantityInput = document.getElementById('product-detail-quantity');
+            const productDetailQuantityDecrease = document.getElementById('quantity-decrease');
+            const productDetailQuantityIncrease = document.getElementById('quantity-increase');
+            const productDetailStock = document.getElementById('product-detail-stock');
 
             // --- SELECTORES DEL CARRUSEL (ACTUALIZADOS) ---
             const promoCarousel = document.getElementById('promo-carousel');
@@ -1352,6 +1513,148 @@
                     maximumFractionDigits: 0,
                     minimumFractionDigits: 0,
                 }).format(value);
+            }
+
+            function getCategoryDisplayName(categoryId) {
+                const category = categories.find(cat => cat.id === categoryId);
+                return category ? category.name : 'Marketplace';
+            }
+
+            function formatInstallments(value, months = 3) {
+                if (!value || value <= 0) {
+                    return 'Intercambia por equivalencia y acuerda la entrega con el vendedor.';
+                }
+                const installmentValue = Math.ceil(value / months);
+                return `${months} cuotas de ${formatCOP(installmentValue)} con 0% interés`;
+            }
+
+            function buildProductDetailThumbnails(images, productName) {
+                if (!productDetailGallery) return;
+                const safeName = escapeHtml(productName || 'Artículo');
+                productDetailGallery.innerHTML = images.map((url, index) => {
+                    const safeUrl = escapeHtml(url);
+                    const isActive = index === 0;
+                    const activeClasses = isActive ? 'ring-2 ring-brand-dark border-brand/30' : 'border-transparent';
+                    return `
+                        <button type="button" class="detail-thumb relative flex-shrink-0 w-20 h-20 overflow-hidden rounded-2xl border-2 ${activeClasses} focus:outline-none focus:ring-2 focus:ring-brand/60 transition-all bg-white shadow-sm" data-image="${safeUrl}" aria-current="${isActive}">
+                            <img src="${safeUrl}" alt="Miniatura de ${safeName}" class="object-cover w-full h-full" loading="lazy">
+                        </button>
+                    `;
+                }).join('');
+
+                productDetailGallery.querySelectorAll('.detail-thumb').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const imageUrl = btn.dataset.image;
+                        if (productDetailMainImage && imageUrl) {
+                            productDetailMainImage.src = imageUrl;
+                            productDetailMainImage.alt = productName;
+                        }
+                        productDetailGallery.querySelectorAll('.detail-thumb').forEach(other => {
+                            other.classList.remove('ring-2', 'ring-brand-dark', 'border-brand/30');
+                            other.setAttribute('aria-current', 'false');
+                        });
+                        btn.classList.add('ring-2', 'ring-brand-dark', 'border-brand/30');
+                        btn.setAttribute('aria-current', 'true');
+                    });
+                });
+            }
+
+            function openProductDetail(product) {
+                if (!productDetailView || !product) return;
+
+                state.currentProductDetail = product;
+
+                const productImages = Array.isArray(product.imageUrls) && product.imageUrls.length > 0
+                    ? product.imageUrls
+                    : (product.imageUrl ? [product.imageUrl] : [DEFAULT_PRODUCT_IMAGE]);
+
+                const primaryImage = productImages[0];
+                if (productDetailMainImage) {
+                    productDetailMainImage.src = primaryImage;
+                    productDetailMainImage.alt = product.name;
+                }
+
+                buildProductDetailThumbnails(productImages, product.name);
+
+                if (productDetailBreadcrumb) {
+                    productDetailBreadcrumb.textContent = `${getCategoryDisplayName(product.categoryId)} • ${product.ownerName || 'Vendedor verificado'}`;
+                }
+                if (productDetailStatus) {
+                    productDetailStatus.textContent = 'Disponible para canje';
+                }
+                if (productDetailTitle) {
+                    productDetailTitle.textContent = product.name;
+                }
+                if (productDetailWants) {
+                    const wantsText = product.wants ? `Intercambia por: ${product.wants}` : 'Abierto a recibir propuestas de canje.';
+                    productDetailWants.textContent = wantsText;
+                }
+                if (productDetailPrice) {
+                    productDetailPrice.textContent = formatCOP(product.value);
+                }
+                if (productDetailInstallments) {
+                    productDetailInstallments.textContent = formatInstallments(product.value);
+                }
+                if (productDetailDescription) {
+                    productDetailDescription.textContent = product.description || 'Este artículo aún no tiene una descripción detallada.';
+                }
+                if (productDetailOwner) {
+                    productDetailOwner.textContent = product.ownerName || 'Vendedor verificado';
+                }
+                if (productDetailOwnerEmail) {
+                    productDetailOwnerEmail.textContent = product.ownerEmail || 'Contacto compartido tras iniciar el canje.';
+                }
+                if (productDetailStock) {
+                    productDetailStock.textContent = 'Entrega pactada con el vendedor';
+                }
+                if (productDetailProponerBtn) {
+                    productDetailProponerBtn.dataset.itemId = product.id;
+                    productDetailProponerBtn.dataset.itemName = product.name;
+                    productDetailProponerBtn.dataset.itemValue = product.value;
+                    productDetailProponerBtn.dataset.categoryId = product.categoryId;
+                }
+                if (productDetailQuantityInput) {
+                    productDetailQuantityInput.value = '1';
+                }
+
+                if (bodyEl) {
+                    bodyEl.classList.add('overflow-hidden');
+                }
+                productDetailView.classList.remove('hidden');
+                productDetailView.classList.add('open');
+            }
+
+            function closeProductDetail() {
+                if (!productDetailView) return;
+                productDetailView.classList.add('hidden');
+                productDetailView.classList.remove('open');
+                if (bodyEl) {
+                    bodyEl.classList.remove('overflow-hidden');
+                }
+                state.currentProductDetail = null;
+            }
+
+            function adjustProductDetailQuantity(delta) {
+                if (!productDetailQuantityInput) return;
+                const current = parseInt(productDetailQuantityInput.value, 10) || 1;
+                const nextValue = Math.max(1, current + delta);
+                productDetailQuantityInput.value = nextValue;
+            }
+
+            function handleProductCardInteraction(event) {
+                const card = event.target.closest('.product-card');
+                if (!card) {
+                    return;
+                }
+                if (event.target.closest('.btn-proponer-canje')) {
+                    return;
+                }
+                const productId = card.dataset.productId;
+                if (!productId) return;
+                const product = state.allProducts.find(item => item.id === productId);
+                if (product) {
+                    openProductDetail(product);
+                }
             }
 
             /**
@@ -2445,6 +2748,51 @@
                     }
                 });
             });
+
+            // Detalle de producto - eventos
+            if (productDetailCloseBtn) {
+                productDetailCloseBtn.addEventListener('click', closeProductDetail);
+            }
+            if (productDetailProponerBtn) {
+                productDetailProponerBtn.addEventListener('click', () => {
+                    const dataset = productDetailProponerBtn.dataset;
+                    const fallback = state.currentProductDetail || {};
+                    closeProductDetail();
+                    prepareAndOpenCanjeModal({
+                        itemId: dataset.itemId || fallback.id,
+                        itemName: dataset.itemName || fallback.name,
+                        itemValue: dataset.itemValue || fallback.value,
+                        categoryId: dataset.categoryId || fallback.categoryId,
+                    });
+                });
+            }
+            if (productDetailQuantityDecrease) {
+                productDetailQuantityDecrease.addEventListener('click', () => adjustProductDetailQuantity(-1));
+            }
+            if (productDetailQuantityIncrease) {
+                productDetailQuantityIncrease.addEventListener('click', () => adjustProductDetailQuantity(1));
+            }
+            if (productDetailQuantityInput) {
+                productDetailQuantityInput.addEventListener('change', () => {
+                    let parsed = parseInt(productDetailQuantityInput.value, 10);
+                    if (!parsed || parsed < 1) {
+                        parsed = 1;
+                    }
+                    productDetailQuantityInput.value = parsed;
+                });
+            }
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && productDetailView && !productDetailView.classList.contains('hidden')) {
+                    closeProductDetail();
+                }
+            });
+
+            if (explorarProductGrid) {
+                explorarProductGrid.addEventListener('click', handleProductCardInteraction);
+            }
+            if (mostViewedContainer) {
+                mostViewedContainer.addEventListener('click', handleProductCardInteraction);
+            }
             
             // Menú Móvil
             mobileMenuBtn.addEventListener('click', openMobileMenu);
@@ -2944,76 +3292,85 @@
             /**
              * Asigna listeners a los botones "Proponer Canje" (debe llamarse después de renderProducts)
              */
+            function prepareAndOpenCanjeModal({ itemId, itemName, itemValue, categoryId }) {
+                if (!state.isLoggedIn) {
+                    showPage('page-perfil');
+                    return;
+                }
+
+                if (!itemId || !itemName) {
+                    console.warn('No se pudo preparar el canje: faltan datos del artículo.');
+                    return;
+                }
+
+                if (categoryId) {
+                    logCategoryView(categoryId);
+                }
+
+                const parsedValue = parseFloat(itemValue) || 0;
+                state.itemToSwap = {
+                    id: itemId,
+                    name: itemName,
+                    value: parsedValue,
+                };
+
+                const formattedValue = formatCOP(state.itemToSwap.value);
+                if (modalItemNameEl) modalItemNameEl.textContent = state.itemToSwap.name;
+                if (modalItemValueEl) modalItemValueEl.textContent = formattedValue;
+                if (deseadoValorEl) deseadoValorEl.textContent = formattedValue;
+
+                if (selectTuArticulo) {
+                    selectTuArticulo.innerHTML = '';
+
+                    if (!state.currentUser.items || state.currentUser.items.length === 0) {
+                        selectTuArticulo.innerHTML = '<p class="text-sm text-gray-500 p-2">No tienes artículos para canjear. Publica uno en la sección "Vender".</p>';
+                    } else {
+                        state.currentUser.items.forEach(item => {
+                            const modalItemImage = buildOptimizedImage({
+                                src: item.imageUrl,
+                                alt: item.name,
+                                classes: 'w-10 h-10 rounded-md object-cover ml-3 border flex-shrink-0',
+                                loading: 'lazy',
+                                priority: 'auto',
+                            });
+                            const itemHtml = `
+                                <label class="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 cursor-pointer modal-item-checkbox-label">
+                                    <input type="checkbox" class="modal-item-checkbox h-5 w-5 text-brand rounded focus:ring-brand" data-value="${item.value}" data-id="${item.id}">
+                                    ${modalItemImage}
+                                    <div class="ml-3 flex-1 min-w-0">
+                                        <span class="font-medium text-gray-900 truncate">${item.name}</span>
+                                        <span class="block text-sm text-green-600">${formatCOP(item.value)}</span>
+                                    </div>
+                                </label>
+                            `;
+                            selectTuArticulo.insertAdjacentHTML('beforeend', itemHtml);
+                        });
+                        registerLazyImages(selectTuArticulo);
+                    }
+                }
+
+                updateCanjeCalculation();
+                if (modalErrorMsg) modalErrorMsg.classList.add('hidden');
+                if (agregarDineroInput) agregarDineroInput.value = '';
+
+                modalProponerCanje.classList.remove('hidden');
+                modalProponerCanje.classList.add('open');
+            }
+
             function assignProponerCanjeListeners() {
-                // Seleccionar TODOS los botones de proponer, tanto en la grilla como en el carrusel
                 document.querySelectorAll('.btn-proponer-canje').forEach(btn => {
-                    // Limpiar listeners antiguos para evitar duplicados
                     const newBtn = btn.cloneNode(true);
                     btn.parentNode.replaceChild(newBtn, btn);
 
-                    // Añadir nuevo listener
                     newBtn.addEventListener('click', (e) => {
-                        if (!state.isLoggedIn) {
-                            showPage('page-perfil');
-                            return;
-                        }
-                        
+                        e.stopPropagation();
                         const itemData = e.currentTarget.dataset;
-
-                        // --- NUEVO: Log category view ---
-                        if (itemData.categoryId) {
-                            logCategoryView(itemData.categoryId);
-                        }
-                        // --- FIN NUEVO ---
-
-                        state.itemToSwap = {
-                            id: itemData.itemId,
-                            name: itemData.itemName,
-                            value: parseFloat(itemData.itemValue)
-                        };
-
-                        const formattedValue = formatCOP(state.itemToSwap.value);
-                        document.getElementById('modal-item-name').textContent = state.itemToSwap.name;
-                        document.getElementById('modal-item-value').textContent = formattedValue;
-                        document.getElementById('deseado-valor').textContent = formattedValue;
-
-                        // --- NUEVO: Poblar lista de Checkboxes ---
-                        const listContainer = document.getElementById('modal-user-items-list');
-                        listContainer.innerHTML = ''; // Limpiar
-                        
-                        if (state.currentUser.items.length === 0) {
-                             listContainer.innerHTML = '<p class="text-sm text-gray-500 p-2">No tienes artículos para canjear. Publica uno en la sección "Vender".</p>';
-                        } else {
-                            state.currentUser.items.forEach(item => {
-                                const modalItemImage = buildOptimizedImage({
-                                    src: item.imageUrl,
-                                    alt: item.name,
-                                    classes: 'w-10 h-10 rounded-md object-cover ml-3 border flex-shrink-0',
-                                    loading: 'lazy',
-                                    priority: 'auto',
-                                });
-                                const itemHtml = `
-                                    <label class="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 cursor-pointer modal-item-checkbox-label">
-                                        <input type="checkbox" class="modal-item-checkbox h-5 w-5 text-brand rounded focus:ring-brand" data-value="${item.value}" data-id="${item.id}">
-                                        ${modalItemImage}
-                                        <div class="ml-3 flex-1 min-w-0">
-                                            <span class="font-medium text-gray-900 truncate">${item.name}</span>
-                                            <span class="block text-sm text-green-600">${formatCOP(item.value)}</span>
-                                        </div>
-                                    </label>
-                                `;
-                                listContainer.insertAdjacentHTML('beforeend', itemHtml);
-                            });
-                            registerLazyImages(listContainer);
-                        }
-                        
-                        // Resetear valores
-                        updateCanjeCalculation();
-                        modalErrorMsg.classList.add('hidden');
-                        document.getElementById('agregar-dinero').value = '';
-
-                        modalProponerCanje.classList.remove('hidden');
-                        modalProponerCanje.classList.add('open');
+                        prepareAndOpenCanjeModal({
+                            itemId: itemData.itemId,
+                            itemName: itemData.itemName,
+                            itemValue: itemData.itemValue,
+                            categoryId: itemData.categoryId,
+                        });
                     });
                 });
             }
@@ -3032,14 +3389,15 @@
                 const deseadoValor = state.itemToSwap ? state.itemToSwap.value : 0;
                 const diferencia = deseadoValor - tuValorTotal;
                 
-                document.getElementById('tu-valor').textContent = formatCOP(tuValorTotal);
-                document.getElementById('diferencia-valor').textContent = formatCOP(diferencia);
-                
-                const inputDinero = document.getElementById('agregar-dinero');
-                if (diferencia > 0) {
-                    inputDinero.placeholder = `Sugerido: ${diferencia}`;
-                } else {
-                    inputDinero.placeholder = "0";
+                if (tuValorEl) tuValorEl.textContent = formatCOP(tuValorTotal);
+                if (diferenciaValorEl) diferenciaValorEl.textContent = formatCOP(diferencia);
+
+                if (agregarDineroInput) {
+                    if (diferencia > 0) {
+                        agregarDineroInput.placeholder = `Sugerido: ${diferencia}`;
+                    } else {
+                        agregarDineroInput.placeholder = "0";
+                    }
                 }
             }
 
@@ -3124,7 +3482,7 @@
                         },
                         
                         offeredItems: offeredItemsData,
-                        additionalCop: Number(document.getElementById('agregar-dinero').value) || 0,
+                        additionalCop: Number(agregarDineroInput ? agregarDineroInput.value : 0) || 0,
                         
                         status: 'pending', // pending, accepted, rejected, negotiated
                         createdAt: serverTimestamp()
