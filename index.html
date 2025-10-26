@@ -4753,7 +4753,7 @@ async function handleAdminBannerUpload(event) {
                 if (!chatId || !chatMessages) return;
 
                 // Limpiar mensajes anteriores y cancelar suscripción anterior
-                chatMessages.innerHTML = '';
+                chatMessages.innerHTML = '<div class="text-center p-4 text-sm text-gray-500">Cargando mensajes...</div>';
                 if (state.unsubscribeFromMessages) {
                     state.unsubscribeFromMessages();
                 }
@@ -4761,16 +4761,43 @@ async function handleAdminBannerUpload(event) {
                 const messagesRef = collection(db, 'chats', chatId, 'messages');
                 const q = query(messagesRef, orderBy('timestamp'));
 
+                let isInitialLoad = true;
+
                 state.unsubscribeFromMessages = onSnapshot(q, (snapshot) => {
-                    chatMessages.innerHTML = ''; // Limpiar para re-renderizar
-                    snapshot.forEach(doc => {
-                        const message = doc.data();
-                        const isUser = message.senderId === state.currentUser.uid;
-                        renderSingleMessage(message.text, isUser, message.timestamp);
-                    });
-                    chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll
+                    if (isInitialLoad) {
+                        chatMessages.innerHTML = ''; // Limpiar el mensaje "Cargando..."
+                        if (snapshot.empty) {
+                            chatMessages.innerHTML = '<div class="text-center p-4 text-sm text-gray-500">Aún no hay mensajes. ¡Envía el primero!</div>';
+                        } else {
+                            snapshot.forEach(doc => {
+                                const message = doc.data();
+                                const isUser = message.senderId === state.currentUser.uid;
+                                renderSingleMessage(message.text, isUser, message.timestamp);
+                            });
+                        }
+                        isInitialLoad = false;
+                    } else {
+                        snapshot.docChanges().forEach((change) => {
+                            if (change.type === "added") {
+                                // Si estaba el mensaje de "no hay mensajes", se quita
+                                const placeholder = chatMessages.querySelector('div');
+                                if (placeholder && snapshot.docChanges().length > 0) {
+                                    chatMessages.innerHTML = '';
+                                }
+
+                                const message = change.doc.data();
+                                const isUser = message.senderId === state.currentUser.uid;
+                                renderSingleMessage(message.text, isUser, message.timestamp);
+                            }
+                        });
+                    }
+                    // Retrasar ligeramente el scroll para dar tiempo al DOM a actualizarse
+                    setTimeout(() => {
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }, 50);
                 }, (error) => {
                     console.error("Error al escuchar mensajes:", error);
+                    chatMessages.innerHTML = '<div class="text-center p-4 text-sm text-red-500">No se pudieron cargar los mensajes.</div>';
                 });
             }
 
@@ -4809,15 +4836,36 @@ async function handleAdminBannerUpload(event) {
 
                 } catch (error) {
                     console.error("Error al enviar el mensaje:", error);
+                     // Lanza el error para que el listener del formulario pueda manejarlo
+                    throw new Error("No se pudo enviar tu mensaje. Por favor, intenta de nuevo.");
                 }
             }
 
-            formChat.addEventListener('submit', (e) => {
+            formChat.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const message = chatInput.value.trim();
-                if (message && state.activeChatId) {
-                    handleSendMessage(state.activeChatId, message);
-                    chatInput.value = '';
+                if (!message || !state.activeChatId) return;
+
+                const submitBtn = formChat.querySelector('button[type="submit"]');
+                const originalBtnContent = submitBtn.innerHTML;
+
+                // Deshabilitar formulario para prevenir envíos duplicados
+                chatInput.disabled = true;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+
+                try {
+                    await handleSendMessage(state.activeChatId, message);
+                    chatInput.value = ''; // Limpiar solo si el envío es exitoso
+                } catch (error) {
+                    // Mostrar error al usuario (opcional, pero recomendado)
+                    alert(error.message);
+                } finally {
+                    // Siempre rehabilitar el formulario
+                    chatInput.disabled = false;
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnContent;
+                    chatInput.focus();
                 }
             });
 
