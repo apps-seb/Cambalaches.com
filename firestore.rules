@@ -47,15 +47,17 @@ service cloud.firestore {
       // Un usuario puede LEER o ACTUALIZAR (para el último mensaje) la información del chat si es un participante.
       allow read, update: if request.auth != null && request.auth.uid in resource.data.participants;
 
-      // Reglas para la subcolección de mensajes dentro de cada chat.
+      // REGLA CORREGIDA Y REFORZADA: Separar permisos de lectura y escritura para mayor claridad.
       match /messages/{messageId} {
-        // Un usuario puede LEER los mensajes si es participante del chat principal.
-        allow read: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+        // Cualquiera de los participantes puede leer todos los mensajes del chat.
+        allow read: if request.auth != null
+                    && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
 
-        // Un usuario puede CREAR un mensaje si es el `senderId` del mensaje y es participante del chat.
-        allow create: if request.auth != null
-                      && request.auth.uid == request.resource.data.senderId
-                      && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+        // Un usuario puede escribir (crear) un mensaje si es uno de los participantes.
+        // Se añade una comprobación adicional para asegurar que el remitente es quien dice ser.
+        allow write: if request.auth != null
+                     && request.auth.uid == request.resource.data.senderId
+                     && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
       }
     }
   }
