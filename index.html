@@ -92,6 +92,77 @@
             font-weight: 600;
         }
         .nav-link-desktop.active svg { color: #1A73E8; }
+
+        .mobile-nav {
+            backdrop-filter: blur(14px);
+            padding: 0.25rem 0;
+        }
+        .mobile-nav-inner {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            width: min(100%, 42rem);
+            padding: 0 1.5rem 0.3rem;
+            margin: 0 auto;
+            height: 58px;
+        }
+        .mobile-nav-item {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.25rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+            line-height: 1;
+            min-width: 3.75rem;
+            padding-bottom: 0.25rem;
+            transition: all 0.2s ease-in-out;
+        }
+        .mobile-nav-item .mobile-nav-label {
+            font-size: 0.68rem;
+            font-weight: 500;
+        }
+        .mobile-nav-item .mobile-nav-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 9999px;
+            background: #F3F4F6;
+            color: #4B5563;
+            box-shadow: inset 0 0 0 1px rgba(66, 133, 244, 0.05);
+            transition: all 0.25s ease;
+        }
+        .mobile-nav-item.active .mobile-nav-icon {
+            background: linear-gradient(135deg, #4285F4 0%, #1A73E8 100%);
+            color: #FFFFFF;
+            box-shadow: 0 14px 28px -18px rgba(66, 133, 244, 0.75);
+            transform: translateY(-6px);
+        }
+        .mobile-nav-item--primary {
+            padding-bottom: 0.1rem;
+        }
+        .mobile-nav-item--primary .mobile-nav-icon {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 9999px;
+            border: 4px solid #FFFFFF;
+            background: #FFFFFF;
+            color: #1A73E8;
+            box-shadow: 0 18px 32px -18px rgba(66, 133, 244, 0.55);
+            transform: translateY(-22px);
+        }
+        .mobile-nav-item--primary.active .mobile-nav-icon {
+            background: linear-gradient(135deg, #4285F4 0%, #1A73E8 100%);
+            color: #FFFFFF;
+            border-color: #FFFFFF;
+            box-shadow: 0 24px 36px -18px rgba(66, 133, 244, 0.75);
+            transform: translateY(-24px);
+        }
+        .mobile-nav-item.active .mobile-nav-label { color: #1A73E8; }
         
         /* Modal */
         .modal-backdrop { transition: opacity 0.3s ease-in-out; }
@@ -342,13 +413,17 @@
                 <i data-lucide="compass" class="w-5 h-5 text-gray-500"></i>
                 <span class="ml-4">Explorar</span>
             </a>
+            <a href="#" class="nav-link-mobile-menu nav-link flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100" data-page="page-vender">
+                <i data-lucide="tag" class="w-5 h-5 text-gray-500"></i>
+                <span class="ml-4">Vender</span>
+            </a>
             <a href="#" class="nav-link-mobile-menu nav-link flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100" data-page="page-canjes">
                 <i data-lucide="repeat" class="w-5 h-5 text-gray-500"></i>
                 <span class="ml-4">Mis Canjes</span>
             </a>
-            <a href="#" class="nav-link-mobile-menu nav-link flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100" data-page="page-vender">
-                <i data-lucide="tag" class="w-5 h-5 text-gray-500"></i>
-                <span class="ml-4">Vender</span>
+            <a href="#" class="nav-link-mobile-menu nav-link flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100" data-page="page-carrito">
+                <i data-lucide="shopping-cart" class="w-5 h-5 text-gray-500"></i>
+                <span class="ml-4">Carrito</span>
             </a>
             <a href="#" class="nav-link-mobile-menu nav-link flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100" data-page="page-perfil">
                 <i data-lucide="user" class="w-5 h-5 text-gray-500"></i>
@@ -391,13 +466,17 @@
                 <i data-lucide="compass" class="w-5 h-5 text-gray-500"></i>
                 <span class="ml-4 sidebar-text">Explorar</span>
             </a>
+            <a href="#" class="nav-link nav-link-desktop flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100" data-page="page-vender">
+                <i data-lucide="tag" class="w-5 h-5 text-gray-500"></i>
+                <span class="ml-4 sidebar-text">Vender</span>
+            </a>
             <a href="#" class="nav-link nav-link-desktop flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100" data-page="page-canjes">
                 <i data-lucide="repeat" class="w-5 h-5 text-gray-500"></i>
                 <span class="ml-4 sidebar-text">Mis Canjes</span>
             </a>
-            <a href="#" class="nav-link nav-link-desktop flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100" data-page="page-vender">
-                <i data-lucide="tag" class="w-5 h-5 text-gray-500"></i>
-                <span class="ml-4 sidebar-text">Vender</span>
+            <a href="#" class="nav-link nav-link-desktop flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100" data-page="page-carrito">
+                <i data-lucide="shopping-cart" class="w-5 h-5 text-gray-500"></i>
+                <span class="ml-4 sidebar-text">Carrito</span>
             </a>
             <a href="#" class="nav-link nav-link-desktop flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100" data-page="page-perfil">
                 <i data-lucide="user" class="w-5 h-5 text-gray-500"></i>
@@ -625,6 +704,70 @@
                 </div>
             </section>
 
+            <section id="page-carrito" class="page hidden">
+                <div class="max-w-6xl px-4 py-8 mx-auto space-y-8 lg:px-8">
+                    <header class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                            <p class="text-sm font-semibold tracking-wide text-brand uppercase">Tu selección</p>
+                            <h1 class="text-3xl font-semibold text-gray-900 sm:text-4xl">Carrito de canjes</h1>
+                            <p class="mt-2 text-sm text-gray-600">Gestiona tus artículos guardados y finaliza el acuerdo cuando estés listo.</p>
+                        </div>
+                        <a href="#" class="inline-flex items-center gap-2 text-sm font-semibold text-brand hover:text-brand-dark nav-link" data-page="page-explorar">
+                            <i data-lucide="compass" class="w-4 h-4"></i>
+                            Seguir explorando
+                        </a>
+                    </header>
+
+                    <div id="cart-page-feedback" class="hidden px-4 py-3 text-sm font-medium rounded-xl"></div>
+
+                    <div id="cart-page-empty-state" class="flex flex-col items-center justify-center gap-4 px-6 py-16 text-center bg-white border border-dashed border-gray-200 rounded-3xl shadow-sm">
+                        <div class="flex items-center justify-center w-16 h-16 rounded-full bg-brand-light text-brand">
+                            <i data-lucide="shopping-bag" class="w-7 h-7"></i>
+                        </div>
+                        <div class="space-y-2">
+                            <h2 class="text-2xl font-semibold text-gray-900">Tu carrito está vacío</h2>
+                            <p class="text-sm text-gray-600">Explora el catálogo y añade artículos para iniciar nuevos canjes.</p>
+                        </div>
+                        <a href="#" class="inline-flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white transition-colors rounded-full bg-brand hover:bg-brand-dark nav-link" data-page="page-explorar">
+                            <i data-lucide="sparkles" class="w-4 h-4"></i>
+                            Descubrir artículos
+                        </a>
+                    </div>
+
+                    <div id="cart-page-content" class="hidden grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+                        <div class="space-y-4" id="cart-page-items"></div>
+                        <aside class="p-6 space-y-6 bg-white border border-gray-200 rounded-3xl shadow-xl">
+                            <div>
+                                <h2 class="text-xl font-semibold text-gray-900">Resumen del canje</h2>
+                                <p class="mt-1 text-sm text-gray-500">Confirma los detalles antes de contactar al vendedor.</p>
+                            </div>
+                            <dl class="space-y-3 text-sm text-gray-700">
+                                <div class="flex items-center justify-between">
+                                    <dt>Artículos</dt>
+                                    <dd id="cart-page-quantity" class="font-semibold">0</dd>
+                                </div>
+                                <div class="flex items-center justify-between text-base">
+                                    <dt>Total estimado</dt>
+                                    <dd id="cart-page-total" class="text-lg font-semibold text-gray-900">$0 COP</dd>
+                                </div>
+                            </dl>
+                            <div class="space-y-3">
+                                <button class="w-full px-4 py-3 text-sm font-semibold text-white transition-colors rounded-full bg-brand hover:bg-brand-dark" type="button">
+                                    Continuar con el pedido
+                                </button>
+                                <button id="cart-page-clear" class="w-full px-4 py-3 text-sm font-semibold text-gray-700 transition-colors rounded-full bg-gray-100 hover:bg-gray-200" type="button">
+                                    Vaciar carrito
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-3 p-4 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-2xl">
+                                <i data-lucide="shield" class="w-4 h-4 text-brand"></i>
+                                <span>Protegemos tu información. Solo compartimos los datos del vendedor al iniciar un canje.</span>
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+            </section>
+
             <section id="page-perfil" class="page hidden max-w-md mx-auto">
                 
                 <div id="perfil-auth-form" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
@@ -777,23 +920,39 @@
             </div>
         </footer>
 
-    </div> <nav class="fixed bottom-0 left-0 z-20 w-full h-16 bg-white border-t border-gray-200 shadow-inner lg:hidden">
-        <div class="flex items-center justify-around w-full h-full max-w-md px-4 mx-auto">
-            <a href="#" class="flex flex-col items-center justify-center text-center text-brand nav-link nav-link-mobile active" data-page="page-explorar">
-                <i data-lucide="compass" class="w-6 h-6"></i>
-                <span class="text-xs font-medium">Explorar</span>
+    </div>
+
+    <nav class="mobile-nav fixed bottom-0 left-0 z-20 w-full bg-white/95 border-t border-gray-200 shadow-[0_-12px_40px_-24px_rgba(15,23,42,0.45)] lg:hidden">
+        <div class="mobile-nav-inner">
+            <a href="#" class="nav-link nav-link-mobile mobile-nav-item active text-brand" data-page="page-explorar" aria-label="Explorar">
+                <span class="mobile-nav-icon">
+                    <i data-lucide="compass" class="w-5 h-5"></i>
+                </span>
+                <span class="mobile-nav-label">Explorar</span>
             </a>
-            <a href="#" class="flex flex-col items-center justify-center text-center text-gray-600 nav-link nav-link-mobile" data-page="page-canjes">
-                <i data-lucide="repeat" class="w-6 h-6"></i>
-                <span class="text-xs font-medium">Canjes</span>
+            <a href="#" class="nav-link nav-link-mobile mobile-nav-item text-gray-600" data-page="page-vender" aria-label="Vender">
+                <span class="mobile-nav-icon">
+                    <i data-lucide="tag" class="w-5 h-5"></i>
+                </span>
+                <span class="mobile-nav-label">Vender</span>
             </a>
-            <a href="#" class="flex flex-col items-center justify-center text-center text-gray-600 nav-link nav-link-mobile" data-page="page-vender">
-                <i data-lucide="plus-square" class="w-6 h-6"></i>
-                <span class="text-xs font-medium">Vender</span>
+            <a href="#" class="nav-link nav-link-mobile mobile-nav-item mobile-nav-item--primary text-gray-600" data-page="page-canjes" aria-label="Mis canjes">
+                <span class="mobile-nav-icon">
+                    <i data-lucide="repeat" class="w-5 h-5"></i>
+                </span>
+                <span class="mobile-nav-label">Canjes</span>
             </a>
-            <a href="#" class="flex flex-col items-center justify-center text-center text-gray-600 nav-link nav-link-mobile" data-page="page-perfil">
-                <i data-lucide="user" class="w-6 h-6"></i>
-                <span class="text-xs font-medium">Perfil</span>
+            <a href="#" class="nav-link nav-link-mobile mobile-nav-item text-gray-600" data-page="page-carrito" aria-label="Carrito">
+                <span class="mobile-nav-icon">
+                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                </span>
+                <span class="mobile-nav-label">Carrito</span>
+            </a>
+            <a href="#" class="nav-link nav-link-mobile mobile-nav-item text-gray-600" data-page="page-perfil" aria-label="Perfil">
+                <span class="mobile-nav-icon">
+                    <i data-lucide="user" class="w-5 h-5"></i>
+                </span>
+                <span class="mobile-nav-label">Perfil</span>
             </a>
         </div>
     </nav>
@@ -1283,6 +1442,59 @@
                 `;
             }
 
+            function buildCartPageItemMarkup(item) {
+                const subtotal = item.value * item.quantity;
+                const productImage = buildOptimizedImage({
+                    src: item.imageUrl,
+                    alt: item.name,
+                    classes: 'object-cover w-full h-full',
+                    loading: 'lazy',
+                    priority: 'auto',
+                });
+                return `
+                    <article class="cart-page-item grid grid-cols-[96px_1fr] gap-4 p-5 bg-white border border-gray-200 rounded-3xl shadow-[0_18px_45px_-30px_rgba(15,23,42,0.35)]" data-product-id="${escapeHtml(item.id)}">
+                        <div class="overflow-hidden rounded-2xl bg-gray-100 aspect-square">
+                            ${productImage}
+                        </div>
+                        <div class="flex flex-col gap-4">
+                            <div class="flex flex-col gap-1">
+                                <div class="flex items-start justify-between gap-3">
+                                    <h3 class="text-base font-semibold text-gray-900">${escapeHtml(item.name)}</h3>
+                                    <button class="p-2 text-gray-400 transition-colors rounded-full hover:text-red-500" type="button" data-cart-action="remove" data-product-id="${escapeHtml(item.id)}" aria-label="Eliminar del carrito">
+                                        <i data-lucide="x" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                                <p class="text-xs font-medium tracking-wide text-gray-500 uppercase">${escapeHtml(getCategoryDisplayName(item.categoryId))}</p>
+                            </div>
+                            <div class="flex flex-wrap items-center justify-between gap-3">
+                                <div class="flex items-center gap-3">
+                                    <button class="cart-quantity-btn w-8 h-8 flex items-center justify-center text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200" type="button" data-cart-action="decrease" data-product-id="${escapeHtml(item.id)}" aria-label="Reducir cantidad">
+                                        <i data-lucide="minus" class="w-4 h-4"></i>
+                                    </button>
+                                    <span class="text-sm font-semibold text-gray-800 min-w-[2ch] text-center">${item.quantity}</span>
+                                    <button class="cart-quantity-btn w-8 h-8 flex items-center justify-center text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200" type="button" data-cart-action="increase" data-product-id="${escapeHtml(item.id)}" aria-label="Aumentar cantidad">
+                                        <i data-lucide="plus" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs font-medium text-gray-500">Valor unitario</p>
+                                    <p class="text-sm font-semibold text-gray-900">${formatCOP(item.value)}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs font-medium text-gray-500">Subtotal</p>
+                                    <p class="text-base font-semibold text-brand-dark">${formatCOP(subtotal)}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-end gap-2">
+                                <button class="px-4 py-2 text-xs font-semibold text-brand transition-colors bg-brand-light rounded-full hover:bg-brand/30" type="button" data-cart-action="canje" data-product-id="${escapeHtml(item.id)}">
+                                    Negociar canje
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }
+
             function updateCartClearButtonsState(hasItems) {
                 if (sidebarCartClearBtn) {
                     sidebarCartClearBtn.disabled = !hasItems;
@@ -1294,6 +1506,11 @@
                     mobileCartClearBtn.classList.toggle('opacity-50', !hasItems);
                     mobileCartClearBtn.classList.toggle('cursor-not-allowed', !hasItems);
                 }
+                if (cartPageClearBtn) {
+                    cartPageClearBtn.disabled = !hasItems;
+                    cartPageClearBtn.classList.toggle('opacity-50', !hasItems);
+                    cartPageClearBtn.classList.toggle('cursor-not-allowed', !hasItems);
+                }
             }
 
             function renderCart() {
@@ -1301,6 +1518,7 @@
                 const hasItems = state.cart.items.length > 0;
                 const sidebarMarkup = hasItems ? state.cart.items.map(buildCartItemMarkup).join('') : '<p class="text-sm text-gray-500">Tu carrito está vacío.</p>';
                 const mobileMarkup = hasItems ? state.cart.items.map(buildCartItemMarkup).join('') : '<p class="text-sm text-gray-500">Tu carrito está vacío.</p>';
+                const cartPageMarkup = hasItems ? state.cart.items.map(buildCartPageItemMarkup).join('') : '';
 
                 if (sidebarCartItemsEl) {
                     sidebarCartItemsEl.innerHTML = sidebarMarkup;
@@ -1320,6 +1538,22 @@
                 if (mobileCartCountEl) {
                     mobileCartCountEl.textContent = state.cart.totalQuantity.toString();
                 }
+                if (cartPageItemsEl) {
+                    cartPageItemsEl.innerHTML = cartPageMarkup;
+                }
+                if (cartPageTotalEl) {
+                    cartPageTotalEl.textContent = formatCOP(state.cart.totalValue);
+                }
+                if (cartPageQuantityEl) {
+                    const quantityLabel = state.cart.totalQuantity === 1 ? '1 artículo' : `${state.cart.totalQuantity} artículos`;
+                    cartPageQuantityEl.textContent = quantityLabel;
+                }
+                if (cartPageContentEl) {
+                    cartPageContentEl.classList.toggle('hidden', !hasItems);
+                }
+                if (cartPageEmptyStateEl) {
+                    cartPageEmptyStateEl.classList.toggle('hidden', hasItems);
+                }
 
                 updateCartClearButtonsState(hasItems);
 
@@ -1328,6 +1562,9 @@
                 }
                 if (mobileCartItemsEl) {
                     registerLazyImages(mobileCartItemsEl);
+                }
+                if (cartPageItemsEl) {
+                    registerLazyImages(cartPageItemsEl);
                 }
                 if (typeof lucide !== 'undefined' && lucide?.createIcons) {
                     lucide.createIcons();
@@ -1352,13 +1589,13 @@
                         element.classList.add(...successClasses);
                     }
                 };
-                [sidebarCartFeedbackEl, mobileCartFeedbackEl].forEach(applyToElement);
+                [sidebarCartFeedbackEl, mobileCartFeedbackEl, cartPageFeedbackEl].forEach(applyToElement);
 
                 if (cartFeedbackTimeout) {
                     clearTimeout(cartFeedbackTimeout);
                 }
                 cartFeedbackTimeout = setTimeout(() => {
-                    [sidebarCartFeedbackEl, mobileCartFeedbackEl].forEach(element => {
+                    [sidebarCartFeedbackEl, mobileCartFeedbackEl, cartPageFeedbackEl].forEach(element => {
                         if (!element) return;
                         element.classList.add('hidden');
                     });
@@ -1872,6 +2109,13 @@
             const mobileCartCountEl = document.getElementById('mobile-cart-count');
             const mobileCartFeedbackEl = document.getElementById('mobile-cart-feedback');
             const mobileCartClearBtn = document.getElementById('mobile-cart-clear');
+            const cartPageItemsEl = document.getElementById('cart-page-items');
+            const cartPageContentEl = document.getElementById('cart-page-content');
+            const cartPageEmptyStateEl = document.getElementById('cart-page-empty-state');
+            const cartPageTotalEl = document.getElementById('cart-page-total');
+            const cartPageQuantityEl = document.getElementById('cart-page-quantity');
+            const cartPageClearBtn = document.getElementById('cart-page-clear');
+            const cartPageFeedbackEl = document.getElementById('cart-page-feedback');
 
             // --- FUNCIONES ---
 
@@ -3300,11 +3544,17 @@
             if (mobileCartItemsEl) {
                 mobileCartItemsEl.addEventListener('click', handleCartActionFromClick);
             }
+            if (cartPageItemsEl) {
+                cartPageItemsEl.addEventListener('click', handleCartActionFromClick);
+            }
             if (sidebarCartClearBtn) {
                 sidebarCartClearBtn.addEventListener('click', () => clearCart());
             }
             if (mobileCartClearBtn) {
                 mobileCartClearBtn.addEventListener('click', () => clearCart());
+            }
+            if (cartPageClearBtn) {
+                cartPageClearBtn.addEventListener('click', () => clearCart());
             }
             
             // Menú Móvil
