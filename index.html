@@ -4523,8 +4523,8 @@ async function handleAdminBannerUpload(event) {
                  tabOfertas.addEventListener('click', (e) => {
                     const aceptarBtn = e.target.closest('.btn-aceptar-canje');
                     if (aceptarBtn) {
-                        const { userName, itemName } = aceptarBtn.dataset;
-                        openTerminosModal(userName, itemName);
+                        const { userName, itemName, offerId } = aceptarBtn.dataset;
+                        openTerminosModal(userName, itemName, offerId);
                     }
 
                     const negociarBtn = e.target.closest('.btn-negociar');
