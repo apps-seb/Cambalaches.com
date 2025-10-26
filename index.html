@@ -874,6 +874,39 @@
                     </button>
                 </div>
             </section>
+
+            <section id="page-chat" class="page hidden nav-link" data-page="page-chat">
+                <div class="flex flex-col h-[calc(100vh-12rem)] max-w-4xl mx-auto bg-white border border-gray-200 rounded-lg shadow-sm">
+                    <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                        <div class="flex items-center">
+                            <button class="nav-link p-2 rounded-full hover:bg-gray-100" data-page="page-canjes">
+                                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                            </button>
+                            <img src="https://placehold.co/40x40" alt="Avatar" class="w-10 h-10 ml-2 rounded-full">
+                            <div class="ml-3">
+                                <h3 id="chat-with-name" class="font-semibold">Nombre del Usuario</h3>
+                                <p id="chat-item-name" class="text-sm text-gray-500">Artículo: Smartwatch</p>
+                            </div>
+                        </div>
+                        <button class="p-2 rounded-full hover:bg-gray-100">
+                            <i data-lucide="more-vertical" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+
+                    <div id="chat-messages" class="flex-grow p-4 overflow-y-auto bg-gray-50">
+                        <!-- Mensajes del chat se insertarán aquí -->
+                    </div>
+
+                    <div class="p-4 border-t border-gray-200">
+                        <form id="form-chat" class="flex items-center">
+                            <input type="text" id="chat-input" class="w-full px-4 py-2 border-gray-300 rounded-full shadow-sm focus:border-brand focus:ring-brand" placeholder="Escribe tu mensaje...">
+                            <button type="submit" class="ml-3 px-4 py-2 text-white bg-brand rounded-full hover:bg-brand-dark">
+                                <i data-lucide="send" class="w-5 h-5"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </section>
         </main>
 
         <footer class="p-6 mt-10 bg-white border-t border-gray-200 md:p-10">
@@ -1150,6 +1183,44 @@
         </div>
     </div>
 
+
+    <div id="modal-terminos" class="modal hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="modal-backdrop fixed inset-0 bg-black bg-opacity-60"></div>
+        <div class="modal-content relative w-full max-w-2xl p-6 bg-white rounded-lg shadow-xl flex flex-col h-[90vh]">
+            <div class="flex-shrink-0">
+                <button class="modal-close-btn absolute top-4 right-4 p-1 text-gray-500 rounded-full hover:bg-gray-100">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+                <h3 class="text-xl font-semibold text-gray-900">Términos y Condiciones del Canje</h3>
+                <p class="mt-1 text-sm text-gray-600">
+                    Por favor, lee y acepta los términos para continuar.
+                </p>
+            </div>
+            <div class="mt-4 flex-grow overflow-y-auto pr-2">
+                <h4 class="font-semibold mt-4">1. Acuerdo de Canje</h4>
+                <p class="text-sm text-gray-600 mt-1">Al aceptar, te comprometes a un canje justo y a proporcionar información veraz sobre tu artículo. Este acuerdo es vinculante.</p>
+                <h4 class="font-semibold mt-4">2. Logística y Entrega</h4>
+                <p class="text-sm text-gray-600 mt-1">La coordinación de la entrega es tu responsabilidad. CanjeApp no se hace responsable por problemas durante el envío.</p>
+                <h4 class="font-semibold mt-4">3. Calidad del Producto</h4>
+                <p class="text-sm text-gray-600 mt-1">Garantizas que tu artículo coincide con la descripción y fotos. Cualquier discrepancia puede anular el canje.</p>
+                <h4 class="font-semibold mt-4">4. Política de Devolución</h4>
+                <p class="text-sm text-gray-600 mt-1">No hay devoluciones. Una vez aceptado el canje, ambas partes deben cumplir con el acuerdo final.</p>
+                 <h4 class="font-semibold mt-4">5. Seguridad en el Chat</h4>
+                <p class="text-sm text-gray-600 mt-1">No compartas información personal sensible como contraseñas o datos bancarios completos en el chat de logística. Utiliza el sentido común y mantén la conversación centrada en la coordinación de la entrega.</p>
+                <h4 class="font-semibold mt-4">6. Disputas</h4>
+                <p class="text-sm text-gray-600 mt-1">En caso de desacuerdo, contacta a soporte. CanjeApp mediará, pero la decisión final puede requerir acuerdo mutuo.</p>
+            </div>
+            <div class="mt-6 flex-shrink-0">
+                <label class="flex items-center">
+                    <input type="checkbox" id="checkbox-terminos" class="h-4 w-4 text-brand rounded focus:ring-brand">
+                    <span class="ml-2 text-sm text-gray-700">He leído y acepto los términos y condiciones.</span>
+                </label>
+                <button id="btn-continuar-chat" class="mt-4 w-full px-6 py-3 font-semibold text-white bg-brand rounded-lg shadow-sm hover:bg-brand-dark disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+                    Continuar al Chat
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -2098,8 +2169,16 @@
             const tabMisArticulos = document.getElementById('tab-mis-articulos');
             const ofertasCount = document.getElementById('ofertas-count');
             const misArticulosCount = document.getElementById('mis-articulos-count');
-            const mostViewedContainer = document.getElementById('most-viewed-container'); // NUEVO
+            const mostViewedContainer = document.getElementById('most-viewed-container');
             const sidebarCartItemsEl = document.getElementById('sidebar-cart-items');
+            const modalTerminos = document.getElementById('modal-terminos');
+            const checkboxTerminos = document.getElementById('checkbox-terminos');
+            const btnContinuarChat = document.getElementById('btn-continuar-chat');
+            const chatWithName = document.getElementById('chat-with-name');
+            const chatItemName = document.getElementById('chat-item-name');
+            const chatMessages = document.getElementById('chat-messages');
+            const formChat = document.getElementById('form-chat');
+            const chatInput = document.getElementById('chat-input');
             const sidebarCartTotalEl = document.getElementById('sidebar-cart-total');
             const sidebarCartCountEl = document.getElementById('sidebar-cart-count');
             const sidebarCartFeedbackEl = document.getElementById('sidebar-cart-feedback');
@@ -2725,6 +2804,20 @@
                 mobileMenuPanel.classList.remove('-translate-x-full');
                 mobileMenuBackdrop.classList.remove('hidden');
             }
+            function openTerminosModal(userName, itemName) {
+                if (chatWithName) chatWithName.textContent = userName;
+                if (chatItemName) chatItemName.textContent = `Artículo: ${itemName}`;
+
+                modalTerminos.classList.remove('hidden');
+                modalTerminos.classList.add('open');
+            }
+
+            function closeTerminosModal() {
+                modalTerminos.classList.add('hidden');
+                modalTerminos.classList.remove('open');
+                if (checkboxTerminos) checkboxTerminos.checked = false;
+                if (btnContinuarChat) btnContinuarChat.disabled = true;
+            }
 
             /**
              * Cierra el menú lateral móvil.
@@ -2988,6 +3081,7 @@
                         loading: 'lazy',
                         priority: 'auto',
                     });
+
                     const offerHtml = `
                         <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
                             <div class="flex items-center justify-between pb-3 border-b border-gray-200">
@@ -3075,7 +3169,12 @@
                             </div>
 
                             <div class="flex flex-col mt-4 space-y-2 md:flex-row md:space-y-0 md:space-x-3">
-                                <button class="flex-1 px-4 py-2 text-sm font-medium text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700">Aceptar Canje</button>
+                                <button class="btn-aceptar-canje flex-1 px-4 py-2 text-sm font-medium text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700"
+                                    data-offer-id="${offer.id}"
+                                    data-user-name="${offer.fromUser.name}"
+                                    data-item-name="${offer.forYourItem.name}">
+                                    Aceptar Canje
+                                </button>
                                 <button class="flex-1 btn-negociar px-4 py-2 text-sm font-medium text-white transition-colors bg-brand rounded-lg hover:bg-brand-dark">Negociar</button>
                                 <button class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 transition-colors bg-gray-100 rounded-lg hover:bg-gray-200">Rechazar</button>
                             </div>
@@ -3467,6 +3566,17 @@
             // --- EVENT LISTENERS ---
 
             // Navegación principal
+            modalTerminos.querySelector('.modal-close-btn').addEventListener('click', closeTerminosModal);
+            modalTerminos.querySelector('.modal-backdrop').addEventListener('click', closeTerminosModal);
+
+            checkboxTerminos.addEventListener('change', () => {
+                btnContinuarChat.disabled = !checkboxTerminos.checked;
+            });
+
+            btnContinuarChat.addEventListener('click', () => {
+                closeTerminosModal();
+                showPage('page-chat');
+            });
             navLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -4392,8 +4502,13 @@ async function handleAdminBannerUpload(event) {
              * NUEVO: Listeners delegados para contenido dinámico
              */
             function setupDelegatedListeners() {
-                // Listener para botones "Negociar" en "Mis Canjes"
-                tabOfertas.addEventListener('click', (e) => {
+                 tabOfertas.addEventListener('click', (e) => {
+                    const aceptarBtn = e.target.closest('.btn-aceptar-canje');
+                    if (aceptarBtn) {
+                        const { userName, itemName } = aceptarBtn.dataset;
+                        openTerminosModal(userName, itemName);
+                    }
+
                     const negociarBtn = e.target.closest('.btn-negociar');
                     if (negociarBtn) {
                         const form = negociarBtn.closest('.p-4').querySelector('.negotiation-form');
@@ -4437,6 +4552,31 @@ async function handleAdminBannerUpload(event) {
                 });
             }
 
+
+            function handleSendMessage(message, isUser = true) {
+                const messageHtml = `
+                    <div class="flex ${isUser ? 'justify-end' : 'justify-start'} mb-4">
+                        <div class="px-4 py-2 text-white ${isUser ? 'bg-brand' : 'bg-gray-400'} rounded-lg max-w-xs">
+                            <p class="text-sm">${message}</p>
+                            <p class="text-xs text-right text-gray-200 mt-1">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                        </div>
+                    </div>
+                `;
+                chatMessages.insertAdjacentHTML('beforeend', messageHtml);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            formChat.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const message = chatInput.value.trim();
+                if (message) {
+                    handleSendMessage(message);
+                    chatInput.value = '';
+                    setTimeout(() => {
+                        handleSendMessage('¡Entendido! Estaré pendiente para coordinar la entrega.', false);
+                    }, 1000);
+                }
+            });
 
             // --- INICIALIZACIÓN ---
             async function init() {
