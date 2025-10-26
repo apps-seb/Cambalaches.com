@@ -602,7 +602,7 @@
                                 Mis Artículos (<span id="mis-articulos-count">0</span>)
                             </button>
                             <button class="px-1 py-3 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 whitespace-nowrap canje-tab-btn" data-tab="tab-activos">
-                                Canjes Activos (0)
+                                Canjes Activos (<span id="activos-count">0</span>)
                             </button>
                         </nav>
                     </div>
@@ -616,7 +616,7 @@
                             <p class="text-gray-500">No has publicado ningún artículo.</p>
                         </div>
                         
-                        <div id="tab-activos" class="canje-tab-content hidden">
+                        <div id="tab-activos" class="canje-tab-content hidden space-y-4">
                             <p class="text-gray-500">No tienes canjes activos.</p>
                         </div>
                     </div>
@@ -1226,7 +1226,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAnalytics, isSupported as isAnalyticsSupported } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
         import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, query, where, serverTimestamp, deleteDoc, increment, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, query, where, serverTimestamp, deleteDoc, increment, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
         const firebaseConfig = {
@@ -1311,6 +1311,9 @@
                     totalQuantity: 0,
                     totalValue: 0,
                 },
+                activeOfferIdForChat: null,
+                activeChatId: null,
+                unsubscribeFromMessages: null,
             };
 
 
@@ -2179,6 +2182,8 @@
             const chatMessages = document.getElementById('chat-messages');
             const formChat = document.getElementById('form-chat');
             const chatInput = document.getElementById('chat-input');
+            const tabActivos = document.getElementById('tab-activos');
+            const activosCount = document.getElementById('activos-count');
             const sidebarCartTotalEl = document.getElementById('sidebar-cart-total');
             const sidebarCartCountEl = document.getElementById('sidebar-cart-count');
             const sidebarCartFeedbackEl = document.getElementById('sidebar-cart-feedback');
@@ -2804,7 +2809,14 @@
                 mobileMenuPanel.classList.remove('-translate-x-full');
                 mobileMenuBackdrop.classList.remove('hidden');
             }
-            function openTerminosModal(userName, itemName) {
+            function openTerminosModal(userName, itemName, offerId) {
+                if (!offerId) {
+                    console.error("Se intentó abrir el modal de términos sin un ID de oferta.");
+                    // Aquí podrías mostrar un error al usuario.
+                    return;
+                }
+                state.activeOfferIdForChat = offerId;
+
                 if (chatWithName) chatWithName.textContent = userName;
                 if (chatItemName) chatItemName.textContent = `Artículo: ${itemName}`;
 
@@ -3573,9 +3585,12 @@
                 btnContinuarChat.disabled = !checkboxTerminos.checked;
             });
 
-            btnContinuarChat.addEventListener('click', () => {
-                closeTerminosModal();
-                showPage('page-chat');
+            btnContinuarChat.addEventListener('click', async () => {
+                if (checkboxTerminos.checked && state.activeOfferIdForChat) {
+                    await acceptOfferAndCreateChat(state.activeOfferIdForChat);
+                } else {
+                    alert("Por favor, acepta los términos y condiciones para continuar.");
+                }
             });
             navLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
@@ -3812,9 +3827,12 @@
                 if (user) {
                     state.isLoggedIn = true;
                     await hydrateCurrentUser(user);
-                    await loadUserItems(user.uid);
-                    await loadReceivedOffers(user.uid); // <-- LÍNEA NUEVA
-                    await loadAllProducts();
+                    await Promise.all([
+                        loadUserItems(user.uid),
+                        loadReceivedOffers(user.uid),
+                        loadAndRenderActiveChats(user.uid),
+                        loadAllProducts()
+                    ]);
                     updateAuthUI();
                 } else {
                     state.isLoggedIn = false;
@@ -4528,6 +4546,29 @@ async function handleAdminBannerUpload(event) {
                     }
                 });
 
+                // Listener para abrir un chat desde la lista de "Canjes Activos"
+                tabActivos.addEventListener('click', (e) => {
+                    const chatCard = e.target.closest('.chat-card');
+                    if (chatCard) {
+                        const {
+                            chatId,
+                            otherUserId,
+                            otherUserName,
+                            otherUserPic,
+                            itemId,
+                            itemName,
+                            itemImage
+                        } = chatCard.dataset;
+
+                        openChat(
+                            chatId,
+                            otherUserId,
+                            { name: otherUserName, profilePic: otherUserPic },
+                            { id: itemId, name: itemName, imageUrl: itemImage }
+                        );
+                    }
+                });
+
                 // Listener para botones de admin en el carrusel (editar timer, eliminar)
                 promoCarousel.addEventListener('click', (e) => {
                     const deleteBtn = e.target.closest('.btn-delete-banner');
@@ -4553,28 +4594,230 @@ async function handleAdminBannerUpload(event) {
             }
 
 
-            function handleSendMessage(message, isUser = true) {
+            async function acceptOfferAndCreateChat(offerId) {
+                if (!offerId || !state.isLoggedIn) return;
+
+                const submitBtn = document.getElementById('btn-continuar-chat');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Procesando...';
+                }
+
+                try {
+                    const offerRef = doc(db, 'offers', offerId);
+                    const offerSnap = await getDoc(offerRef);
+
+                    if (!offerSnap.exists()) {
+                        throw new Error("La oferta ya no existe.");
+                    }
+                    const offerData = offerSnap.data();
+
+                    // Marcar la oferta como 'accepted'
+                    await setDoc(offerRef, { status: 'accepted' }, { merge: true });
+
+                    // Crear el chat
+                    const chatRef = doc(db, 'chats', offerId); // Usar offerId como chatId
+                    await setDoc(chatRef, {
+                        offerId: offerId,
+                        participants: [offerData.proposerId, offerData.targetOwnerId],
+                        participantInfo: {
+                            [offerData.proposerId]: {
+                                name: offerData.proposerName,
+                                profilePic: offerData.proposerProfilePic
+                            },
+                            [offerData.targetOwnerId]: {
+                                name: state.currentUser.name,
+                                profilePic: state.currentUser.profilePic
+                            }
+                        },
+                        itemInfo: {
+                            id: offerData.targetItem.id,
+                            name: offerData.targetItem.name,
+                            imageUrl: offerData.targetItem.imageUrl
+                        },
+                        createdAt: serverTimestamp(),
+                        lastMessage: null,
+                        lastMessageTimestamp: null
+                    });
+
+                    closeTerminosModal();
+                    await loadReceivedOffers(state.currentUser.uid);
+                    await loadAndRenderActiveChats(state.currentUser.uid);
+
+                    // Abrir el chat directamente
+                    const otherUserId = offerData.proposerId;
+                    const otherUserInfo = {
+                        name: offerData.proposerName,
+                        profilePic: offerData.proposerProfilePic
+                    };
+                    const itemInfo = offerData.targetItem;
+
+                    openChat(offerId, otherUserId, otherUserInfo, itemInfo);
+
+                } catch (error) {
+                    console.error("Error al aceptar el canje y crear chat:", error);
+                    alert(`Error: ${error.message}`);
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Continuar al Chat';
+                    }
+                }
+            }
+
+            async function loadAndRenderActiveChats(uid) {
+                if (!uid || !tabActivos) return;
+
+                try {
+                    const chatsQuery = query(
+                        collection(db, 'chats'),
+                        where('participants', 'array-contains', uid)
+                    );
+                    const snapshot = await getDocs(chatsQuery);
+
+                    if (snapshot.empty) {
+                        tabActivos.innerHTML = '<p class="text-gray-500">No tienes canjes activos.</p>';
+                        activosCount.textContent = 0;
+                        return;
+                    }
+
+                    const chatPromises = snapshot.docs.map(async (docSnap) => {
+                        const chat = docSnap.data();
+                        const chatId = docSnap.id;
+                        const otherUserId = chat.participants.find(p => p !== uid);
+                        const otherUserInfo = chat.participantInfo[otherUserId] || {};
+                        const itemInfo = chat.itemInfo || {};
+
+                        const lastMessage = chat.lastMessage ? escapeHtml(chat.lastMessage) : 'Inicia la conversación...';
+                        const lastMessageTime = chat.lastMessageTimestamp ?
+                            new Date(chat.lastMessageTimestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+
+                        const userAvatar = buildOptimizedImage({
+                            src: otherUserInfo.profilePic || DEFAULT_PROFILE_PIC,
+                            alt: otherUserInfo.name || 'Usuario',
+                            classes: 'w-12 h-12 rounded-full object-cover',
+                        });
+
+                        return `
+                            <div class="chat-card flex items-center p-3 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer hover:bg-gray-50"
+                                data-chat-id="${escapeHtml(chatId)}"
+                                data-other-user-id="${escapeHtml(otherUserId)}"
+                                data-other-user-name="${escapeHtml(otherUserInfo.name || 'Usuario')}"
+                                data-other-user-pic="${escapeHtml(otherUserInfo.profilePic || DEFAULT_PROFILE_PIC)}"
+                                data-item-id="${escapeHtml(itemInfo.id || '')}"
+                                data-item-name="${escapeHtml(itemInfo.name || 'Artículo')}"
+                                data-item-image="${escapeHtml(itemInfo.imageUrl || DEFAULT_PRODUCT_IMAGE)}">
+                                ${userAvatar}
+                                <div class="ml-4 flex-1 min-w-0">
+                                    <div class="flex justify-between items-start">
+                                        <h4 class="font-semibold text-gray-900 truncate">${escapeHtml(otherUserInfo.name || 'Usuario')}</h4>
+                                        <span class="text-xs text-gray-500 flex-shrink-0">${lastMessageTime}</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 truncate">Artículo: ${escapeHtml(itemInfo.name || 'No especificado')}</p>
+                                    <p class="text-sm text-gray-500 truncate">${lastMessage}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    const chatHtmls = await Promise.all(chatPromises);
+                    tabActivos.innerHTML = chatHtmls.join('');
+                    activosCount.textContent = snapshot.size;
+
+                } catch (error) {
+                    console.error("Error al cargar chats activos:", error);
+                    tabActivos.innerHTML = '<p class="text-red-500">Error al cargar los canjes activos.</p>';
+                }
+            }
+
+            function openChat(chatId, otherUserId, otherUserInfo, itemInfo) {
+                if (!chatId || !otherUserInfo || !itemInfo) return;
+
+                // Actualizar el estado global
+                state.activeChatId = chatId;
+
+                // Actualizar la UI de la cabecera del chat
+                if (chatWithName) chatWithName.textContent = otherUserInfo.name;
+                if (chatItemName) chatItemName.textContent = `Artículo: ${itemInfo.name}`;
+                const avatarImg = document.querySelector('#page-chat img');
+                if (avatarImg) avatarImg.src = otherUserInfo.profilePic || DEFAULT_PROFILE_PIC;
+
+                // Mostrar la página de chat
+                showPage('page-chat');
+
+                // Cargar mensajes en tiempo real
+                loadAndRenderMessages(chatId);
+            }
+
+            function loadAndRenderMessages(chatId) {
+                if (!chatId || !chatMessages) return;
+
+                // Limpiar mensajes anteriores y cancelar suscripción anterior
+                chatMessages.innerHTML = '';
+                if (state.unsubscribeFromMessages) {
+                    state.unsubscribeFromMessages();
+                }
+
+                const messagesRef = collection(db, 'chats', chatId, 'messages');
+                const q = query(messagesRef, orderBy('timestamp'));
+
+                state.unsubscribeFromMessages = onSnapshot(q, (snapshot) => {
+                    chatMessages.innerHTML = ''; // Limpiar para re-renderizar
+                    snapshot.forEach(doc => {
+                        const message = doc.data();
+                        const isUser = message.senderId === state.currentUser.uid;
+                        renderSingleMessage(message.text, isUser, message.timestamp);
+                    });
+                    chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll
+                }, (error) => {
+                    console.error("Error al escuchar mensajes:", error);
+                });
+            }
+
+            function renderSingleMessage(text, isUser, timestamp) {
+                const time = timestamp ? new Date(timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
                 const messageHtml = `
                     <div class="flex ${isUser ? 'justify-end' : 'justify-start'} mb-4">
-                        <div class="px-4 py-2 text-white ${isUser ? 'bg-brand' : 'bg-gray-400'} rounded-lg max-w-xs">
-                            <p class="text-sm">${message}</p>
-                            <p class="text-xs text-right text-gray-200 mt-1">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                        <div class="px-4 py-2 text-white ${isUser ? 'bg-brand' : 'bg-gray-400'} rounded-lg max-w-xs shadow-sm">
+                            <p class="text-sm">${escapeHtml(text)}</p>
+                            <p class="text-xs text-right ${isUser ? 'text-blue-100' : 'text-gray-200'} mt-1">${time}</p>
                         </div>
                     </div>
                 `;
                 chatMessages.insertAdjacentHTML('beforeend', messageHtml);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            async function handleSendMessage(chatId, text) {
+                if (!chatId || !text.trim() || !state.isLoggedIn) return;
+
+                const messagesRef = collection(db, 'chats', chatId, 'messages');
+                const chatRef = doc(db, 'chats', chatId);
+
+                try {
+                    // Añadir el nuevo mensaje
+                    await addDoc(messagesRef, {
+                        senderId: state.currentUser.uid,
+                        text: text,
+                        timestamp: serverTimestamp()
+                    });
+
+                    // Actualizar el campo 'lastMessage' en el documento del chat principal
+                    await setDoc(chatRef, {
+                        lastMessage: text,
+                        lastMessageTimestamp: serverTimestamp()
+                    }, { merge: true });
+
+                } catch (error) {
+                    console.error("Error al enviar el mensaje:", error);
+                }
             }
 
             formChat.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const message = chatInput.value.trim();
-                if (message) {
-                    handleSendMessage(message);
+                if (message && state.activeChatId) {
+                    handleSendMessage(state.activeChatId, message);
                     chatInput.value = '';
-                    setTimeout(() => {
-                        handleSendMessage('¡Entendido! Estaré pendiente para coordinar la entrega.', false);
-                    }, 1000);
                 }
             });
 
