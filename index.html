@@ -877,30 +877,33 @@
 
             <section id="page-chat" class="page hidden nav-link" data-page="page-chat">
                 <div class="flex flex-col h-[calc(100vh-12rem)] max-w-4xl mx-auto bg-white border border-gray-200 rounded-lg shadow-sm">
-                    <div class="flex items-center justify-between p-4 border-b border-gray-200">
-                        <div class="flex items-center">
+                    <!-- Encabezado Fijo -->
+                    <div class="flex items-center justify-between p-3 border-b border-gray-200 flex-shrink-0">
+                        <div class="flex items-center min-w-0">
                             <button class="nav-link p-2 rounded-full hover:bg-gray-100" data-page="page-canjes">
                                 <i data-lucide="arrow-left" class="w-5 h-5"></i>
                             </button>
-                            <img src="https://placehold.co/40x40" alt="Avatar" class="w-10 h-10 ml-2 rounded-full">
-                            <div class="ml-3">
-                                <h3 id="chat-with-name" class="font-semibold">Nombre del Usuario</h3>
-                                <p id="chat-item-name" class="text-sm text-gray-500">Artículo: Smartwatch</p>
+                            <img id="chat-item-image" src="https://placehold.co/40x40/E5E7EB/4B5563?text=?" alt="Artículo" class="w-10 h-10 ml-2 rounded-md object-cover flex-shrink-0">
+                            <div class="ml-3 min-w-0">
+                                <h3 id="chat-item-name" class="font-semibold truncate">Cargando...</h3>
+                                <p id="chat-with-name" class="text-sm text-gray-500 truncate">Hablando con: Cargando...</p>
                             </div>
                         </div>
-                        <button class="p-2 rounded-full hover:bg-gray-100">
+                        <button class="p-2 rounded-full hover:bg-gray-100 flex-shrink-0">
                             <i data-lucide="more-vertical" class="w-5 h-5"></i>
                         </button>
                     </div>
 
+                    <!-- Área de Mensajes con Scroll -->
                     <div id="chat-messages" class="flex-grow p-4 overflow-y-auto bg-gray-50">
-                        <!-- Mensajes del chat se insertarán aquí -->
+                        <!-- Mensajes se insertan aquí -->
                     </div>
 
-                    <div class="p-4 border-t border-gray-200">
+                    <!-- Pie Fijo para Escribir Mensaje -->
+                    <div class="p-3 border-t border-gray-200 bg-white flex-shrink-0">
                         <form id="form-chat" class="flex items-center">
-                            <input type="text" id="chat-input" class="w-full px-4 py-2 border-gray-300 rounded-full shadow-sm focus:border-brand focus:ring-brand" placeholder="Escribe tu mensaje...">
-                            <button type="submit" class="ml-3 px-4 py-2 text-white bg-brand rounded-full hover:bg-brand-dark">
+                            <input type="text" id="chat-input" class="w-full px-4 py-2 bg-gray-100 border-transparent rounded-full shadow-sm focus:border-brand focus:ring-brand" placeholder="Escribe tu mensaje...">
+                            <button type="submit" class="ml-3 p-3 text-white bg-brand rounded-full hover:bg-brand-dark flex-shrink-0" aria-label="Enviar mensaje">
                                 <i data-lucide="send" class="w-5 h-5"></i>
                             </button>
                         </form>
@@ -2179,6 +2182,7 @@
             const btnContinuarChat = document.getElementById('btn-continuar-chat');
             const chatWithName = document.getElementById('chat-with-name');
             const chatItemName = document.getElementById('chat-item-name');
+            const chatItemImage = document.getElementById('chat-item-image'); // Nuevo
             const chatMessages = document.getElementById('chat-messages');
             const formChat = document.getElementById('form-chat');
             const chatInput = document.getElementById('chat-input');
@@ -2809,16 +2813,19 @@
                 mobileMenuPanel.classList.remove('-translate-x-full');
                 mobileMenuBackdrop.classList.remove('hidden');
             }
-            function openTerminosModal(userName, itemName, offerId) {
+            function openTerminosModal(userName, itemName, itemImage, offerId) {
                 if (!offerId) {
                     console.error("Se intentó abrir el modal de términos sin un ID de oferta.");
-                    // Aquí podrías mostrar un error al usuario.
                     return;
                 }
                 state.activeOfferIdForChat = offerId;
 
-                if (chatWithName) chatWithName.textContent = userName;
-                if (chatItemName) chatItemName.textContent = `Artículo: ${itemName}`;
+                // Guardamos temporalmente los datos para abrir el chat después
+                state.tempChatData = {
+                    otherUserName: userName,
+                    itemName: itemName,
+                    itemImage: itemImage
+                };
 
                 modalTerminos.classList.remove('hidden');
                 modalTerminos.classList.add('open');
@@ -3184,7 +3191,8 @@
                                 <button class="btn-aceptar-canje flex-1 px-4 py-2 text-sm font-medium text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700"
                                     data-offer-id="${offer.id}"
                                     data-user-name="${offer.fromUser.name}"
-                                    data-item-name="${offer.forYourItem.name}">
+                                    data-item-name="${offer.forYourItem.name}"
+                                    data-item-image="${offer.forYourItem.imageUrl}">
                                     Aceptar Canje
                                 </button>
                                 <button class="flex-1 btn-negociar px-4 py-2 text-sm font-medium text-white transition-colors bg-brand rounded-lg hover:bg-brand-dark">Negociar</button>
@@ -4523,8 +4531,8 @@ async function handleAdminBannerUpload(event) {
                  tabOfertas.addEventListener('click', (e) => {
                     const aceptarBtn = e.target.closest('.btn-aceptar-canje');
                     if (aceptarBtn) {
-                        const { userName, itemName, offerId } = aceptarBtn.dataset;
-                        openTerminosModal(userName, itemName, offerId);
+                        const { userName, itemName, itemImage, offerId } = aceptarBtn.dataset;
+                        openTerminosModal(userName, itemName, itemImage, offerId);
                     }
 
                     const negociarBtn = e.target.closest('.btn-negociar');
@@ -4612,23 +4620,15 @@ async function handleAdminBannerUpload(event) {
                     }
                     const offerData = offerSnap.data();
 
-                    // Marcar la oferta como 'accepted'
                     await setDoc(offerRef, { status: 'accepted' }, { merge: true });
 
-                    // Crear el chat
-                    const chatRef = doc(db, 'chats', offerId); // Usar offerId como chatId
+                    const chatRef = doc(db, 'chats', offerId);
                     await setDoc(chatRef, {
                         offerId: offerId,
                         participants: [offerData.proposerId, offerData.targetOwnerId],
                         participantInfo: {
-                            [offerData.proposerId]: {
-                                name: offerData.proposerName,
-                                profilePic: offerData.proposerProfilePic
-                            },
-                            [offerData.targetOwnerId]: {
-                                name: state.currentUser.name,
-                                profilePic: state.currentUser.profilePic
-                            }
+                            [offerData.proposerId]: { name: offerData.proposerName, profilePic: offerData.proposerProfilePic },
+                            [offerData.targetOwnerId]: { name: state.currentUser.name, profilePic: state.currentUser.profilePic }
                         },
                         itemInfo: {
                             id: offerData.targetItem.id,
@@ -4644,15 +4644,18 @@ async function handleAdminBannerUpload(event) {
                     await loadReceivedOffers(state.currentUser.uid);
                     await loadAndRenderActiveChats(state.currentUser.uid);
 
-                    // Abrir el chat directamente
                     const otherUserId = offerData.proposerId;
-                    const otherUserInfo = {
-                        name: offerData.proposerName,
-                        profilePic: offerData.proposerProfilePic
+                    const otherUserInfo = { name: offerData.proposerName, profilePic: offerData.proposerProfilePic };
+
+                    // Usar la información del item guardada en state.tempChatData para asegurar consistencia.
+                    const itemInfo = {
+                        id: offerData.targetItem.id,
+                        name: state.tempChatData.itemName || offerData.targetItem.name,
+                        imageUrl: state.tempChatData.itemImage || offerData.targetItem.imageUrl
                     };
-                    const itemInfo = offerData.targetItem;
 
                     openChat(offerId, otherUserId, otherUserInfo, itemInfo);
+                    state.tempChatData = null; // Limpiar datos temporales
 
                 } catch (error) {
                     console.error("Error al aceptar el canje y crear chat:", error);
@@ -4733,19 +4736,14 @@ async function handleAdminBannerUpload(event) {
             function openChat(chatId, otherUserId, otherUserInfo, itemInfo) {
                 if (!chatId || !otherUserInfo || !itemInfo) return;
 
-                // Actualizar el estado global
                 state.activeChatId = chatId;
 
-                // Actualizar la UI de la cabecera del chat
-                if (chatWithName) chatWithName.textContent = otherUserInfo.name;
-                if (chatItemName) chatItemName.textContent = `Artículo: ${itemInfo.name}`;
-                const avatarImg = document.querySelector('#page-chat img');
-                if (avatarImg) avatarImg.src = otherUserInfo.profilePic || DEFAULT_PROFILE_PIC;
+                // Actualizar la UI de la cabecera del chat con el nuevo diseño
+                if (chatItemName) chatItemName.textContent = itemInfo.name;
+                if (chatWithName) chatWithName.textContent = `Hablando con: ${otherUserInfo.name}`;
+                if (chatItemImage) chatItemImage.src = itemInfo.imageUrl || DEFAULT_PRODUCT_IMAGE;
 
-                // Mostrar la página de chat
                 showPage('page-chat');
-
-                // Cargar mensajes en tiempo real
                 loadAndRenderMessages(chatId);
             }
 
