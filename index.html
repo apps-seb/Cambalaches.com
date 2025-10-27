@@ -1400,6 +1400,7 @@
         import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, query, where, serverTimestamp, deleteDoc, increment, orderBy, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+        import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBG035jZHTgsqZKIYCHGAUshwRukSccrjU",
@@ -1414,8 +1415,55 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const storage = getStorage(app); 
+        const storage = getStorage(app);
+        const messaging = getMessaging(app);
         let analytics;
+
+        // --- GESTIÓN DE NOTIFICACIONES PUSH ---
+
+        /**
+         * Solicita permiso para notificaciones y guarda el token del dispositivo.
+         */
+        async function setupPushNotifications(userId) {
+            if (!('Notification' in window)) {
+                console.log("Este navegador no soporta notificaciones push.");
+                return;
+            }
+
+            if (Notification.permission === 'granted') {
+                await saveMessagingDeviceToken(userId);
+            } else if (Notification.permission !== 'denied') {
+                try {
+                    const permission = await Notification.requestPermission();
+                    if (permission === 'granted') {
+                        console.log('Permiso de notificaciones concedido.');
+                        await saveMessagingDeviceToken(userId);
+                    }
+                } catch (err) {
+                    console.error('No se pudo obtener el permiso para notificar.', err);
+                }
+            }
+        }
+
+        /**
+         * Obtiene el token de FCM y lo guarda en el perfil del usuario en Firestore.
+         */
+        async function saveMessagingDeviceToken(userId) {
+            try {
+                // NOTA: La VAPID key se debe generar en la consola de Firebase > Project Settings > Cloud Messaging.
+                const currentToken = await getToken(messaging, { vapidKey: 'YOUR_VAPID_KEY_HERE' });
+                if (currentToken) {
+                    console.log('Token FCM obtenido:', currentToken);
+                    const userDocRef = doc(db, 'users', userId);
+                    await setDoc(userDocRef, { fcmToken: currentToken }, { merge: true });
+                } else {
+                    console.log('No se pudo obtener el token de registro. Se necesita solicitar permiso.');
+                }
+            } catch (err) {
+                console.error('Ocurrió un error al obtener el token de FCM.', err);
+            }
+        }
+
 
         document.addEventListener('DOMContentLoaded', async () => {
             try {
@@ -4096,6 +4144,7 @@
                 if (user) {
                     state.isLoggedIn = true;
                     await hydrateCurrentUser(user);
+                    await setupPushNotifications(user.uid); // <-- LLAMADA A LA FUNCIÓN
                     await Promise.all([
                         loadUserItems(user.uid),
                         loadReceivedOffers(user.uid),
@@ -4104,6 +4153,23 @@
                     ]);
                     listenForUnreadMessages(user.uid);
                     updateAuthUI();
+
+                // Handle navigation from URL parameters (e.g., from a push notification)
+                const urlParams = new URLSearchParams(window.location.search);
+                const pageFromUrl = urlParams.get('page');
+                const chatIdFromUrl = urlParams.get('chatId');
+
+                if (pageFromUrl) {
+                    if (pageFromUrl === 'page-chat' && chatIdFromUrl) {
+                        // Use a small timeout to ensure the UI has settled before opening the chat
+                        setTimeout(() => openChatFromId(chatIdFromUrl), 100);
+                    } else {
+                        showPage(pageFromUrl);
+                    }
+                    // Clean the URL so these params don't stick around
+                    history.replaceState(null, '', window.location.pathname);
+                }
+
                 } else {
                     state.isLoggedIn = false;
                     state.isAdmin = false;
@@ -5572,6 +5638,75 @@ async function handleAdminBannerUpload(event) {
 
                 // --- NUEVO: Inicializar eventos táctiles del carrusel ---
                 setupProductDetailCarouselTouch();
+
+                // Listener para mensajes del Service Worker (navegación por notificación)
+                navigator.serviceWorker.addEventListener('message', event => {
+                    if (event.data && event.data.type === 'navigate') {
+                        const { page, chatId } = event.data;
+                        if (page === 'page-chat' && chatId) {
+                            // Lógica especial para abrir un chat
+                            // Se necesita obtener la información completa del chat antes de abrirlo
+                            console.log(`Navegación a chat ${chatId} solicitada.`);
+                            // Idealmente, aquí se llamaría a una función que prepare y abra el chat.
+                            // Por simplicidad, por ahora solo vamos a la lista de chats.
+                            showPage('page-chats');
+                        } else {
+                            showPage(page);
+                        }
+                    }
+                // --- NUEVO: Inicializar eventos táctiles del carrusel ---
+                setupProductDetailCarouselTouch();
+
+                async function openChatFromId(chatId) {
+                    if (!chatId || !state.isLoggedIn) {
+                        console.warn("No se puede abrir el chat: falta chatId o el usuario no ha iniciado sesión.");
+                        showPage('page-chats'); // Fallback a la lista de chats
+                        return;
+                    }
+                    try {
+                        const chatDocRef = doc(db, 'chats', chatId);
+                        const chatDoc = await getDoc(chatDocRef);
+
+                        if (!chatDoc.exists()) {
+                            console.error(`Chat con ID ${chatId} no encontrado.`);
+                            showPage('page-chats');
+                            return;
+                        }
+
+                        const chatData = chatDoc.data();
+                        const otherUserId = chatData.participants.find(p => p !== state.currentUser.uid);
+                        if (!otherUserId) {
+                            console.error("No se pudo determinar el otro participante en el chat.");
+                            showPage('page-chats');
+                            return;
+                        }
+
+                        const otherUserInfo = chatData.participantInfo[otherUserId] || {};
+                        const itemInfo = chatData.itemInfo || {};
+
+                        openChat(
+                            chatId,
+                            otherUserId,
+                            { name: otherUserInfo.name, profilePic: otherUserInfo.profilePic },
+                            { id: itemInfo.id, name: itemInfo.name, imageUrl: itemInfo.imageUrl }
+                        );
+                    } catch (error) {
+                        console.error("Error al abrir el chat desde la notificación:", error);
+                        showPage('page-chats');
+                    }
+                }
+
+                // Listener para mensajes del Service Worker (navegación por notificación)
+                navigator.serviceWorker.addEventListener('message', event => {
+                    if (event.data && event.data.type === 'navigate') {
+                        const { page, chatId } = event.data;
+                        if (page === 'page-chat' && chatId) {
+                           openChatFromId(chatId);
+                        } else {
+                            showPage(page);
+                        }
+                    }
+                });
 
                 // Inicializar iconos (MOVIDO AL FINAL)
                 lucide.createIcons();
