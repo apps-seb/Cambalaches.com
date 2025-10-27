@@ -27,6 +27,64 @@ self.addEventListener('install', event => {
   );
 });
 
+// --- MANEJO DE NOTIFICACIONES PUSH ---
+
+// Evento push: se dispara cuando se recibe una notificación push del servidor.
+self.addEventListener('push', event => {
+  console.log('[Service Worker] Notificación Push recibida.');
+  const data = event.data.json();
+  const { title, body, icon, data: notificationData } = data.notification;
+
+  const options = {
+    body: body,
+    icon: icon || 'icons/icon-192x192.png',
+    badge: 'icons/icon-192x192.png', // Icono para la barra de estado de Android
+    data: notificationData || {}
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+  );
+});
+
+// Evento notificationclick: se dispara cuando el usuario hace clic en una notificación.
+self.addEventListener('notificationclick', event => {
+  console.log('[Service Worker] Clic en notificación recibido.');
+
+  event.notification.close(); // Cierra la notificación
+
+  const clickAction = event.notification.data.click_action || '/';
+  const chatId = event.notification.data.chatId;
+
+  event.waitUntil(
+    clients.matchAll({
+      type: "window"
+    }).then(clientList => {
+      // Revisa si la ventana/pestaña de la app ya está abierta
+      for (let i = 0; i < clientList.length; i++) {
+        const client = clientList[i];
+        if (client.url === '/' || client.url.startsWith('index.html')) {
+            // Si la app está abierta, enfócala y envíale un mensaje
+            // para que navegue a la página correcta.
+            client.focus();
+            client.postMessage({
+                type: 'navigate',
+                page: clickAction,
+                chatId: chatId
+            });
+            return;
+        }
+      }
+      // Si la app no está abierta, ábrela
+      if (clients.openWindow) {
+        // Construimos una URL con parámetros para que el cliente sepa a dónde ir
+        const urlToOpen = `/?page=${clickAction}${chatId ? `&chatId=${chatId}` : ''}`;
+        return clients.openWindow(urlToOpen);
+      }
+    })
+  );
+});
+
 // Evento de activación: se dispara después de la instalación.
 // Aquí se pueden limpiar cachés antiguos.
 self.addEventListener('activate', event => {
