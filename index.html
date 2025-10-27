@@ -6,12 +6,14 @@
     <title>CanjeApp - Marketplace de Equivalencia</title>
 
     <!-- PWA & SEO -->
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#7d31d2">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Canje">
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="apple-touch-icon" href="./icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./icons/favicon-16x16.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -1425,6 +1427,7 @@
          * Solicita permiso para notificaciones y guarda el token del dispositivo.
          */
         async function setupPushNotifications(userId) {
+            console.log(`--- Setting up push notifications for user ${userId} ---`);
             if (!('Notification' in window)) {
                 console.log("Este navegador no soporta notificaciones push.");
                 return;
@@ -5723,7 +5726,8 @@ async function handleAdminBannerUpload(event) {
     // --- REGISTRO DEL SERVICE WORKER ---
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
+            // Ajusta la ruta para que sea relativa a la ubicación del index.html
+            navigator.serviceWorker.register('./sw.js')
                 .then(registration => {
                     console.log('Service Worker registrado con éxito:', registration.scope);
                 })
