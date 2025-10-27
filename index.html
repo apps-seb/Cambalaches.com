@@ -441,6 +441,52 @@
             margin-left: 0 !important;
             padding-bottom: 0 !important;
         }
+
+        /* --- ESTILOS HEADER MÓVIL REDISEÑADO --- */
+        @media (max-width: 1023px) {
+            #main-content-wrapper > header {
+                background-color: #FFFFFF;
+                border-bottom: 1px solid #E5E7EB;
+            }
+            #main-content-wrapper > header #mobile-menu-btn {
+                color: #374151;
+            }
+        }
+
+        /* Logo editable para Admin */
+        .admin-logo-editable.is-admin:hover {
+            cursor: pointer;
+            box-shadow: 0 0 0 4px rgba(125, 49, 210, 0.2);
+            border-radius: 6px;
+        }
+
+        /* --- ESTILOS CARRUSEL DETALLE DE PRODUCTO --- */
+        .product-detail-carousel-slide {
+            flex-shrink: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .product-detail-carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .carousel-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 9999px;
+            background-color: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-dot.active {
+            background-color: #FFFFFF;
+            transform: scale(1.25);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body class="text-gray-800">
@@ -558,32 +604,41 @@
 
     <div id="main-content-wrapper" class="lg:ml-64 transition-all duration-300 pb-20 lg:pb-0">
         
-        <header class="sticky top-0 z-10 flex items-center justify-between h-16 px-4 bg-brand md:px-6">
+        <header class="sticky top-0 z-10 flex items-center justify-between h-16 px-4 bg-white shadow-sm md:px-6 lg:bg-brand">
+            <!-- Logo a la izquierda -->
             <div class="flex items-center">
-                <button id="sidebar-toggle-btn" class="hidden p-2 text-white rounded-full lg:block hover:bg-white/20">
+                 <img id="header-logo" src="https://placehold.co/120x40/7d31d2/FFFFFF?text=CanjeApp" alt="Logo" class="h-8 cursor-pointer admin-logo-editable">
+                 <input type="file" id="logo-file-input" class="hidden" accept="image/*">
+                 <span id="admin-badge" class="hidden ml-2 px-3 py-1 text-xs font-semibold text-white bg-red-600 rounded-full">ADMIN</span>
+            </div>
+
+            <!-- Buscador en el centro (visible en móvil) -->
+            <div class="flex-1 max-w-xs mx-4 lg:max-w-lg">
+                 <div class="relative flex items-center w-full text-gray-500">
+                     <i data-lucide="search" class="absolute w-5 h-5 left-3"></i>
+                     <input type="text" placeholder="Buscar artículos..." class="w-full h-10 py-2 pl-10 pr-4 bg-gray-100 border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-brand-light focus:bg-white">
+                 </div>
+            </div>
+
+            <!-- Menú hamburguesa a la derecha -->
+            <div class="flex items-center">
+                 <button id="mobile-menu-btn" class="p-2 text-gray-700 rounded-full lg:hidden hover:bg-gray-100">
+                     <i data-lucide="menu" class="w-6 h-6"></i>
+                 </button>
+                 <button id="sidebar-toggle-btn" class="hidden p-2 text-white rounded-full lg:block hover:bg-white/20">
                     <i data-lucide="menu" class="w-6 h-6"></i>
                 </button>
-                <button id="mobile-menu-btn" class="p-2 text-white rounded-full lg:hidden hover:bg-white/20">
-                    <i data-lucide="menu" class="w-6 h-6"></i>
-                </button>
-                <span id="admin-badge" class="hidden ml-2 px-3 py-1 text-xs font-semibold text-white bg-red-600 rounded-full">ADMIN</span>
             </div>
-            
-            <div class="flex-1 max-w-lg mx-4">
-                <div class="relative flex items-center w-full bg-white border border-transparent rounded-full shadow-sm search-input focus-within:bg-white">
-                    <i data-lucide="search" class="absolute w-5 h-5 text-gray-500 left-4"></i>
-                    <input type="text" placeholder="Buscar artículos, servicios y más..." class="w-full h-10 py-2 pl-12 pr-4 bg-transparent border-none rounded-full focus:outline-none focus:ring-0">
-                </div>
-            </div>
-            
-            <div class="items-center hidden lg:flex">
-                <button class="p-2 text-white rounded-full hover:bg-white/20">
-                    <i data-lucide="bell" class="w-6 h-6"></i>
-                </button>
-                <button class="ml-2 nav-link" data-page="page-perfil">
-                    <img id="header-profile-img" src="https://placehold.co/40x40/E8F0FE/4285F4?text=U" alt="Perfil" class="w-10 h-10 rounded-full">
-                </button>
-            </div>
+
+             <!-- Elementos de escritorio (se mantienen igual, pero ocultos en móvil) -->
+             <div class="items-center hidden lg:flex">
+                 <button class="p-2 text-white rounded-full hover:bg-white/20">
+                     <i data-lucide="bell" class="w-6 h-6"></i>
+                 </button>
+                 <button class="ml-2 nav-link" data-page="page-perfil">
+                     <img id="header-profile-img" src="https://placehold.co/40x40/E8F0FE/4285F4?text=U" alt="Perfil" class="w-10 h-10 rounded-full">
+                 </button>
+             </div>
         </header>
 
         <main class="p-4 md:p-6">
@@ -1088,13 +1143,13 @@
                 <div class="max-w-4xl px-4 py-8 mx-auto space-y-8 sm:px-6 lg:px-8">
                     <div class="grid gap-8 lg:grid-cols-5">
                         <div class="space-y-4 lg:col-span-3">
-                            <div class="overflow-hidden bg-white rounded-3xl shadow-[0_25px_60px_-35px_rgba(0,0,0,0.35)]">
-                                <div class="relative aspect-[4/5] sm:aspect-square">
-                                    <img id="product-detail-main-image" src="" alt="Detalle del artículo" class="object-cover w-full h-full" loading="eager">
+                            <div class="relative overflow-hidden bg-white rounded-3xl shadow-[0_25px_60px_-35px_rgba(0,0,0,0.35)] aspect-[4/5] sm:aspect-square">
+                                <div id="product-detail-carousel-slider" class="flex h-full transition-transform duration-300 ease-in-out">
+                                    <!-- Slides se insertarán aquí dinámicamente -->
                                 </div>
-                            </div>
-                            <div id="product-detail-gallery" class="flex gap-3 overflow-x-auto">
-                                <!-- Miniaturas generadas dinámicamente -->
+                                <div id="product-detail-carousel-dots" class="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 space-x-2">
+                                    <!-- Dots se insertarán aquí dinámicamente -->
+                                </div>
                             </div>
                         </div>
 
@@ -2187,8 +2242,8 @@
             const productDetailDescription = document.getElementById('product-detail-description');
             const productDetailOwner = document.getElementById('product-detail-owner');
             const productDetailOwnerEmail = document.getElementById('product-detail-owner-email');
-            const productDetailMainImage = document.getElementById('product-detail-main-image');
-            const productDetailGallery = document.getElementById('product-detail-gallery');
+            const productDetailCarouselSlider = document.getElementById('product-detail-carousel-slider');
+            const productDetailCarouselDots = document.getElementById('product-detail-carousel-dots');
             const productDetailProponerBtn = document.getElementById('product-detail-proponer');
             const productDetailQuantityInput = document.getElementById('product-detail-quantity');
             const productDetailQuantityDecrease = document.getElementById('quantity-decrease');
@@ -2350,12 +2405,15 @@
                     venderContent.classList.remove('hidden');
 
                     // Lógica de Admin
+                    const headerLogo = document.getElementById('header-logo');
                     if (state.isAdmin) {
                         adminBadge.classList.remove('hidden');
                         document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+                        if (headerLogo) headerLogo.classList.add('is-admin');
                     } else {
                         adminBadge.classList.add('hidden');
                         document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
+                        if (headerLogo) headerLogo.classList.remove('is-admin');
                     }
 
                     // Actualizar contadores
@@ -2419,34 +2477,83 @@
                 return `${months} cuotas de ${formatCOP(installmentValue)} con 0% interés`;
             }
 
-            function buildProductDetailThumbnails(images, productName) {
-                if (!productDetailGallery) return;
-                const safeName = escapeHtml(productName || 'Artículo');
-                productDetailGallery.innerHTML = images.map((url, index) => {
-                    const safeUrl = escapeHtml(url);
-                    const isActive = index === 0;
-                    const activeClasses = isActive ? 'ring-2 ring-brand-dark border-brand/30' : 'border-transparent';
-                    return `
-                        <button type="button" class="detail-thumb relative flex-shrink-0 w-20 h-20 overflow-hidden rounded-2xl border-2 ${activeClasses} focus:outline-none focus:ring-2 focus:ring-brand/60 transition-all bg-white shadow-sm" data-image="${safeUrl}" aria-current="${isActive}">
-                            <img src="${safeUrl}" alt="Miniatura de ${safeName}" class="object-cover w-full h-full" loading="lazy">
-                        </button>
-                    `;
-                }).join('');
+            // --- NUEVA LÓGICA DEL CARRUSEL DE DETALLE DE PRODUCTO ---
+            let productDetailCurrentSlide = 0;
+            let productDetailTotalSlides = 0;
+            let productDetailStartX = 0;
+            let productDetailCurrentX = 0;
+            let productDetailIsDragging = false;
 
-                productDetailGallery.querySelectorAll('.detail-thumb').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const imageUrl = btn.dataset.image;
-                        if (productDetailMainImage && imageUrl) {
-                            productDetailMainImage.src = imageUrl;
-                            productDetailMainImage.alt = productName;
-                        }
-                        productDetailGallery.querySelectorAll('.detail-thumb').forEach(other => {
-                            other.classList.remove('ring-2', 'ring-brand-dark', 'border-brand/30');
-                            other.setAttribute('aria-current', 'false');
-                        });
-                        btn.classList.add('ring-2', 'ring-brand-dark', 'border-brand/30');
-                        btn.setAttribute('aria-current', 'true');
+            function buildProductDetailCarousel(images, productName) {
+                if (!productDetailCarouselSlider || !productDetailCarouselDots) return;
+
+                const safeName = escapeHtml(productName || 'Artículo');
+                productDetailCarouselSlider.innerHTML = images.map((url, index) => `
+                    <div class="product-detail-carousel-slide">
+                        <img src="${escapeHtml(url)}" alt="${safeName} - Imagen ${index + 1}" loading="${index === 0 ? 'eager' : 'lazy'}">
+                    </div>
+                `).join('');
+
+                productDetailCarouselDots.innerHTML = images.map((_, index) => `
+                    <button class="carousel-dot ${index === 0 ? 'active' : ''}" data-slide-to="${index}"></button>
+                `).join('');
+
+                productDetailTotalSlides = images.length;
+                productDetailCurrentSlide = 0;
+                updateProductDetailCarousel();
+
+                productDetailCarouselDots.querySelectorAll('.carousel-dot').forEach(dot => {
+                    dot.addEventListener('click', (e) => {
+                        const slideIndex = parseInt(e.currentTarget.dataset.slideTo, 10);
+                        goToProductDetailSlide(slideIndex);
                     });
+                });
+            }
+
+            function updateProductDetailCarousel() {
+                if (productDetailTotalSlides > 0) {
+                    productDetailCarouselSlider.style.transform = `translateX(-${productDetailCurrentSlide * 100}%)`;
+                    productDetailCarouselDots.querySelectorAll('.carousel-dot').forEach((dot, index) => {
+                        dot.classList.toggle('active', index === productDetailCurrentSlide);
+                    });
+                }
+            }
+
+            function goToProductDetailSlide(index) {
+                productDetailCurrentSlide = index;
+                updateProductDetailCarousel();
+            }
+
+            function setupProductDetailCarouselTouch() {
+                const carouselContainer = productDetailCarouselSlider.parentElement;
+
+                carouselContainer.addEventListener('touchstart', (e) => {
+                    productDetailIsDragging = true;
+                    productDetailStartX = e.touches[0].clientX;
+                    productDetailCarouselSlider.style.transition = 'none';
+                });
+
+                carouselContainer.addEventListener('touchmove', (e) => {
+                    if (!productDetailIsDragging) return;
+                    productDetailCurrentX = e.touches[0].clientX;
+                    const diff = productDetailCurrentX - productDetailStartX;
+                    productDetailCarouselSlider.style.transform = `translateX(calc(-${productDetailCurrentSlide * 100}% + ${diff}px))`;
+                });
+
+                carouselContainer.addEventListener('touchend', () => {
+                    if (!productDetailIsDragging) return;
+                    productDetailIsDragging = false;
+                    const diff = productDetailCurrentX - productDetailStartX;
+                    productDetailCarouselSlider.style.transition = 'transform 0.3s ease-in-out';
+
+                    if (Math.abs(diff) > 50) { // Umbral de deslizamiento
+                        if (diff > 0 && productDetailCurrentSlide > 0) {
+                            productDetailCurrentSlide--;
+                        } else if (diff < 0 && productDetailCurrentSlide < productDetailTotalSlides - 1) {
+                            productDetailCurrentSlide++;
+                        }
+                    }
+                    updateProductDetailCarousel();
                 });
             }
 
@@ -2459,13 +2566,7 @@
                     ? product.imageUrls
                     : (product.imageUrl ? [product.imageUrl] : [DEFAULT_PRODUCT_IMAGE]);
 
-                const primaryImage = productImages[0];
-                if (productDetailMainImage) {
-                    productDetailMainImage.src = primaryImage;
-                    productDetailMainImage.alt = product.name;
-                }
-
-                buildProductDetailThumbnails(productImages, product.name);
+                buildProductDetailCarousel(productImages, product.name);
 
                 if (productDetailBreadcrumb) {
                     productDetailBreadcrumb.textContent = `${getCategoryDisplayName(product.categoryId)} • ${product.ownerName || 'Vendedor verificado'}`;
@@ -5265,6 +5366,37 @@ async function handleAdminBannerUpload(event) {
 
             // --- INICIALIZACIÓN ---
             async function init() {
+                // --- NUEVO: Listener para el logo editable ---
+                const headerLogo = document.getElementById('header-logo');
+                const logoFileInput = document.getElementById('logo-file-input');
+                if (headerLogo && logoFileInput) {
+                    headerLogo.addEventListener('click', () => {
+                        if (state.isAdmin) {
+                            logoFileInput.click();
+                        }
+                    });
+
+                    logoFileInput.addEventListener('change', async (e) => {
+                        const file = e.target.files[0];
+                        if (!file || !state.isAdmin) return;
+
+                        // Aquí iría la lógica para subir a Firebase Storage
+                        // y guardar la URL en una configuración global de Firestore.
+                        // Por ahora, solo simularé el cambio localmente.
+
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            headerLogo.src = event.target.result;
+                            // En una implementación real:
+                            // 1. Subir a Storage.
+                            // 2. Obtener URL.
+                            // 3. Guardar URL en Firestore (ej: doc 'config/app').
+                            console.log("Nuevo logo seleccionado. La lógica de subida a Firebase no está implementada en este paso.");
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                }
+
                 updateAuthUI();
                 showPage(DEFAULT_PAGE_ID);
                 hydrateCartFromStorage();
@@ -5296,6 +5428,9 @@ async function handleAdminBannerUpload(event) {
                 
                 // Configurar listeners delegados para contenido dinámico
                 setupDelegatedListeners();
+
+                // --- NUEVO: Inicializar eventos táctiles del carrusel ---
+                setupProductDetailCarouselTouch();
 
                 // Inicializar iconos (MOVIDO AL FINAL)
                 lucide.createIcons();
