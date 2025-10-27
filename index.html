@@ -4528,6 +4528,28 @@ async function handleAdminBannerUpload(event) {
              * NUEVO: Listeners delegados para contenido dinámico
              */
             function setupDelegatedListeners() {
+                // Listener para el botón "Reintentar" en mensajes fallidos
+                chatMessages.addEventListener('click', (e) => {
+                    const retryBtn = e.target.closest('.btn-retry-message');
+                    if (retryBtn) {
+                        e.preventDefault();
+                        const { tempId, text } = retryBtn.dataset;
+                        if (!tempId || !text) return;
+
+                        // Actualizar la UI del mensaje a 'sending' de nuevo
+                        const failedMessage = chatMessages.querySelector(`[data-message-id="${tempId}"]`);
+                        if (failedMessage) {
+                            const statusEl = failedMessage.querySelector('.text-right');
+                            if (statusEl) {
+                                statusEl.innerHTML = `<span class="text-xs text-blue-100">Reenviando...</span>`;
+                            }
+                        }
+
+                        // Reintentar el envío
+                        handleSendMessage(state.activeChatId, text, tempId);
+                    }
+                });
+
                  tabOfertas.addEventListener('click', (e) => {
                     const aceptarBtn = e.target.closest('.btn-aceptar-canje');
                     if (aceptarBtn) {
@@ -4750,7 +4772,6 @@ async function handleAdminBannerUpload(event) {
             function loadAndRenderMessages(chatId) {
                 if (!chatId || !chatMessages) return;
 
-                // Limpiar mensajes anteriores y cancelar suscripción anterior
                 chatMessages.innerHTML = '<div class="text-center p-4 text-sm text-gray-500">Cargando mensajes...</div>';
                 if (state.unsubscribeFromMessages) {
                     state.unsubscribeFromMessages();
@@ -4759,37 +4780,47 @@ async function handleAdminBannerUpload(event) {
                 const messagesRef = collection(db, 'chats', chatId, 'messages');
                 const q = query(messagesRef, orderBy('timestamp'));
 
-                let isInitialLoad = true;
-
                 state.unsubscribeFromMessages = onSnapshot(q, (snapshot) => {
-                    if (isInitialLoad) {
-                        chatMessages.innerHTML = ''; // Limpiar el mensaje "Cargando..."
-                        if (snapshot.empty) {
-                            chatMessages.innerHTML = '<div class="text-center p-4 text-sm text-gray-500">Aún no hay mensajes. ¡Envía el primero!</div>';
-                        } else {
-                            snapshot.forEach(doc => {
-                                const message = doc.data();
-                                const isUser = message.senderId === state.currentUser.uid;
-                                renderSingleMessage(message.text, isUser, message.timestamp);
-                            });
-                        }
-                        isInitialLoad = false;
-                    } else {
-                        snapshot.docChanges().forEach((change) => {
-                            if (change.type === "added") {
-                                // Si estaba el mensaje de "no hay mensajes", se quita
-                                const placeholder = chatMessages.querySelector('div');
-                                if (placeholder && snapshot.docChanges().length > 0) {
-                                    chatMessages.innerHTML = '';
-                                }
-
-                                const message = change.doc.data();
-                                const isUser = message.senderId === state.currentUser.uid;
-                                renderSingleMessage(message.text, isUser, message.timestamp);
-                            }
-                        });
+                    if (snapshot.empty && chatMessages.children.length <= 1) {
+                         chatMessages.innerHTML = '<div class="text-center p-4 text-sm text-gray-500">Aún no hay mensajes. ¡Envía el primero!</div>';
+                         return;
                     }
-                    // Retrasar ligeramente el scroll para dar tiempo al DOM a actualizarse
+
+                    snapshot.docChanges().forEach((change) => {
+                        if (change.type === "added") {
+                            const messageData = change.doc.data();
+                            const messageId = change.doc.id;
+                            const isUser = messageData.senderId === state.currentUser.uid;
+
+                            // Si el mensaje es del usuario actual, es probable que ya esté en la UI.
+                            // Buscamos un mensaje 'sending' para actualizarlo.
+                            const tempId = messageData.tempId; // Necesitaremos añadir esto al enviar
+                            const existingMessage = tempId ? chatMessages.querySelector(`[data-message-id="${tempId}"]`) : null;
+
+                            if (existingMessage) {
+                                // Actualizar el mensaje existente: cambiar su ID y su estado a 'sent'
+                                existingMessage.dataset.messageId = messageId;
+                                const statusEl = existingMessage.querySelector('.text-right');
+                                if (statusEl) {
+                                    const time = messageData.timestamp ? new Date(messageData.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+                                    statusEl.innerHTML = `<span class="text-xs text-blue-100">${time}</span>`;
+                                }
+                            } else {
+                                // Si no existe (mensaje del otro usuario), lo renderizamos.
+                                const placeholder = chatMessages.querySelector('div.text-center');
+                                if (placeholder) placeholder.remove();
+
+                                renderSingleMessage({
+                                    id: messageId,
+                                    text: messageData.text,
+                                    isUser: isUser,
+                                    timestamp: messageData.timestamp,
+                                    status: 'sent'
+                                });
+                            }
+                        }
+                    });
+
                     setTimeout(() => {
                         chatMessages.scrollTop = chatMessages.scrollHeight;
                     }, 50);
@@ -4799,31 +4830,68 @@ async function handleAdminBannerUpload(event) {
                 });
             }
 
-            function renderSingleMessage(text, isUser, timestamp) {
-                const time = timestamp ? new Date(timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+            /**
+             * Renderiza un único mensaje en el chat con su estado.
+             * @param {object} message - El objeto del mensaje.
+             * @param {string} message.id - ID único (temporal o de Firestore).
+             * @param {string} message.text - Contenido del mensaje.
+             * @param {boolean} message.isUser - Si el mensaje es del usuario actual.
+             * @param {object} [message.timestamp] - Timestamp de Firebase (si está confirmado).
+             * @param {string} message.status - 'sending', 'sent', o 'failed'.
+             */
+            function renderSingleMessage(message) {
+                const { id, text, isUser, timestamp, status } = message;
+
+                // Determina la hora del mensaje
+                const time = timestamp ? new Date(timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                // Determina el indicador de estado
+                let statusIndicator = '';
+                if (isUser) {
+                    if (status === 'sending') {
+                        statusIndicator = `<span class="text-xs ${isUser ? 'text-blue-100' : 'text-gray-200'}">Enviando...</span>`;
+                    } else if (status === 'failed') {
+                        statusIndicator = `<button class="text-xs text-red-200 hover:underline btn-retry-message" data-temp-id="${id}" data-text="${escapeHtml(text)}">Error, reintentar</button>`;
+                    } else { // 'sent'
+                         statusIndicator = `<span class="text-xs ${isUser ? 'text-blue-100' : 'text-gray-200'}">${time}</span>`;
+                    }
+                } else {
+                     statusIndicator = `<span class="text-xs text-gray-200">${time}</span>`;
+                }
+
                 const messageHtml = `
-                    <div class="flex ${isUser ? 'justify-end' : 'justify-start'} mb-4">
+                    <div class="flex ${isUser ? 'justify-end' : 'justify-start'} mb-4" data-message-id="${id}">
                         <div class="px-4 py-2 text-white ${isUser ? 'bg-brand' : 'bg-gray-400'} rounded-lg max-w-xs shadow-sm">
                             <p class="text-sm">${escapeHtml(text)}</p>
-                            <p class="text-xs text-right ${isUser ? 'text-blue-100' : 'text-gray-200'} mt-1">${time}</p>
+                            <div class="text-right mt-1">
+                                ${statusIndicator}
+                            </div>
                         </div>
                     </div>
                 `;
                 chatMessages.insertAdjacentHTML('beforeend', messageHtml);
             }
 
-            async function handleSendMessage(chatId, text) {
+            /**
+             * Envía un mensaje a Firestore, incluyendo un ID temporal para la UI optimista.
+             * En caso de error, actualiza el estado del mensaje en la UI a 'failed'.
+             * @param {string} chatId - El ID del chat.
+             * @param {string} text - El contenido del mensaje.
+             * @param {string} tempId - El ID temporal usado para renderizar el mensaje en la UI.
+             */
+            async function handleSendMessage(chatId, text, tempId) {
                 if (!chatId || !text.trim() || !state.isLoggedIn) return;
 
                 const messagesRef = collection(db, 'chats', chatId, 'messages');
                 const chatRef = doc(db, 'chats', chatId);
 
                 try {
-                    // Añadir el nuevo mensaje
+                    // Añadir el nuevo mensaje junto con el tempId
                     await addDoc(messagesRef, {
                         senderId: state.currentUser.uid,
                         text: text,
-                        timestamp: serverTimestamp()
+                        timestamp: serverTimestamp(),
+                        tempId: tempId // Guardamos el ID temporal para que onSnapshot pueda encontrarlo
                     });
 
                     // Actualizar el campo 'lastMessage' en el documento del chat principal
@@ -4834,37 +4902,48 @@ async function handleAdminBannerUpload(event) {
 
                 } catch (error) {
                     console.error("Error al enviar el mensaje:", error);
-                     // Lanza el error para que el listener del formulario pueda manejarlo
-                    throw new Error(`Error al enviar: ${error.message || 'Error desconocido'}`);
+                    // Si falla, actualizamos la UI para mostrar el error en el mensaje específico
+                    const failedMessage = chatMessages.querySelector(`[data-message-id="${tempId}"]`);
+                    if (failedMessage) {
+                        const statusEl = failedMessage.querySelector('.text-right');
+                        if (statusEl) {
+                           statusEl.innerHTML = `<button class="text-xs text-red-200 hover:underline btn-retry-message" data-temp-id="${tempId}" data-text="${escapeHtml(text)}">Error, reintentar</button>`;
+                        }
+                    }
+                    // No lanzamos un error global para que la app no se rompa, solo se marca el mensaje.
                 }
             }
 
-            formChat.addEventListener('submit', async (e) => {
+            formChat.addEventListener('submit', (e) => {
                 e.preventDefault();
-                const message = chatInput.value.trim();
-                if (!message || !state.activeChatId) return;
+                const text = chatInput.value.trim();
+                if (!text || !state.activeChatId) return;
 
-                const submitBtn = formChat.querySelector('button[type="submit"]');
-                const originalBtnContent = submitBtn.innerHTML;
+                // 1. Generar un ID temporal único para el mensaje
+                const tempId = `temp_${Date.now()}`;
 
-                // Deshabilitar formulario para prevenir envíos duplicados
-                chatInput.disabled = true;
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+                // 2. Limpiar el input inmediatamente
+                chatInput.value = '';
+                chatInput.focus();
 
-                try {
-                    await handleSendMessage(state.activeChatId, message);
-                    chatInput.value = ''; // Limpiar solo si el envío es exitoso
-                } catch (error) {
-                    // Mostrar error al usuario (opcional, pero recomendado)
-                    alert(error.message);
-                } finally {
-                    // Siempre rehabilitar el formulario
-                    chatInput.disabled = false;
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalBtnContent;
-                    chatInput.focus();
-                }
+                // 3. Quitar el placeholder de "no hay mensajes" si existe
+                const placeholder = chatMessages.querySelector('div.text-center');
+                if (placeholder) placeholder.remove();
+
+                // 4. Renderizar el mensaje en la UI con estado 'sending'
+                renderSingleMessage({
+                    id: tempId,
+                    text: text,
+                    isUser: true,
+                    timestamp: null, // No hay timestamp confirmado aún
+                    status: 'sending'
+                });
+
+                // 5. Hacer scroll hacia el nuevo mensaje
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                // 6. Enviar el mensaje a Firestore en segundo plano
+                handleSendMessage(state.activeChatId, text, tempId);
             });
 
             // --- INICIALIZACIÓN ---
