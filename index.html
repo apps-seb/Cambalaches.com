@@ -614,9 +614,6 @@
                             <button class="px-1 py-3 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 whitespace-nowrap canje-tab-btn" data-tab="tab-mis-articulos">
                                 Mis Artículos (<span id="mis-articulos-count">0</span>)
                             </button>
-                            <button class="px-1 py-3 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 whitespace-nowrap canje-tab-btn" data-tab="tab-activos">
-                                Canjes Activos (<span id="activos-count">0</span>)
-                            </button>
                         </nav>
                     </div>
                     
@@ -628,11 +625,14 @@
                         <div id="tab-mis-articulos" class="canje-tab-content hidden space-y-4">
                             <p class="text-gray-500">No has publicado ningún artículo.</p>
                         </div>
-                        
-                        <div id="tab-activos" class="canje-tab-content hidden space-y-4">
-                            <p class="text-gray-500">No tienes canjes activos.</p>
-                        </div>
                     </div>
+                </div>
+            </section>
+
+            <section id="page-chats" class="page hidden max-w-4xl mx-auto">
+                <h2 class="mb-6 text-3xl font-bold text-gray-900 sm:text-4xl">Chats</h2>
+                <div id="chats-activos-container" class="space-y-4">
+                    <p class="text-gray-500">No tienes canjes activos.</p>
                 </div>
             </section>
 
@@ -1007,11 +1007,11 @@
                 </span>
                 <span class="mobile-nav-label">Canjes</span>
             </a>
-            <a href="#" class="nav-link nav-link-mobile mobile-nav-item text-gray-600" data-page="page-carrito" aria-label="Carrito">
+            <a href="#" class="nav-link nav-link-mobile mobile-nav-item text-gray-600" data-page="page-chats" aria-label="Chats">
                 <span class="mobile-nav-icon">
-                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                    <i data-lucide="message-square" class="w-5 h-5"></i>
                 </span>
-                <span class="mobile-nav-label">Carrito</span>
+                <span class="mobile-nav-label">Chats</span>
             </a>
             <a href="#" class="nav-link nav-link-mobile mobile-nav-item text-gray-600" data-page="page-perfil" aria-label="Perfil">
                 <span class="mobile-nav-icon">
@@ -2216,8 +2216,6 @@
             const chatMessages = document.getElementById('chat-messages');
             const formChat = document.getElementById('form-chat');
             const chatInput = document.getElementById('chat-input');
-            const tabActivos = document.getElementById('tab-activos');
-            const activosCount = document.getElementById('activos-count');
             const sidebarCartTotalEl = document.getElementById('sidebar-cart-total');
             const sidebarCartCountEl = document.getElementById('sidebar-cart-count');
             const sidebarCartFeedbackEl = document.getElementById('sidebar-cart-feedback');
@@ -4615,7 +4613,7 @@ async function handleAdminBannerUpload(event) {
                 });
 
                 // Listener para abrir un chat desde la lista de "Canjes Activos"
-                tabActivos.addEventListener('click', (e) => {
+                document.getElementById('chats-activos-container').addEventListener('click', (e) => {
                     const chatCard = e.target.closest('.chat-card');
                     if (chatCard) {
                         const {
@@ -4786,7 +4784,8 @@ async function handleAdminBannerUpload(event) {
             }
 
             async function loadAndRenderActiveChats(uid) {
-                if (!uid || !tabActivos) return;
+                const chatsContainer = document.getElementById('chats-activos-container');
+                if (!uid || !chatsContainer) return;
 
                 try {
                     const chatsQuery = query(
@@ -4796,8 +4795,7 @@ async function handleAdminBannerUpload(event) {
                     const snapshot = await getDocs(chatsQuery);
 
                     if (snapshot.empty) {
-                        tabActivos.innerHTML = '<p class="text-gray-500">No tienes canjes activos.</p>';
-                        activosCount.textContent = 0;
+                        chatsContainer.innerHTML = '<p class="text-gray-500">No tienes chats activos.</p>';
                         return;
                     }
 
@@ -4847,12 +4845,11 @@ async function handleAdminBannerUpload(event) {
                     });
 
                     const chatHtmls = await Promise.all(chatPromises);
-                    tabActivos.innerHTML = chatHtmls.join('');
-                    activosCount.textContent = snapshot.size;
+                    chatsContainer.innerHTML = chatHtmls.join('');
 
                 } catch (error) {
                     console.error("Error al cargar chats activos:", error);
-                    tabActivos.innerHTML = '<p class="text-red-500">Error al cargar los canjes activos.</p>';
+                    chatsContainer.innerHTML = '<p class="text-red-500">Error al cargar los chats.</p>';
                 }
             }
 
