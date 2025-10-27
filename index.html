@@ -1462,16 +1462,27 @@
                     return;
                 }
 
-                const currentToken = await getToken(messaging, { vapidKey: VAPID_KEY });
+                // Espera a que nuestro Service Worker ('./sw.js') esté listo y activo.
+                const registration = await navigator.serviceWorker.ready;
+                console.log('Service Worker listo para obtener token de FCM:', registration);
+
+                // Pedimos el token a Firebase, pero le *indicamos* explícitamente qué Service Worker usar.
+                // Esto evita que Firebase intente registrar su propio 'firebase-messaging-sw.js' y falle con un 404.
+                const currentToken = await getToken(messaging, {
+                    vapidKey: VAPID_KEY,
+                    serviceWorkerRegistration: registration
+                });
+
                 if (currentToken) {
-                    console.log('Token FCM obtenido:', currentToken);
+                    console.log('Token FCM obtenido con SW explícito:', currentToken);
                     const userDocRef = doc(db, 'users', userId);
                     await setDoc(userDocRef, { fcmToken: currentToken }, { merge: true });
+                    console.log('Token guardado en Firestore.');
                 } else {
                     console.log('No se pudo obtener el token de registro. Se necesita solicitar permiso.');
                 }
             } catch (err) {
-                console.error('Ocurrió un error al obtener el token de FCM.', err);
+                console.error('Ocurrió un error al obtener el token de FCM con el SW explícito.', err);
             }
         }
 
