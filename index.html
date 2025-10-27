@@ -2588,6 +2588,8 @@
                     renderMyItems();
                     return;
                 }
+                state.currentUser.items = null;
+                renderMyItems();
 
                 try {
                     const itemsQuery = query(collection(db, 'items'), where('ownerId', '==', uid));
@@ -2621,6 +2623,9 @@
                     renderReceivedOffers();
                     return;
                 }
+
+                state.receivedOffers = null;
+                renderReceivedOffers();
 
                 try {
                     const offersQuery = query(
@@ -2989,6 +2994,10 @@
                                 <div class="w-3/4 h-4 skeleton rounded"></div>
                                 <div class="w-2/3 h-3 skeleton rounded"></div>
                                 <div class="w-1/2 h-3 skeleton rounded"></div>
+                                <div class="space-y-2 pt-1">
+                                    <div class="w-full h-9 skeleton rounded"></div>
+                                    <div class="w-full h-9 skeleton rounded"></div>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -3061,7 +3070,10 @@
                                 <div class="w-3/4 h-4 skeleton rounded"></div>
                                 <div class="w-2/3 h-3 skeleton rounded"></div>
                                 <div class="w-1/2 h-3 skeleton rounded"></div>
-                                <div class="w-full h-9 skeleton rounded"></div>
+                                <div class="space-y-2 pt-1">
+                                    <div class="w-full h-9 skeleton rounded"></div>
+                                    <div class="w-full h-9 skeleton rounded"></div>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -3088,6 +3100,21 @@
              */
             function renderMyItems() {
                 tabMisArticulos.innerHTML = ''; // Limpiar
+                if (state.currentUser.items === null) {
+                    const skeletonCount = 2;
+                    const skeletonHtml = `
+                        <div class="flex items-center p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+                            <div class="w-16 h-16 rounded-lg skeleton"></div>
+                            <div class="ml-4 flex-1 min-w-0 space-y-2">
+                                <div class="w-3/4 h-4 skeleton rounded"></div>
+                                <div class="w-1/2 h-3 skeleton rounded"></div>
+                                <div class="w-2/3 h-3 skeleton rounded"></div>
+                            </div>
+                        </div>
+                    `;
+                    tabMisArticulos.innerHTML = Array.from({ length: skeletonCount }, () => skeletonHtml).join('');
+                    return;
+                }
                 if (!state.currentUser.items || state.currentUser.items.length === 0) {
                     tabMisArticulos.innerHTML = '<p class="text-gray-500">No has publicado ningún artículo.</p>';
                     return;
@@ -3130,6 +3157,23 @@
              */
             function renderReceivedOffers() {
                 tabOfertas.innerHTML = ''; // Limpiar
+
+                if (state.receivedOffers === null) {
+                    const skeletonCount = 1;
+                    const skeletonHtml = `
+                        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm space-y-4">
+                            <div class="flex justify-between items-center">
+                                <div class="w-1/2 h-4 skeleton rounded"></div>
+                                <div class="w-10 h-10 skeleton rounded-full"></div>
+                            </div>
+                            <div class="w-full h-24 skeleton rounded-lg"></div>
+                            <div class="w-full h-10 skeleton rounded-lg"></div>
+                        </div>
+                    `;
+                    tabOfertas.innerHTML = Array.from({ length: skeletonCount }, () => skeletonHtml).join('');
+                    return;
+                }
+
                 if (!state.receivedOffers || state.receivedOffers.length === 0) {
                     tabOfertas.innerHTML = '<p class="text-gray-500">No tienes ofertas recibidas.</p>';
                     return;
@@ -3381,6 +3425,7 @@
             async function loadAndRenderBanners() {
                 state.isLoadingBanners = true;
                 state.banners = [];
+                carouselSlider.innerHTML = `<div class="w-full h-full skeleton"></div>`;
 
                 try {
                     const bannersQuery = query(collection(db, "banners"), orderBy("createdAt", "desc"));
@@ -5231,12 +5276,13 @@ async function handleAdminBannerUpload(event) {
                 lucide.createIcons();
                 registerLazyImages(document);
 
+                hidePreloader();
+
                 await Promise.all([
                     loadAndRenderBanners(),
                     loadAllProducts(),
                 ]);
                 registerLazyImages(document);
-                hidePreloader();
             }
 
             // Arrancar la aplicación
