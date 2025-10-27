@@ -1009,10 +1009,14 @@
                     </div>
 
                     <div class="space-y-3">
-                        <a href="#" class="flex items-center justify-between w-full p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50">
-                            <span class="font-medium">Notificaciones</span>
-                            <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400"></i>
-                        </a>
+                        <!-- Nueva sección de notificaciones -->
+                        <div id="datos-perfil-container" class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+                            <h3 class="font-medium">Notificaciones Push</h3>
+                            <p id="notification-status-text" class="hidden mt-2 text-sm text-gray-600"></p>
+                            <button id="btn-activar-notificaciones" class="hidden w-full px-4 py-2 mt-3 font-medium text-white bg-brand rounded-lg hover:bg-brand-dark">
+                                Activar Notificaciones
+                            </button>
+                        </div>
                         <a href="#" class="flex items-center justify-between w-full p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50">
                             <span class="font-medium">Ayuda y Soporte</span>
                             <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400"></i>
@@ -1424,27 +1428,59 @@
         // --- GESTIÓN DE NOTIFICACIONES PUSH ---
         
         /**
-         * Solicita permiso para notificaciones y guarda el token del dispositivo.
+         * Revisa el estado del permiso y actualiza la UI en la página de perfil.
          */
-        async function setupPushNotifications(userId) {
-            console.log(`--- Setting up push notifications for user ${userId} ---`);
-            if (!('Notification' in window)) {
-                console.log("Este navegador no soporta notificaciones push.");
+        function checkNotificationPermission() {
+            const statusText = document.getElementById('notification-status-text');
+            const activateButton = document.getElementById('btn-activar-notificaciones');
+            if (!statusText || !activateButton) return;
+
+            if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+                statusText.textContent = 'Este navegador no es compatible con las notificaciones push.';
+                statusText.classList.remove('hidden');
+                activateButton.classList.add('hidden');
                 return;
             }
 
-            if (Notification.permission === 'granted') {
-                await saveMessagingDeviceToken(userId);
-            } else if (Notification.permission !== 'denied') {
-                try {
-                    const permission = await Notification.requestPermission();
-                    if (permission === 'granted') {
-                        console.log('Permiso de notificaciones concedido.');
-                        await saveMessagingDeviceToken(userId);
-                    }
-                } catch (err) {
-                    console.error('No se pudo obtener el permiso para notificar.', err);
+            switch (Notification.permission) {
+                case 'granted':
+                    statusText.textContent = 'Ya tienes las notificaciones activadas.';
+                    statusText.classList.remove('hidden');
+                    activateButton.classList.add('hidden');
+                    break;
+                case 'denied':
+                    statusText.textContent = 'Las notificaciones están bloqueadas. Debes activarlas en la configuración de tu navegador.';
+                    statusText.classList.remove('hidden');
+                    activateButton.classList.add('hidden');
+                    break;
+                default: // 'default'
+                    statusText.textContent = 'Recibe alertas sobre tus canjes y ofertas importantes.';
+                    statusText.classList.remove('hidden');
+                    activateButton.classList.remove('hidden');
+                    break;
+            }
+        }
+
+        /**
+         * Inicia el proceso para solicitar permiso de notificaciones y guardar el token.
+         */
+        async function setupPushNotifications() {
+            const userId = state.currentUser?.uid;
+            if (!userId) {
+                alert("Debes iniciar sesión para activar las notificaciones.");
+                return;
+            }
+
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    await saveMessagingDeviceToken(userId);
                 }
+                // Actualizar la UI inmediatamente después de que el usuario elige
+                checkNotificationPermission();
+            } catch (err) {
+                console.error('No se pudo obtener el permiso para notificar.', err);
+                checkNotificationPermission();
             }
         }
 
@@ -1453,36 +1489,24 @@
          */
         async function saveMessagingDeviceToken(userId) {
             try {
-                // ¡IMPORTANTE! Reemplaza 'YOUR_VAPID_KEY_HERE' con tu clave VAPID de Firebase.
-                // Ve a Firebase Console > Project Settings > Cloud Messaging > Web Push certificates > Generate key pair.
                 const VAPID_KEY = 'BLBxM7CE6zgBH7XxaLlSOJdB0dRz4ZOV3PLyE7iDUmQDo2496Y8qT8OUtj3QUlxjxhtkHajiHfSXeqSI2xQSsFY';
 
-                if (VAPID_KEY === 'YOUR_VAPID_KEY_HERE') {
-                    console.error("Configuración de notificaciones incompleta: Reemplaza 'YOUR_VAPID_KEY_HERE' en index.html con tu clave VAPID de Firebase para habilitar las notificaciones push.");
-                    return;
-                }
-
-                // Espera a que nuestro Service Worker ('./sw.js') esté listo y activo.
                 const registration = await navigator.serviceWorker.ready;
-                console.log('Service Worker listo para obtener token de FCM:', registration);
-
-                // Pedimos el token a Firebase, pero le *indicamos* explícitamente qué Service Worker usar.
-                // Esto evita que Firebase intente registrar su propio 'firebase-messaging-sw.js' y falle con un 404.
                 const currentToken = await getToken(messaging, {
                     vapidKey: VAPID_KEY,
                     serviceWorkerRegistration: registration
                 });
 
                 if (currentToken) {
-                    console.log('Token FCM obtenido con SW explícito:', currentToken);
                     const userDocRef = doc(db, 'users', userId);
                     await setDoc(userDocRef, { fcmToken: currentToken }, { merge: true });
-                    console.log('Token guardado en Firestore.');
+                    alert("¡Notificaciones activadas con éxito!");
                 } else {
-                    console.log('No se pudo obtener el token de registro. Se necesita solicitar permiso.');
+                     alert("No se pudo activar. Asegúrate de haber concedido los permisos necesarios.");
                 }
             } catch (err) {
-                console.error('Ocurrió un error al obtener el token de FCM con el SW explícito.', err);
+                console.error('Error al obtener/guardar el token de FCM:', err);
+                alert("Ocurrió un error técnico al activar las notificaciones.");
             }
         }
 
@@ -2420,6 +2444,7 @@
             const modalTerminos = document.getElementById('modal-terminos');
             const checkboxTerminos = document.getElementById('checkbox-terminos');
             const btnContinuarChat = document.getElementById('btn-continuar-chat');
+            const btnActivarNotificaciones = document.getElementById('btn-activar-notificaciones');
             const chatWithName = document.getElementById('chat-with-name');
             const chatItemName = document.getElementById('chat-item-name');
             const chatItemImage = document.getElementById('chat-item-image'); // Nuevo
@@ -2461,14 +2486,16 @@
                 }
                 updateActiveNav(targetPageId);
 
-                // Lógica para aislar la vista de chat
+                if (targetPageId === 'page-perfil' && state.isLoggedIn) {
+                    checkNotificationPermission();
+                }
+
                 if (targetPageId === 'page-chat') {
                     document.body.classList.add('chat-abierto');
                 } else {
                     document.body.classList.remove('chat-abierto');
                 }
             }
-            window.showPage = showPage; // Exponer la función globalmente
 
             /**
              * Actualiza el estado visual "activo" en los enlaces de navegación.
@@ -3931,6 +3958,10 @@
                     alert("Por favor, acepta los términos y condiciones para continuar.");
                 }
             });
+
+            if (btnActivarNotificaciones) {
+                btnActivarNotificaciones.addEventListener('click', setupPushNotifications);
+            }
             navLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -4166,7 +4197,6 @@
                 if (user) {
                     state.isLoggedIn = true;
                     await hydrateCurrentUser(user);
-                    await setupPushNotifications(user.uid); // <-- LLAMADA A LA FUNCIÓN
                     await Promise.all([
                         loadUserItems(user.uid),
                         loadReceivedOffers(user.uid),
@@ -4175,23 +4205,20 @@
                     ]);
                     listenForUnreadMessages(user.uid);
                     updateAuthUI();
+                    checkNotificationPermission();
 
-                // Handle navigation from URL parameters (e.g., from a push notification)
-                const urlParams = new URLSearchParams(window.location.search);
-                const pageFromUrl = urlParams.get('page');
-                const chatIdFromUrl = urlParams.get('chatId');
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const pageFromUrl = urlParams.get('page');
+                    const chatIdFromUrl = urlParams.get('chatId');
 
-                if (pageFromUrl) {
-                    if (pageFromUrl === 'page-chat' && chatIdFromUrl) {
-                        // Use a small timeout to ensure the UI has settled before opening the chat
-                        setTimeout(() => openChatFromId(chatIdFromUrl), 100);
-                    } else {
-                        showPage(pageFromUrl);
+                    if (pageFromUrl) {
+                        if (pageFromUrl === 'page-chat' && chatIdFromUrl) {
+                            setTimeout(() => openChatFromId(chatIdFromUrl), 100);
+                        } else {
+                            showPage(pageFromUrl);
+                        }
+                        history.replaceState(null, '', window.location.pathname);
                     }
-                    // Clean the URL so these params don't stick around
-                    history.replaceState(null, '', window.location.pathname);
-                }
-                
                 } else {
                     state.isLoggedIn = false;
                     state.isAdmin = false;
