@@ -1420,7 +1420,7 @@
         let analytics;
 
         // --- GESTIÓN DE NOTIFICACIONES PUSH ---
-
+        
         /**
          * Solicita permiso para notificaciones y guarda el token del dispositivo.
          */
@@ -1452,7 +1452,7 @@
             try {
                 // ¡IMPORTANTE! Reemplaza 'YOUR_VAPID_KEY_HERE' con tu clave VAPID de Firebase.
                 // Ve a Firebase Console > Project Settings > Cloud Messaging > Web Push certificates > Generate key pair.
-                const VAPID_KEY = 'YOUR_VAPID_KEY_HERE';
+                const VAPID_KEY = 'BLBxM7CE6zgBH7XxaLlSOJdB0dRz4ZOV3PLyE7iDUmQDo2496Y8qT8OUtj3QUlxjxhtkHajiHfSXeqSI2xQSsFY';
 
                 if (VAPID_KEY === 'YOUR_VAPID_KEY_HERE') {
                     console.error("Configuración de notificaciones incompleta: Reemplaza 'YOUR_VAPID_KEY_HERE' en index.html con tu clave VAPID de Firebase para habilitar las notificaciones push.");
@@ -4177,7 +4177,7 @@
                     // Clean the URL so these params don't stick around
                     history.replaceState(null, '', window.location.pathname);
                 }
-
+                
                 } else {
                     state.isLoggedIn = false;
                     state.isAdmin = false;
