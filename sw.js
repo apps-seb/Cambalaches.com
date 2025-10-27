@@ -1,14 +1,48 @@
+// Import Firebase scripts for messaging
+importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
+
+// Initialize Firebase
+firebase.initializeApp({
+    apiKey: "AIzaSyBG035jZHTgsqZKIYCHGAUshwRukSccrjU",
+    authDomain: "mercadocanje-ffca0.firebaseapp.com",
+    projectId: "mercadocanje-ffca0",
+    storageBucket: "mercadocanje-ffca0.appspot.com",
+    messagingSenderId: "1069590620221",
+    appId: "1:1069590620221:web:ea68de5b49395ce42be254",
+    measurementId: "G-9KEBKJ84CR"
+});
+
+const messaging = firebase.messaging();
+
+// Handle background messages with Firebase.
+// This is triggered when the app is in the background or closed.
+messaging.onBackgroundMessage((payload) => {
+  console.log('[sw.js] Received background message from Firebase', payload);
+
+  const notificationTitle = payload.notification.title;
+  const notificationOptions = {
+    body: payload.notification.body,
+    icon: './icons/icon-192x192.png', // Corrected relative path
+    badge: './icons/icon-192x192.png',
+    data: payload.data
+  };
+
+  self.registration.showNotification(notificationTitle, notificationOptions);
+});
+
+
+// --- PWA Service Worker Logic ---
 const CACHE_NAME = 'mercado-canje-cache-v1';
 const urlsToCache = [
-  '.',
-  'index.html',
-  // No hay un archivo CSS o JS separado, todo está en index.html
-  // Agregaremos los iconos al caché para que se muestren offline
-  'icons/icon-192x192.png',
-  'icons/icon-512x512.png'
+  './',
+  './index.html',
+  './manifest.json', // Add manifest to cache
+  './icons/icon-192x192.png',
+  './icons/icon-512x512.png'
 ];
 
-// Evento de instalación: se dispara cuando el SW se instala por primera vez.
+// Install event
 self.addEventListener('install', event => {
   console.log('Service Worker: Instalando...');
   event.waitUntil(
@@ -19,7 +53,7 @@ self.addEventListener('install', event => {
       })
       .then(() => {
         console.log('Service Worker: App shell cacheado exitosamente');
-        return self.skipWaiting(); // Forzar al SW a activarse inmediatamente
+        return self.skipWaiting();
       })
       .catch(err => {
         console.error('Service Worker: Falló el cacheo del app shell', err);
@@ -27,66 +61,47 @@ self.addEventListener('install', event => {
   );
 });
 
-// --- MANEJO DE NOTIFICACIONES PUSH ---
-
-// Evento push: se dispara cuando se recibe una notificación push del servidor.
-self.addEventListener('push', event => {
-  console.log('[Service Worker] Notificación Push recibida.');
-  const data = event.data.json();
-  const { title, body, icon, data: notificationData } = data.notification;
-
-  const options = {
-    body: body,
-    icon: icon || 'icons/icon-192x192.png',
-    badge: 'icons/icon-192x192.png', // Icono para la barra de estado de Android
-    data: notificationData || {}
-  };
-
-  event.waitUntil(
-    self.registration.showNotification(title, options)
-  );
-});
-
-// Evento notificationclick: se dispara cuando el usuario hace clic en una notificación.
+// Notification click event: handles what happens when a user clicks any notification.
 self.addEventListener('notificationclick', event => {
   console.log('[Service Worker] Clic en notificación recibido.');
 
-  event.notification.close(); // Cierra la notificación
+  event.notification.close();
 
-  const clickAction = event.notification.data.click_action || '/';
+  // Default to a safe page if not specified in the notification data
+  const clickAction = event.notification.data.click_action || 'page-explorar';
   const chatId = event.notification.data.chatId;
+
+  // Construct the correct relative URL to open
+  const urlToOpen = `./index.html?page=${clickAction}${chatId ? `&chatId=${chatId}` : ''}`;
 
   event.waitUntil(
     clients.matchAll({
-      type: "window"
+      type: "window",
+      includeUncontrolled: true
     }).then(clientList => {
-      // Revisa si la ventana/pestaña de la app ya está abierta
-      for (let i = 0; i < clientList.length; i++) {
-        const client = clientList[i];
-        if (client.url === '/' || client.url.startsWith('index.html')) {
-            // Si la app está abierta, enfócala y envíale un mensaje
-            // para que navegue a la página correcta.
-            client.focus();
-            client.postMessage({
-                type: 'navigate',
-                page: clickAction,
-                chatId: chatId
-            });
-            return;
+      // Check if the app is already open.
+      for (const client of clientList) {
+        // A simple check to see if the client's URL is the main app page.
+        if (client.url.includes('index.html') && 'focus' in client) {
+          client.focus();
+          // Send a message to the client to navigate internally
+          client.postMessage({
+              type: 'navigate',
+              page: clickAction,
+              chatId: chatId
+          });
+          return;
         }
       }
-      // Si la app no está abierta, ábrela
+      // If the app is not open, open a new window to the correct URL.
       if (clients.openWindow) {
-        // Construimos una URL con parámetros para que el cliente sepa a dónde ir
-        const urlToOpen = `/?page=${clickAction}${chatId ? `&chatId=${chatId}` : ''}`;
         return clients.openWindow(urlToOpen);
       }
     })
   );
 });
 
-// Evento de activación: se dispara después de la instalación.
-// Aquí se pueden limpiar cachés antiguos.
+// Activate event
 self.addEventListener('activate', event => {
   console.log('Service Worker: Activando...');
   const cacheWhitelist = [CACHE_NAME];
@@ -102,47 +117,38 @@ self.addEventListener('activate', event => {
       );
     }).then(() => {
         console.log('Service Worker: Reclamando clientes...');
-        return self.clients.claim(); // Tomar control de las páginas abiertas
+        return self.clients.claim();
     })
   );
 });
 
-// Evento fetch: intercepta todas las peticiones de red.
+// Fetch event (Cache First strategy)
 self.addEventListener('fetch', event => {
-  // Solo interceptamos peticiones GET
   if (event.request.method !== 'GET') {
     return;
   }
 
-  // Estrategia: Cache First (para el app shell)
   event.respondWith(
     caches.match(event.request)
       .then(cachedResponse => {
-        // Si la respuesta está en el caché, la retornamos
         if (cachedResponse) {
-          // console.log('Service Worker: Sirviendo desde caché:', event.request.url);
           return cachedResponse;
         }
 
-        // Si no está en caché, vamos a la red
         return fetch(event.request).then(
           networkResponse => {
-            // No cacheamos las peticiones a Firebase para mantener los datos actualizados
+            // Do not cache Firebase's dynamic requests
             if (event.request.url.includes('firebase') || event.request.url.includes('firestore') || event.request.url.includes('gstatic')) {
               return networkResponse;
             }
 
-            // Para otras peticiones, las clonamos y las guardamos en caché para futuras visitas
-            // Esto no es ideal para una PWA compleja, pero funciona para assets estáticos
-            return caches.open(CACHE_NAME).then(cache => {
-               // console.log('Service Worker: Cacheando nuevo recurso:', event.request.url);
-               cache.put(event.request, networkResponse.clone());
-               return networkResponse;
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then(cache => {
+               cache.put(event.request, responseToCache);
             });
+            return networkResponse;
           }
         ).catch(() => {
-            // Si la red falla y no hay nada en caché, podríamos mostrar una página offline genérica
-            // Por ahora, simplemente dejamos que el navegador maneje el error de red.
             console.warn('Service Worker: Fetch fallido, sin conexión y sin caché para:', event.request.url);
         });
       })
