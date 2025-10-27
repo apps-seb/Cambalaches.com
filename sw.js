@@ -1,11 +1,11 @@
 const CACHE_NAME = 'mercado-canje-cache-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
+  '.',
+  'index.html',
   // No hay un archivo CSS o JS separado, todo está en index.html
   // Agregaremos los iconos al caché para que se muestren offline
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png'
+  'icons/icon-192x192.png',
+  'icons/icon-512x512.png'
 ];
 
 // Evento de instalación: se dispara cuando el SW se instala por primera vez.
