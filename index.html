@@ -1374,15 +1374,16 @@
                 const classAttr = classes ? ` class="${classes}"` : '';
                 const widthAttr = width ? ` width="${width}"` : '';
                 const heightAttr = height ? ` height="${height}"` : '';
-                const normalizedPriority = priority === 'high' ? 'high' : (priority === 'low' ? 'low' : 'auto');
-                const resolvedLoading = normalizedPriority === 'high' ? 'eager' : (loading === 'eager' ? 'eager' : 'lazy');
+                // Forzar la carga 'eager' si la clase incluye 'avatar' o 'rounded-full', indicando que es una imagen de perfil.
+                const isAvatar = classes.includes('avatar') || classes.includes('rounded-full');
+                const resolvedLoading = isAvatar ? 'eager' : (loading === 'eager' ? 'eager' : 'lazy');
 
                 if (resolvedLoading === 'eager') {
-                    const fetchPriorityAttr = normalizedPriority !== 'auto' ? ` fetchpriority="${normalizedPriority}"` : '';
-                    return `<img src="${safeSrc}" alt="${safeAlt}"${classAttr}${widthAttr}${heightAttr} loading="${resolvedLoading}" decoding="async"${fetchPriorityAttr}>`;
+                    const fetchPriorityAttr = priority !== 'auto' ? ` fetchpriority="${priority}"` : '';
+                    return `<img src="${safeSrc}" alt="${safeAlt}"${classAttr}${widthAttr}${heightAttr} loading="eager" decoding="async"${fetchPriorityAttr}>`;
                 }
 
-                const dataFetchPriorityAttr = normalizedPriority !== 'auto' ? ` data-fetchpriority="${normalizedPriority}"` : '';
+                const dataFetchPriorityAttr = priority !== 'auto' ? ` data-fetchpriority="${priority}"` : '';
                 return `<img src="${LAZY_IMAGE_PLACEHOLDER}" data-src="${safeSrc}" alt="${safeAlt}"${classAttr}${widthAttr}${heightAttr} loading="lazy" decoding="async"${dataFetchPriorityAttr}>`;
             }
 
