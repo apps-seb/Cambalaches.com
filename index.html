@@ -577,7 +577,7 @@
                     <p id="carousel-subtitle" class="text-sm text-gray-600"></p>
                 </div>
 
-                <h3 class="mb-4 text-xl font-semibold text-gray-900">Categorías Premium</h3>
+                <h3 class="mb-4 text-xl font-semibold text-gray-900">Categorías</h3>
                 <div id="category-list-container" class="flex pb-4 mb-6 space-x-4 overflow-x-auto no-scrollbar">
                     <div class="text-sm text-gray-500">Cargando categorías...</div>
                 </div>
@@ -930,9 +930,13 @@
 
                 <!-- Pie Fijo para Escribir Mensaje -->
                 <div id="chat-form-container" class="flex-shrink-0 px-4 py-3 bg-white border-t border-gray-200">
-                    <form id="form-chat" class="flex items-center">
+                    <form id="form-chat" class="flex items-center space-x-3">
+                        <input type="file" id="chat-image-upload" class="hidden" accept="image/*">
+                        <button type="button" id="btn-attach-image" class="flex-shrink-0 p-3 text-gray-600 transition-colors rounded-full hover:bg-gray-100" aria-label="Adjuntar imagen">
+                            <i data-lucide="paperclip" class="w-5 h-5"></i>
+                        </button>
                         <input type="text" id="chat-input" class="w-full px-4 py-2 bg-gray-100 border-transparent rounded-full shadow-sm focus:border-brand focus:ring-brand" placeholder="Escribe tu mensaje...">
-                        <button type="submit" class="flex-shrink-0 p-3 ml-3 text-white transition-colors rounded-full bg-brand hover:bg-brand-dark" aria-label="Enviar mensaje">
+                        <button type="submit" class="flex-shrink-0 p-3 text-white transition-colors rounded-full bg-brand hover:bg-brand-dark" aria-label="Enviar mensaje">
                             <i data-lucide="send" class="w-5 h-5"></i>
                         </button>
                     </form>
@@ -1008,8 +1012,9 @@
                 <span class="mobile-nav-label">Canjes</span>
             </a>
             <a href="#" class="nav-link nav-link-mobile mobile-nav-item text-gray-600" data-page="page-chats" aria-label="Chats">
-                <span class="mobile-nav-icon">
+                <span class="relative mobile-nav-icon">
                     <i data-lucide="message-square" class="w-5 h-5"></i>
+                    <span id="chat-notification-bubble" class="absolute top-0 right-0 w-4 h-4 text-xs font-semibold text-white bg-red-600 rounded-full hidden items-center justify-center"></span>
                 </span>
                 <span class="mobile-nav-label">Chats</span>
             </a>
@@ -1346,6 +1351,7 @@
                 activeOfferIdForChat: null,
                 activeChatId: null,
                 unsubscribeFromMessages: null,
+                unreadChats: new Set(),
             };
 
 
@@ -2216,6 +2222,8 @@
             const chatMessages = document.getElementById('chat-messages');
             const formChat = document.getElementById('form-chat');
             const chatInput = document.getElementById('chat-input');
+            const btnAttachImage = document.getElementById('btn-attach-image');
+            const chatImageUpload = document.getElementById('chat-image-upload');
             const sidebarCartTotalEl = document.getElementById('sidebar-cart-total');
             const sidebarCartCountEl = document.getElementById('sidebar-cart-count');
             const sidebarCartFeedbackEl = document.getElementById('sidebar-cart-feedback');
@@ -2232,6 +2240,7 @@
             const cartPageQuantityEl = document.getElementById('cart-page-quantity');
             const cartPageClearBtn = document.getElementById('cart-page-clear');
             const cartPageFeedbackEl = document.getElementById('cart-page-feedback');
+            const chatNotificationBubble = document.getElementById('chat-notification-bubble');
 
             // --- FUNCIONES ---
 
@@ -2893,7 +2902,6 @@
                         <a href="#" class="flex flex-col items-center flex-shrink-0 w-24 space-y-2 group category-link" data-category-id="${cat.id}">
                             <div class="flex items-center justify-center w-16 h-16 bg-white border border-gray-200 rounded-full shadow-sm group-hover:bg-brand-light group-hover:border-brand category-item-icon">
                                 <i data-lucide="${cat.icon}" class="w-8 h-8 text-gray-600 group-hover:text-brand-dark"></i>
-                                <i data-lucide="gem" class="w-5 h-5 text-yellow-500 premium-icon"></i>
                             </div>
                             <span class="text-sm font-medium text-gray-700">${cat.name}</span>
                         </a>
@@ -3877,6 +3885,7 @@
                         loadAndRenderActiveChats(user.uid),
                         loadAllProducts()
                     ]);
+                    listenForUnreadMessages(user.uid);
                     updateAuthUI();
                 } else {
                     state.isLoggedIn = false;
@@ -4858,6 +4867,10 @@ async function handleAdminBannerUpload(event) {
 
                 state.activeChatId = chatId;
 
+                // Marcar como leído
+                state.unreadChats.delete(chatId);
+                updateUnreadBubble();
+
                 // Actualizar la UI de la cabecera del chat con el nuevo diseño
                 if (chatItemName) chatItemName.textContent = itemInfo.name;
                 if (chatWithName) chatWithName.textContent = `Hablando con: ${otherUserInfo.name}`;
@@ -4889,28 +4902,41 @@ async function handleAdminBannerUpload(event) {
                             const messageData = change.doc.data();
                             const messageId = change.doc.id;
                             const isUser = messageData.senderId === state.currentUser.uid;
-
-                            // Si el mensaje es del usuario actual, es probable que ya esté en la UI.
-                            // Buscamos un mensaje 'sending' para actualizarlo.
-                            const tempId = messageData.tempId; // Necesitaremos añadir esto al enviar
+                            const tempId = messageData.tempId;
                             const existingMessage = tempId ? chatMessages.querySelector(`[data-message-id="${tempId}"]`) : null;
 
                             if (existingMessage) {
-                                // Actualizar el mensaje existente: cambiar su ID y su estado a 'sent'
+                                // It was an optimistic message, now it's confirmed.
                                 existingMessage.dataset.messageId = messageId;
-                                const statusEl = existingMessage.querySelector('.text-right');
-                                if (statusEl) {
+                                const contentWrapper = existingMessage.querySelector('.p-2.text-white');
+
+                                if (contentWrapper) {
+                                    // Re-render the content of the bubble
                                     const time = messageData.timestamp ? new Date(messageData.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-                                    statusEl.innerHTML = `<span class="text-xs text-blue-100">${time}</span>`;
+                                    let newContent = '';
+                                    if (messageData.type === 'image' && messageData.imageUrl) {
+                                        newContent = `<img src="${escapeHtml(messageData.imageUrl)}" alt="Imagen del chat" class="rounded-lg max-w-full h-auto cursor-pointer" style="max-height: 300px;" onclick="window.open('${escapeHtml(messageData.imageUrl)}')">`;
+                                    } else {
+                                        newContent = `<p class="text-sm">${escapeHtml(messageData.text)}</p>`;
+                                    }
+
+                                    contentWrapper.innerHTML = `
+                                        ${newContent}
+                                        <div class="text-right px-2 pt-1">
+                                            <span class="text-xs text-blue-100">${time}</span>
+                                        </div>
+                                    `;
                                 }
                             } else {
-                                // Si no existe (mensaje del otro usuario), lo renderizamos.
+                                // It's a new message from someone else.
                                 const placeholder = chatMessages.querySelector('div.text-center');
                                 if (placeholder) placeholder.remove();
 
                                 renderSingleMessage({
                                     id: messageId,
                                     text: messageData.text,
+                                    imageUrl: messageData.imageUrl,
+                                    type: messageData.type,
                                     isUser: isUser,
                                     timestamp: messageData.timestamp,
                                     status: 'sent'
@@ -4938,30 +4964,36 @@ async function handleAdminBannerUpload(event) {
              * @param {string} message.status - 'sending', 'sent', o 'failed'.
              */
             function renderSingleMessage(message) {
-                const { id, text, isUser, timestamp, status } = message;
-
-                // Determina la hora del mensaje
+                const { id, text, imageUrl, type = 'text', isUser, timestamp, status } = message;
                 const time = timestamp ? new Date(timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-                // Determina el indicador de estado
                 let statusIndicator = '';
                 if (isUser) {
                     if (status === 'sending') {
-                        statusIndicator = `<span class="text-xs ${isUser ? 'text-blue-100' : 'text-gray-200'}">Enviando...</span>`;
+                        statusIndicator = `<span class="text-xs text-blue-100">Enviando...</span>`;
                     } else if (status === 'failed') {
-                        statusIndicator = `<button class="text-xs text-red-200 hover:underline btn-retry-message" data-temp-id="${id}" data-text="${escapeHtml(text)}">Error, reintentar</button>`;
+                        const retryData = type === 'image' ? `data-retry-type="image" data-temp-id="${id}"` : `data-retry-type="text" data-temp-id="${id}" data-text="${escapeHtml(text)}"`;
+                        statusIndicator = `<button class="text-xs text-red-200 hover:underline btn-retry-message" ${retryData}>Error, reintentar</button>`;
                     } else { // 'sent'
-                         statusIndicator = `<span class="text-xs ${isUser ? 'text-blue-100' : 'text-gray-200'}">${time}</span>`;
+                        statusIndicator = `<span class="text-xs ${isUser ? 'text-blue-100' : 'text-gray-200'}">${time}</span>`;
                     }
                 } else {
-                     statusIndicator = `<span class="text-xs text-gray-200">${time}</span>`;
+                    statusIndicator = `<span class="text-xs text-gray-200">${time}</span>`;
+                }
+
+                let contentHtml = '';
+                if (type === 'image') {
+                    const src = (status === 'sending' || status === 'failed') ? imageUrl : escapeHtml(imageUrl);
+                     contentHtml = `<img src="${src}" alt="Imagen del chat" class="rounded-lg max-w-full h-auto ${status !== 'sent' ? 'opacity-60' : 'cursor-pointer'}" style="max-height: 300px;" ${status === 'sent' ? `onclick="window.open('${escapeHtml(imageUrl)}')"`: ''}>`;
+                } else {
+                    contentHtml = `<p class="text-sm">${escapeHtml(text)}</p>`;
                 }
 
                 const messageHtml = `
                     <div class="flex ${isUser ? 'justify-end' : 'justify-start'} mb-4" data-message-id="${id}">
-                        <div class="px-4 py-2 text-white ${isUser ? 'bg-brand' : 'bg-gray-400'} rounded-lg max-w-xs shadow-sm">
-                            <p class="text-sm">${escapeHtml(text)}</p>
-                            <div class="text-right mt-1">
+                        <div class="p-2 text-white ${isUser ? 'bg-brand' : 'bg-gray-400'} rounded-lg max-w-xs shadow-sm">
+                            ${contentHtml}
+                            <div class="text-right px-2 pt-1">
                                 ${statusIndicator}
                             </div>
                         </div>
@@ -4977,38 +5009,130 @@ async function handleAdminBannerUpload(event) {
              * @param {string} text - El contenido del mensaje.
              * @param {string} tempId - El ID temporal usado para renderizar el mensaje en la UI.
              */
-            async function handleSendMessage(chatId, text, tempId) {
-                if (!chatId || !text.trim() || !state.isLoggedIn) return;
+            async function handleSendMessage(chatId, payload, tempId) {
+                if (!chatId || !state.isLoggedIn) return;
 
                 const messagesRef = collection(db, 'chats', chatId, 'messages');
                 const chatRef = doc(db, 'chats', chatId);
 
-                try {
-                    // Añadir el nuevo mensaje junto con el tempId
-                    await addDoc(messagesRef, {
-                        senderId: state.currentUser.uid,
-                        text: text,
-                        timestamp: serverTimestamp(),
-                        tempId: tempId // Guardamos el ID temporal para que onSnapshot pueda encontrarlo
-                    });
+                const finalPayload = {
+                    ...payload,
+                    senderId: state.currentUser.uid,
+                    timestamp: serverTimestamp(),
+                    tempId: tempId
+                };
 
-                    // Actualizar el campo 'lastMessage' en el documento del chat principal
+                try {
+                    await addDoc(messagesRef, finalPayload);
+                    const lastMessageText = finalPayload.type === 'image' ? '📷 Imagen' : finalPayload.text;
                     await setDoc(chatRef, {
-                        lastMessage: text,
-                        lastMessageTimestamp: serverTimestamp()
+                        lastMessage: lastMessageText,
+                        lastMessageTimestamp: serverTimestamp(),
+                        lastMessageSenderId: state.currentUser.uid
                     }, { merge: true });
 
                 } catch (error) {
                     console.error("Error al enviar el mensaje:", error);
-                    // Si falla, actualizamos la UI para mostrar el error en el mensaje específico
                     const failedMessage = chatMessages.querySelector(`[data-message-id="${tempId}"]`);
                     if (failedMessage) {
                         const statusEl = failedMessage.querySelector('.text-right');
                         if (statusEl) {
-                           statusEl.innerHTML = `<button class="text-xs text-red-200 hover:underline btn-retry-message" data-temp-id="${tempId}" data-text="${escapeHtml(text)}">Error, reintentar</button>`;
+                            const retryType = finalPayload.type === 'image' ? 'image' : 'text';
+                            const textData = retryType === 'text' ? `data-text="${escapeHtml(finalPayload.text)}"` : '';
+                            statusEl.innerHTML = `<button class="text-xs text-red-200 hover:underline btn-retry-message" data-retry-type="${retryType}" data-temp-id="${tempId}" ${textData}>Error, reintentar</button>`;
                         }
                     }
-                    // No lanzamos un error global para que la app no se rompa, solo se marca el mensaje.
+                }
+            }
+
+            async function uploadChatImageAndSend(file) {
+                if (!file || !state.activeChatId) return;
+
+                const tempId = `temp_${Date.now()}`;
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+                    renderSingleMessage({
+                        id: tempId,
+                        imageUrl: e.target.result,
+                        type: 'image',
+                        isUser: true,
+                        status: 'sending'
+                    });
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                };
+                reader.readAsDataURL(file);
+
+                // Store the file reference for retries
+                if (!window.retryFiles) window.retryFiles = {};
+                window.retryFiles[tempId] = file;
+
+                try {
+                    const uniquePath = `chat_images/${state.activeChatId}/${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
+                    const fileRef = storageRef(storage, uniquePath);
+                    const uploadResult = await uploadBytes(fileRef, file);
+                    const downloadURL = await getDownloadURL(uploadResult.ref);
+
+                    const payload = {
+                        type: 'image',
+                        imageUrl: downloadURL,
+                        imagePath: uploadResult.ref.fullPath
+                    };
+                    await handleSendMessage(state.activeChatId, payload, tempId);
+
+                } catch (error) {
+                    console.error("Error al subir imagen:", error);
+                    const failedMessage = chatMessages.querySelector(`[data-message-id="${tempId}"]`);
+                    if (failedMessage) {
+                        const statusEl = failedMessage.querySelector('.text-right');
+                        if (statusEl) {
+                            statusEl.innerHTML = `<button class="text-xs text-red-200 hover:underline btn-retry-message" data-retry-type="image" data-temp-id="${tempId}">Error, reintentar</button>`;
+                        }
+                    }
+                } finally {
+                    // Clean up the stored file after processing
+                    delete window.retryFiles[tempId];
+                }
+            }
+
+
+            btnAttachImage.addEventListener('click', () => {
+                chatImageUpload.click();
+            });
+
+            chatImageUpload.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    uploadChatImageAndSend(file);
+                }
+                e.target.value = null; // Reset input
+            });
+
+            function listenForUnreadMessages(uid) {
+                if (!uid) return;
+
+                const chatsQuery = query(collection(db, 'chats'), where('participants', 'array-contains', uid));
+
+                onSnapshot(chatsQuery, (snapshot) => {
+                    snapshot.docChanges().forEach((change) => {
+                        const chat = change.doc.data();
+                        const chatId = change.doc.id;
+
+                        if (chat.lastMessage && chat.lastMessageSenderId !== uid) {
+                            state.unreadChats.add(chatId);
+                        }
+                    });
+                    updateUnreadBubble();
+                });
+            }
+
+            function updateUnreadBubble() {
+                const unreadCount = state.unreadChats.size;
+                if (unreadCount > 0) {
+                    chatNotificationBubble.textContent = unreadCount > 9 ? '9+' : unreadCount.toString();
+                    chatNotificationBubble.classList.remove('hidden');
+                } else {
+                    chatNotificationBubble.classList.add('hidden');
                 }
             }
 
@@ -5017,31 +5141,25 @@ async function handleAdminBannerUpload(event) {
                 const text = chatInput.value.trim();
                 if (!text || !state.activeChatId) return;
 
-                // 1. Generar un ID temporal único para el mensaje
                 const tempId = `temp_${Date.now()}`;
-
-                // 2. Limpiar el input inmediatamente
                 chatInput.value = '';
                 chatInput.focus();
 
-                // 3. Quitar el placeholder de "no hay mensajes" si existe
                 const placeholder = chatMessages.querySelector('div.text-center');
                 if (placeholder) placeholder.remove();
 
-                // 4. Renderizar el mensaje en la UI con estado 'sending'
                 renderSingleMessage({
                     id: tempId,
                     text: text,
+                    type: 'text',
                     isUser: true,
-                    timestamp: null, // No hay timestamp confirmado aún
                     status: 'sending'
                 });
 
-                // 5. Hacer scroll hacia el nuevo mensaje
                 chatMessages.scrollTop = chatMessages.scrollHeight;
 
-                // 6. Enviar el mensaje a Firestore en segundo plano
-                handleSendMessage(state.activeChatId, text, tempId);
+                const payload = { type: 'text', text: text };
+                handleSendMessage(state.activeChatId, payload, tempId);
             });
 
             // --- INICIALIZACIÓN ---
