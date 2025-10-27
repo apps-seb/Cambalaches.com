@@ -1014,7 +1014,7 @@
             <a href="#" class="nav-link nav-link-mobile mobile-nav-item text-gray-600" data-page="page-chats" aria-label="Chats">
                 <span class="relative mobile-nav-icon">
                     <i data-lucide="message-square" class="w-5 h-5"></i>
-                    <span id="chat-notification-bubble" class="absolute top-0 right-0 w-4 h-4 text-xs font-semibold text-white bg-red-600 rounded-full hidden items-center justify-center"></span>
+                    <span id="chat-notification-bubble" class="absolute top-0 right-0 min-w-4 h-4 px-1 text-xs font-semibold text-white bg-red-600 rounded-full hidden flex items-center justify-center"></span>
                 </span>
                 <span class="mobile-nav-label">Chats</span>
             </a>
@@ -1263,7 +1263,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAnalytics, isSupported as isAnalyticsSupported } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
         import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, query, where, serverTimestamp, deleteDoc, increment, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, query, where, serverTimestamp, deleteDoc, increment, orderBy, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
         const firebaseConfig = {
@@ -1351,7 +1351,7 @@
                 activeOfferIdForChat: null,
                 activeChatId: null,
                 unsubscribeFromMessages: null,
-                unreadChats: new Set(),
+                totalUnreadMessages: 0,
             };
 
 
@@ -4747,12 +4747,15 @@ async function handleAdminBannerUpload(event) {
                     await setDoc(offerRef, { status: 'accepted' }, { merge: true });
 
                     const chatRef = doc(db, 'chats', offerId);
+                    const proposerId = offerData.proposerId;
+                    const targetOwnerId = offerData.targetOwnerId;
+
                     await setDoc(chatRef, {
                         offerId: offerId,
-                        participants: [offerData.proposerId, offerData.targetOwnerId],
+                        participants: [proposerId, targetOwnerId],
                         participantInfo: {
-                            [offerData.proposerId]: { name: offerData.proposerName, profilePic: offerData.proposerProfilePic },
-                            [offerData.targetOwnerId]: { name: state.currentUser.name, profilePic: state.currentUser.profilePic }
+                            [proposerId]: { name: offerData.proposerName, profilePic: offerData.proposerProfilePic },
+                            [targetOwnerId]: { name: state.currentUser.name, profilePic: state.currentUser.profilePic }
                         },
                         itemInfo: {
                             id: offerData.targetItem.id,
@@ -4761,7 +4764,11 @@ async function handleAdminBannerUpload(event) {
                         },
                         createdAt: serverTimestamp(),
                         lastMessage: null,
-                        lastMessageTimestamp: null
+                        lastMessageTimestamp: null,
+                        unreadCounts: {
+                            [proposerId]: 0,
+                            [targetOwnerId]: 0
+                        }
                     });
 
                     closeTerminosModal();
@@ -4867,9 +4874,12 @@ async function handleAdminBannerUpload(event) {
 
                 state.activeChatId = chatId;
 
-                // Marcar como leído
-                state.unreadChats.delete(chatId);
-                updateUnreadBubble();
+                // Reiniciar el contador de no leídos para el usuario actual en este chat.
+                const chatRef = doc(db, 'chats', chatId);
+                updateDoc(chatRef, {
+                    [`unreadCounts.${state.currentUser.uid}`]: 0
+                }).catch(err => console.error("Error al reiniciar contador de no leídos:", err));
+
 
                 // Actualizar la UI de la cabecera del chat con el nuevo diseño
                 if (chatItemName) chatItemName.textContent = itemInfo.name;
@@ -5023,13 +5033,31 @@ async function handleAdminBannerUpload(event) {
                 };
 
                 try {
+                    // Primero, obtén el estado actual del chat para saber quién es el otro participante.
+                    const chatSnap = await getDoc(chatRef);
+                    if (!chatSnap.exists()) return; // El chat ya no existe
+                    const chatData = chatSnap.data();
+                    const otherUserId = chatData.participants.find(p => p !== state.currentUser.uid);
+
+                    // Envía el mensaje y actualiza el documento del chat en una sola operación (o lo más cerca posible).
                     await addDoc(messagesRef, finalPayload);
+
                     const lastMessageText = finalPayload.type === 'image' ? '📷 Imagen' : finalPayload.text;
-                    await setDoc(chatRef, {
+                    const updates = {
                         lastMessage: lastMessageText,
                         lastMessageTimestamp: serverTimestamp(),
-                        lastMessageSenderId: state.currentUser.uid
-                    }, { merge: true });
+                        lastMessageSenderId: state.currentUser.uid,
+                    };
+
+                    // Incrementa el contador del otro usuario.
+                    if (otherUserId) {
+                        updates[`unreadCounts.${otherUserId}`] = increment(1);
+                    }
+                     // Reinicia tu propio contador, ya que al enviar un mensaje, has "visto" la conversación.
+                    updates[`unreadCounts.${state.currentUser.uid}`] = 0;
+
+
+                    await updateDoc(chatRef, updates);
 
                 } catch (error) {
                     console.error("Error al enviar el mensaje:", error);
@@ -5114,20 +5142,24 @@ async function handleAdminBannerUpload(event) {
                 const chatsQuery = query(collection(db, 'chats'), where('participants', 'array-contains', uid));
 
                 onSnapshot(chatsQuery, (snapshot) => {
-                    snapshot.docChanges().forEach((change) => {
-                        const chat = change.doc.data();
-                        const chatId = change.doc.id;
-
-                        if (chat.lastMessage && chat.lastMessageSenderId !== uid) {
-                            state.unreadChats.add(chatId);
+                    let totalUnread = 0;
+                    snapshot.forEach(docSnap => {
+                        const chat = docSnap.data();
+                        // Asegurarse de que unreadCounts exista y tenga un valor para el usuario actual.
+                        if (chat.unreadCounts && chat.unreadCounts[uid]) {
+                            totalUnread += chat.unreadCounts[uid];
                         }
                     });
+
+                    state.totalUnreadMessages = totalUnread;
                     updateUnreadBubble();
+                }, (error) => {
+                    console.error("Error al escuchar chats para notificaciones:", error);
                 });
             }
 
             function updateUnreadBubble() {
-                const unreadCount = state.unreadChats.size;
+                const unreadCount = state.totalUnreadMessages;
                 if (unreadCount > 0) {
                     chatNotificationBubble.textContent = unreadCount > 9 ? '9+' : unreadCount.toString();
                     chatNotificationBubble.classList.remove('hidden');
