@@ -505,6 +505,13 @@
             top: var(--install-banner-height, 0px);
             height: calc(100vh - var(--install-banner-height, 0px));
         }
+
+        /* Ajuste para la barra de estado de iOS en los encabezados principales */
+        #main-content-wrapper > header,
+        #chat-header,
+        #product-detail-view header {
+            padding-top: env(safe-area-inset-top);
+        }
     </style>
 </head>
 <body class="text-gray-800">
