@@ -1,0 +1,32 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Los usuarios pueden leer y escribir en sus propias carpetas de imágenes de perfil.
+    match /profilePictures/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Cualquier usuario autenticado puede leer todos los banners.
+    // La escritura se permite a cualquier usuario autenticado, confiando en que la UI lo restringe solo a los administradores.
+    match /banners/{allPaths=**} {
+      allow read;
+      allow write: if request.auth != null;
+    }
+
+    // Los usuarios pueden leer y escribir en sus propias carpetas de imágenes de productos.
+    match /productImages/{ownerId}/{allPaths=**} {
+      allow read;
+      allow write: if request.auth != null && request.auth.uid == ownerId;
+    }
+
+    // NUEVA REGLA: Permite a los participantes de un chat subir imágenes.
+    // Un usuario puede leer o escribir en la carpeta de imágenes de un chat si su UID
+    // está en el array `participants` del documento de chat correspondiente en Firestore.
+    match /chat_images/{chatId}/{allPaths=**} {
+      allow read, write: if request.auth != null &&
+                          exists(/databases/$(database)/documents/chats/$(chatId)) &&
+                          request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+    }
+  }
+}
