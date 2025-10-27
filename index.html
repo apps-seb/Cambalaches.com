@@ -510,7 +510,7 @@
         #main-content-wrapper > header,
         #chat-header,
         #product-detail-view header {
-            padding-top: env(safe-area-inset-top);
+            padding-top: calc(0.75rem + env(safe-area-inset-top)); /* 0.75rem = 12px */
         }
     </style>
 </head>
@@ -649,7 +649,7 @@
 
     <div id="main-content-wrapper" class="lg:ml-64 transition-all duration-300 pb-20 lg:pb-0">
         
-        <header class="sticky top-0 z-10 flex items-center justify-between h-28 px-4 bg-brand shadow-sm md:px-6 pb-4 pt-5">
+        <header class="sticky top-0 z-10 flex items-center justify-between px-4 bg-brand shadow-sm md:px-6 pb-3">
             <!-- Logo a la izquierda -->
             <div class="flex items-center">
                  <img id="header-logo" src="https://placehold.co/120x40/7d31d2/FFFFFF?text=CanjeApp" alt="Logo" class="h-8 cursor-pointer admin-logo-editable">
@@ -1027,7 +1027,7 @@
             <section id="page-chat" class="page hidden fixed inset-0 z-40 flex flex-col h-full bg-white" data-page="page-chat">
 
                 <!-- Encabezado Fijo -->
-                <div id="chat-header" class="flex items-center justify-between flex-shrink-0 h-28 px-4 bg-brand text-white shadow-sm pb-4 pt-5">
+                <div id="chat-header" class="flex items-center justify-between flex-shrink-0 px-4 bg-brand text-white shadow-sm pb-3">
                     <div class="flex items-center min-w-0">
                         <button class="nav-link p-2 -ml-2 text-white rounded-full hover:bg-white/20" data-page="page-canjes" aria-label="Volver a Mis Canjes">
                             <i data-lucide="arrow-left" class="w-5 h-5"></i>
@@ -1164,7 +1164,7 @@
 
     <div id="product-detail-view" class="fixed inset-0 z-40 hidden">
         <div class="flex flex-col w-full h-full bg-[#F5F7FA]">
-            <header class="sticky top-0 z-20 flex items-center justify-between h-28 px-4 text-white bg-brand shadow-sm sm:px-6 pb-4 pt-5">
+            <header class="sticky top-0 z-20 flex items-center justify-between px-4 text-white bg-brand shadow-sm sm:px-6 pb-3">
                 <div class="flex items-center gap-2">
                     <button id="product-detail-close" class="p-2 text-white transition-colors bg-white/20 rounded-full hover:bg-white/30">
                         <i data-lucide="arrow-left" class="w-5 h-5"></i>
