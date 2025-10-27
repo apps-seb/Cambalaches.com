@@ -5439,12 +5439,12 @@ async function handleAdminBannerUpload(event) {
                 window.addEventListener('beforeinstallprompt', (e) => {
                     e.preventDefault();
                     deferredPrompt = e;
-                    
+
                     // Mostrar el banner solo si no ha sido descartado antes
                     if (localStorage.getItem('installBannerDismissed') !== 'true') {
                         installBanner.classList.remove('hidden');
                         installBanner.classList.remove('-translate-y-full');
-                        
+
                         // Calcular la altura del banner y aplicarla como variable CSS
                         const bannerHeight = installBanner.offsetHeight;
                         document.documentElement.style.setProperty('--install-banner-height', `${bannerHeight}px`);
