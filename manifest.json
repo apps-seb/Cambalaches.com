@@ -1,7 +1,8 @@
 {
   "name": "Mercado Canje",
   "short_name": "Canje",
-  "start_url": "/index.html",
+  "start_url": ".",
+  "scope": ".",
   "display": "standalone",
   "background_color": "#7d31d2",
   "theme_color": "#7d31d2",
