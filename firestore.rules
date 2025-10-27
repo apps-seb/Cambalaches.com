@@ -39,6 +39,13 @@ service cloud.firestore {
 
     // --- REGLAS NUEVAS PARA EL CHAT ---
     // Estas reglas solucionan el error de "permisos insuficientes".
+
+    // Regla para configuraciones de la app (logo)
+    match /config/{configId} {
+      allow read: if true;
+      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
     match /chats/{chatId} {
       // Un usuario puede CREAR un chat si su UID está en la lista de `participants` del nuevo documento.
       // La lógica de la app asegura que esto solo ocurra cuando se acepta un canje.

@@ -443,15 +443,7 @@
         }
 
         /* --- ESTILOS HEADER MÓVIL REDISEÑADO --- */
-        @media (max-width: 1023px) {
-            #main-content-wrapper > header {
-                background-color: #FFFFFF;
-                border-bottom: 1px solid #E5E7EB;
-            }
-            #main-content-wrapper > header #mobile-menu-btn {
-                color: #374151;
-            }
-        }
+        /* La responsividad del header ahora se maneja directamente con clases de Tailwind */
 
         /* Logo editable para Admin */
         .admin-logo-editable.is-admin:hover {
@@ -604,7 +596,7 @@
 
     <div id="main-content-wrapper" class="lg:ml-64 transition-all duration-300 pb-20 lg:pb-0">
         
-        <header class="sticky top-0 z-10 flex items-center justify-between h-16 px-4 bg-white shadow-sm md:px-6 lg:bg-brand">
+        <header class="sticky top-0 z-10 flex items-center justify-between h-16 px-4 bg-brand shadow-sm md:px-6">
             <!-- Logo a la izquierda -->
             <div class="flex items-center">
                  <img id="header-logo" src="https://placehold.co/120x40/7d31d2/FFFFFF?text=CanjeApp" alt="Logo" class="h-8 cursor-pointer admin-logo-editable">
@@ -614,15 +606,15 @@
 
             <!-- Buscador en el centro (visible en móvil) -->
             <div class="flex-1 max-w-xs mx-4 lg:max-w-lg">
-                 <div class="relative flex items-center w-full text-gray-500">
+                 <div class="relative flex items-center w-full text-white/80">
                      <i data-lucide="search" class="absolute w-5 h-5 left-3"></i>
-                     <input type="text" placeholder="Buscar artículos..." class="w-full h-10 py-2 pl-10 pr-4 bg-gray-100 border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-brand-light focus:bg-white">
+                     <input type="text" placeholder="Buscar artículos..." class="w-full h-10 py-2 pl-10 pr-4 text-white bg-white/20 border-transparent rounded-full placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-brand-light focus:bg-white focus:text-gray-800">
                  </div>
             </div>
 
             <!-- Menú hamburguesa a la derecha -->
             <div class="flex items-center">
-                 <button id="mobile-menu-btn" class="p-2 text-gray-700 rounded-full lg:hidden hover:bg-gray-100">
+                 <button id="mobile-menu-btn" class="p-2 text-white rounded-full lg:hidden hover:bg-white/20">
                      <i data-lucide="menu" class="w-6 h-6"></i>
                  </button>
                  <button id="sidebar-toggle-btn" class="hidden p-2 text-white rounded-full lg:block hover:bg-white/20">
@@ -5364,6 +5356,24 @@ async function handleAdminBannerUpload(event) {
                 handleSendMessage(state.activeChatId, payload, tempId);
             });
 
+            async function loadAppLogo() {
+                const logoEl = document.getElementById('header-logo');
+                if (!logoEl) return;
+
+                try {
+                    const configRef = doc(db, 'config', 'appSettings');
+                    const configSnap = await getDoc(configRef);
+
+                    if (configSnap.exists()) {
+                        const configData = configSnap.data();
+                        if (configData.logoUrl) {
+                            logoEl.src = configData.logoUrl;
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error al cargar el logo de la app:", error);
+                }
+            }
             // --- INICIALIZACIÓN ---
             async function init() {
                 // --- NUEVO: Listener para el logo editable ---
@@ -5380,20 +5390,29 @@ async function handleAdminBannerUpload(event) {
                         const file = e.target.files[0];
                         if (!file || !state.isAdmin) return;
 
-                        // Aquí iría la lógica para subir a Firebase Storage
-                        // y guardar la URL en una configuración global de Firestore.
-                        // Por ahora, solo simularé el cambio localmente.
+                        const originalSrc = headerLogo.src;
+                        headerLogo.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // transparent gif placeholder
 
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                            headerLogo.src = event.target.result;
-                            // En una implementación real:
-                            // 1. Subir a Storage.
-                            // 2. Obtener URL.
-                            // 3. Guardar URL en Firestore (ej: doc 'config/app').
-                            console.log("Nuevo logo seleccionado. La lógica de subida a Firebase no está implementada en este paso.");
-                        };
-                        reader.readAsDataURL(file);
+                        try {
+                            const uniquePath = `logos/main_logo_${Date.now()}`;
+                            const fileRef = storageRef(storage, uniquePath);
+                            const uploadResult = await uploadBytes(fileRef, file);
+                            const downloadURL = await getDownloadURL(uploadResult.ref);
+
+                            const configRef = doc(db, 'config', 'appSettings');
+                            await setDoc(configRef, {
+                                logoUrl: downloadURL,
+                                logoPath: uploadResult.ref.fullPath,
+                                updatedAt: serverTimestamp()
+                            }, { merge: true });
+
+                            headerLogo.src = downloadURL;
+
+                        } catch (error) {
+                            console.error("Error al subir el nuevo logo:", error);
+                            alert("No se pudo subir el nuevo logo.");
+                            headerLogo.src = originalSrc;
+                        }
                     });
                 }
 
@@ -5441,6 +5460,7 @@ async function handleAdminBannerUpload(event) {
                 await Promise.all([
                     loadAndRenderBanners(),
                     loadAllProducts(),
+                    loadAppLogo()
                 ]);
                 registerLazyImages(document);
             }
