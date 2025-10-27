@@ -520,7 +520,7 @@
         <div class="w-full h-full" style="padding-top: env(safe-area-inset-top);">
             <div class="max-w-4xl mx-auto flex items-center justify-between p-3 pl-4">
                 <div class="flex items-center">
-                    <img src="/icons/icon-192x192.png" alt="App Icon" class="w-11 h-11 mr-4 rounded-lg">
+                    <img src="icons/icon-192x192.png" alt="App Icon" class="w-11 h-11 mr-4 rounded-lg">
                     <div class="flex-1">
                         <h4 class="font-semibold leading-tight">Instalar Mercado Canje</h4>
                         <p class="text-sm text-brand-light leading-tight">Acceso rápido desde tu pantalla de inicio.</p>
@@ -1450,8 +1450,16 @@
          */
         async function saveMessagingDeviceToken(userId) {
             try {
-                // NOTA: La VAPID key se debe generar en la consola de Firebase > Project Settings > Cloud Messaging.
-                const currentToken = await getToken(messaging, { vapidKey: 'YOUR_VAPID_KEY_HERE' });
+                // ¡IMPORTANTE! Reemplaza 'YOUR_VAPID_KEY_HERE' con tu clave VAPID de Firebase.
+                // Ve a Firebase Console > Project Settings > Cloud Messaging > Web Push certificates > Generate key pair.
+                const VAPID_KEY = 'YOUR_VAPID_KEY_HERE';
+
+                if (VAPID_KEY === 'YOUR_VAPID_KEY_HERE') {
+                    console.error("Configuración de notificaciones incompleta: Reemplaza 'YOUR_VAPID_KEY_HERE' en index.html con tu clave VAPID de Firebase para habilitar las notificaciones push.");
+                    return;
+                }
+
+                const currentToken = await getToken(messaging, { vapidKey: VAPID_KEY });
                 if (currentToken) {
                     console.log('Token FCM obtenido:', currentToken);
                     const userDocRef = doc(db, 'users', userId);
@@ -5639,24 +5647,6 @@ async function handleAdminBannerUpload(event) {
                 // --- NUEVO: Inicializar eventos táctiles del carrusel ---
                 setupProductDetailCarouselTouch();
 
-                // Listener para mensajes del Service Worker (navegación por notificación)
-                navigator.serviceWorker.addEventListener('message', event => {
-                    if (event.data && event.data.type === 'navigate') {
-                        const { page, chatId } = event.data;
-                        if (page === 'page-chat' && chatId) {
-                            // Lógica especial para abrir un chat
-                            // Se necesita obtener la información completa del chat antes de abrirlo
-                            console.log(`Navegación a chat ${chatId} solicitada.`);
-                            // Idealmente, aquí se llamaría a una función que prepare y abra el chat.
-                            // Por simplicidad, por ahora solo vamos a la lista de chats.
-                            showPage('page-chats');
-                        } else {
-                            showPage(page);
-                        }
-                    }
-                // --- NUEVO: Inicializar eventos táctiles del carrusel ---
-                setupProductDetailCarouselTouch();
-
                 async function openChatFromId(chatId) {
                     if (!chatId || !state.isLoggedIn) {
                         console.warn("No se puede abrir el chat: falta chatId o el usuario no ha iniciado sesión.");
@@ -5702,11 +5692,12 @@ async function handleAdminBannerUpload(event) {
                         const { page, chatId } = event.data;
                         if (page === 'page-chat' && chatId) {
                            openChatFromId(chatId);
-                        } else {
+                        } else if (page) {
                             showPage(page);
                         }
                     }
                 });
+
 
                 // Inicializar iconos (MOVIDO AL FINAL)
                 lucide.createIcons();
