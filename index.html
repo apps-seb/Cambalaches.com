@@ -295,6 +295,42 @@
             border-top-color: #7d31d2;
             animation: spin 0.85s linear infinite;
         }
+
+        /* --- ESTILOS PARA CARGA PROGRESIVA DE IMAGEN --- */
+        .image-loader-wrapper {
+            position: relative;
+            overflow: hidden;
+            background-color: #E5E7EB; /* Mismo color que el esqueleto */
+        }
+
+        .image-loader-wrapper::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            transform: translateX(-100%);
+            background-image: linear-gradient(90deg, rgba(229, 231, 235, 0), rgba(255, 255, 255, 0.75), rgba(229, 231, 235, 0));
+            animation: shimmer 1.35s ease-in-out infinite;
+        }
+
+        .image-loader-wrapper img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
+
+        .image-loader-wrapper.is-loaded img {
+            opacity: 1;
+        }
+
+        /* Oculta el pseudo-elemento de shimmer una vez que la imagen se ha cargado */
+        .image-loader-wrapper.is-loaded::after {
+            display: none;
+        }
         
         /* Menú Móvil */
         #mobile-menu-panel {
@@ -1373,39 +1409,44 @@
                 return value.replace(/[&<>"'`]/g, (char) => escapeMap[char] || char);
             }
 
-            function buildOptimizedImage({ src = '', alt = '', classes = '', priority = 'auto', loading = 'lazy', width, height }) {
-                const safeSrc = escapeHtml(src || '');
-                const safeAlt = escapeHtml(alt || '');
-                const classAttr = classes ? ` class="${classes}"` : '';
-                const widthAttr = width ? ` width="${width}"` : '';
-                const heightAttr = height ? ` height="${height}"` : '';
-                // Forzar la carga 'eager' si la clase incluye 'avatar' o 'rounded-full', indicando que es una imagen de perfil.
-                const isAvatar = classes.includes('avatar') || classes.includes('rounded-full');
-                const resolvedLoading = isAvatar ? 'eager' : (loading === 'eager' ? 'eager' : 'lazy');
+            function createImageLoaderHTML({ src, alt, wrapperClass = '', imgClass = '', priority = 'auto' }) {
+                const safeSrc = escapeHtml(src || DEFAULT_PRODUCT_IMAGE);
+                const safeAlt = escapeHtml(alt || 'Imagen de artículo');
 
-                if (resolvedLoading === 'eager') {
-                    const fetchPriorityAttr = priority !== 'auto' ? ` fetchpriority="${priority}"` : '';
-                    return `<img src="${safeSrc}" alt="${safeAlt}"${classAttr}${widthAttr}${heightAttr} loading="eager" decoding="async"${fetchPriorityAttr}>`;
-                }
+                const loading = (priority === 'high') ? 'eager' : 'lazy';
+                const fetchPriorityAttr = (priority === 'high') ? ` fetchpriority="high"` : '';
 
-                const dataFetchPriorityAttr = priority !== 'auto' ? ` data-fetchpriority="${priority}"` : '';
-                return `<img src="${LAZY_IMAGE_PLACEHOLDER}" data-src="${safeSrc}" alt="${safeAlt}"${classAttr}${widthAttr}${heightAttr} loading="lazy" decoding="async"${dataFetchPriorityAttr}>`;
+                const placeholder = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
+                return `
+                    <div class="image-loader-wrapper ${wrapperClass}">
+                        <img
+                            src="${placeholder}"
+                            data-src="${safeSrc}"
+                            alt="${safeAlt}"
+                            class="${imgClass}"
+                            loading="${loading}"
+                            decoding="async"
+                            ${fetchPriorityAttr}
+                        >
+                    </div>
+                `;
             }
 
-            function hydrateLazyImage(img) {
+            function hydrateImage(img) {
                 if (!img || !img.dataset || !img.dataset.src) return;
-                const priority = img.dataset.fetchpriority;
-                if (priority) {
-                    if ('fetchPriority' in img) {
-                        img.fetchPriority = priority;
-                    } else {
-                        img.setAttribute('fetchpriority', priority);
-                    }
-                }
+
+                const wrapper = img.parentElement;
+
                 img.src = img.dataset.src;
+
+                img.onload = () => {
+                    if (wrapper && wrapper.classList.contains('image-loader-wrapper')) {
+                        wrapper.classList.add('is-loaded');
+                    }
+                };
+
                 img.removeAttribute('data-src');
-                img.removeAttribute('data-fetchpriority');
-                img.classList.remove('lazy-image');
             }
 
             let lazyImageObserver = null;
@@ -1418,7 +1459,7 @@
                             if (!entry.isIntersecting) return;
                             const img = entry.target;
                             observer.unobserve(img);
-                            hydrateLazyImage(img);
+                            hydrateImage(img); // Call the new hydration function
                         });
                     }, { rootMargin: '200px 0px', threshold: 0.01 });
                 }
@@ -1521,13 +1562,12 @@
             }
 
             function buildCartItemMarkup(item) {
-                const productImage = buildOptimizedImage({
+                const productImage = createImageLoaderHTML({
                     src: item.imageUrl,
                     alt: item.name,
-                    classes: 'w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-gray-200',
-                    loading: 'lazy',
-                    priority: 'auto',
+                    wrapperClass: 'w-12 h-12 rounded-lg flex-shrink-0 border border-gray-200',
                 });
+
                 const subtotal = item.value * item.quantity;
                 return `
                     <div class="cart-item-entry flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg shadow-sm" data-product-id="${escapeHtml(item.id)}">
@@ -1556,16 +1596,14 @@
 
             function buildCartPageItemMarkup(item) {
                 const subtotal = item.value * item.quantity;
-                const productImage = buildOptimizedImage({
+                const productImage = createImageLoaderHTML({
                     src: item.imageUrl,
                     alt: item.name,
-                    classes: 'object-cover w-full h-full',
-                    loading: 'lazy',
-                    priority: 'auto',
+                    wrapperClass: 'w-full h-full',
                 });
                 return `
                     <article class="cart-page-item grid grid-cols-[96px_1fr] gap-4 p-5 bg-white border border-gray-200 rounded-3xl shadow-[0_18px_45px_-30px_rgba(15,23,42,0.35)]" data-product-id="${escapeHtml(item.id)}">
-                        <div class="overflow-hidden rounded-2xl bg-gray-100 aspect-square">
+                        <div class="overflow-hidden rounded-2xl aspect-square">
                             ${productImage}
                         </div>
                         <div class="flex flex-col gap-4">
@@ -2005,12 +2043,11 @@
                 const title = escapeHtml(banner.title || '');
                 const imageUrl = banner.imageUrl || '';
                 const alt = title || 'Banner destacado';
-                const imageMarkup = buildOptimizedImage({
+                const imageMarkup = createImageLoaderHTML({
                     src: imageUrl,
                     alt,
-                    classes: 'object-cover w-full h-full',
-                    priority: isHighPriority ? 'high' : 'low',
-                    loading: isHighPriority ? 'eager' : 'lazy',
+                    wrapperClass: 'w-full h-full',
+                    priority: isHighPriority ? 'high' : 'auto',
                 });
 
                 return `
@@ -2031,12 +2068,11 @@
 
             function buildProductCard(product, index = 0, highPriorityLimit = GRID_HIGH_PRIORITY_COUNT) {
                 const isHighPriority = index < highPriorityLimit;
-                const imageMarkup = buildOptimizedImage({
+                const imageMarkup = createImageLoaderHTML({
                     src: product.imageUrl,
                     alt: product.name,
-                    classes: 'object-cover w-full h-40',
-                    priority: isHighPriority ? 'high' : 'low',
-                    loading: isHighPriority ? 'eager' : 'lazy',
+                    wrapperClass: 'w-full h-40',
+                    priority: isHighPriority ? 'high' : 'auto',
                 });
 
                 return `
@@ -2061,12 +2097,11 @@
 
             function buildPopularCard(product, index = 0, highPriorityLimit = POPULAR_HIGH_PRIORITY_COUNT) {
                 const isHighPriority = index < highPriorityLimit;
-                const imageMarkup = buildOptimizedImage({
+                const imageMarkup = createImageLoaderHTML({
                     src: product.imageUrl,
                     alt: product.name,
-                    classes: 'object-cover w-full h-40',
-                    priority: isHighPriority ? 'high' : 'low',
-                    loading: isHighPriority ? 'eager' : 'lazy',
+                    wrapperClass: 'w-full h-40',
+                    priority: isHighPriority ? 'high' : 'auto',
                 });
 
                 return `
@@ -3121,12 +3156,10 @@
                 }
 
                 state.currentUser.items.forEach(item => {
-                    const itemImage = buildOptimizedImage({
+                    const itemImage = createImageLoaderHTML({
                         src: item.imageUrl,
                         alt: item.name,
-                        classes: 'w-16 h-16 rounded-lg object-cover flex-shrink-0',
-                        priority: 'auto',
-                        loading: 'lazy',
+                        wrapperClass: 'w-16 h-16 rounded-lg flex-shrink-0',
                     });
                     const itemHtml = `
                         <div class="flex items-center p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
@@ -3180,12 +3213,10 @@
                 }
                 
                 state.receivedOffers.forEach(offer => {
-                    const fromUserAvatar = buildOptimizedImage({
+                    const fromUserAvatar = createImageLoaderHTML({
                         src: offer.fromUser.profilePic,
                         alt: offer.fromUser.name,
-                        classes: 'w-10 h-10 rounded-full object-cover',
-                        loading: 'lazy',
-                        priority: 'auto',
+                        wrapperClass: 'w-10 h-10 rounded-full',
                     });
 
                     const offerHtml = `
@@ -3204,12 +3235,10 @@
                                     <div class="mt-2 space-y-2">
                                         ${offer.theirItems.map(item => `
                                             <div class="flex items-center p-2 bg-gray-50 rounded-md">
-                                                ${buildOptimizedImage({
+                                                ${createImageLoaderHTML({
                                                     src: item.imageUrl,
                                                     alt: item.name,
-                                                    classes: 'w-10 h-10 rounded-md object-cover flex-shrink-0',
-                                                    loading: 'lazy',
-                                                    priority: 'auto',
+                                                    wrapperClass: 'w-10 h-10 rounded-md flex-shrink-0',
                                                 })}
                                                 <div class="ml-2 flex-1 min-w-0">
                                                     <p class="text-sm font-medium truncate">${item.name}</p>
@@ -3240,12 +3269,10 @@
                                     <span class="text-sm font-semibold text-gray-700">A cambio de:</span>
                                     <div class="mt-2 space-y-2">
                                         <div class="flex items-center p-2 bg-gray-50 rounded-md">
-                                            ${buildOptimizedImage({
+                                            ${createImageLoaderHTML({
                                                 src: offer.forYourItem.imageUrl,
                                                 alt: offer.forYourItem.name,
-                                                classes: 'w-10 h-10 rounded-md object-cover flex-shrink-0',
-                                                loading: 'lazy',
-                                                priority: 'auto',
+                                                wrapperClass: 'w-10 h-10 rounded-md flex-shrink-0',
                                             })}
                                             <div class="ml-2 flex-1 min-w-0">
                                                 <p class="text-sm font-medium truncate">${offer.forYourItem.name}</p>
@@ -4314,12 +4341,10 @@
                         selectTuArticulo.innerHTML = '<p class="text-sm text-gray-500 p-2">No tienes artículos para canjear. Publica uno en la sección "Vender".</p>';
                     } else {
                         state.currentUser.items.forEach(item => {
-                            const modalItemImage = buildOptimizedImage({
+                            const modalItemImage = createImageLoaderHTML({
                                 src: item.imageUrl,
                                 alt: item.name,
-                                classes: 'w-10 h-10 rounded-md object-cover ml-3 border flex-shrink-0',
-                                loading: 'lazy',
-                                priority: 'auto',
+                                wrapperClass: 'w-10 h-10 rounded-md ml-3 border flex-shrink-0',
                             });
                             const itemHtml = `
                                 <label class="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 cursor-pointer modal-item-checkbox-label">
@@ -4870,10 +4895,10 @@ async function handleAdminBannerUpload(event) {
                         const lastMessageTime = chat.lastMessageTimestamp ?
                             new Date(chat.lastMessageTimestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
 
-                        const userAvatar = buildOptimizedImage({
+                        const userAvatar = createImageLoaderHTML({
                             src: otherUserInfo.profilePic ? otherUserInfo.profilePic : DEFAULT_PROFILE_PIC,
                             alt: otherUserInfo.name || 'Usuario',
-                            classes: 'w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg',
+                            wrapperClass: 'w-16 h-16 rounded-full border-4 border-white shadow-lg',
                         });
 
                         return `
