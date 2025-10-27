@@ -2,8 +2,16 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>CanjeApp - Marketplace de Equivalencia</title>
+
+    <!-- PWA & SEO -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#7d31d2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Canje">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -479,9 +487,47 @@
             transform: scale(1.25);
             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
+
+        /* --- ESTILOS PARA BANNER DE INSTALACIÓN Y SAFE AREA --- */
+        body.install-banner-visible {
+            /* Empuja todo el contenido hacia abajo la altura de la safe-area */
+            padding-top: var(--install-banner-height, 0px);
+        }
+
+        body.install-banner-visible #main-content-wrapper > header {
+            /* El header es 'sticky', así que ajustamos su 'top' */
+            top: var(--install-banner-height, 0px);
+        }
+
+        body.install-banner-visible #desktop-sidebar,
+        body.install-banner-visible #mobile-menu-panel {
+             /* Los menús laterales fijos también necesitan el ajuste */
+            top: var(--install-banner-height, 0px);
+            height: calc(100vh - var(--install-banner-height, 0px));
+        }
     </style>
 </head>
 <body class="text-gray-800">
+
+    <div id="install-banner" class="hidden fixed top-0 left-0 right-0 z-[60] bg-brand-dark text-white shadow-lg transition-transform duration-300 ease-in-out -translate-y-full" style="padding-bottom: 0.75rem;">
+        <div class="w-full h-full" style="padding-top: env(safe-area-inset-top);">
+            <div class="max-w-4xl mx-auto flex items-center justify-between p-3 pl-4">
+                <div class="flex items-center">
+                    <img src="/icons/icon-192x192.png" alt="App Icon" class="w-11 h-11 mr-4 rounded-lg">
+                    <div class="flex-1">
+                        <h4 class="font-semibold leading-tight">Instalar Mercado Canje</h4>
+                        <p class="text-sm text-brand-light leading-tight">Acceso rápido desde tu pantalla de inicio.</p>
+                    </div>
+                </div>
+                <div class="flex items-center flex-shrink-0 ml-4">
+                    <button id="btn-install" class="bg-white text-brand font-semibold px-5 py-2 rounded-full mr-2 text-sm hover:bg-gray-200 transition-colors">Instalar</button>
+                    <button id="btn-dismiss-install" class="p-2 rounded-full hover:bg-white/20" aria-label="Cerrar">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="app-preloader" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm">
         <div class="preloader-spinner"></div>
@@ -5376,6 +5422,75 @@ async function handleAdminBannerUpload(event) {
             }
             // --- INICIALIZACIÓN ---
             async function init() {
+
+                // --- LÓGICA DEL BANNER DE INSTALACIÓN ---
+                const installBanner = document.getElementById('install-banner');
+                const btnInstall = document.getElementById('btn-install');
+                const btnDismissInstall = document.getElementById('btn-dismiss-install');
+                let deferredPrompt;
+
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    deferredPrompt = e;
+
+                    // Mostrar el banner solo si no ha sido descartado antes
+                    if (localStorage.getItem('installBannerDismissed') !== 'true') {
+                        installBanner.classList.remove('hidden');
+                        installBanner.classList.remove('-translate-y-full');
+
+                        // Calcular la altura del banner y aplicarla como variable CSS
+                        const bannerHeight = installBanner.offsetHeight;
+                        document.documentElement.style.setProperty('--install-banner-height', `${bannerHeight}px`);
+                        document.body.classList.add('install-banner-visible');
+                    }
+                });
+
+                btnInstall.addEventListener('click', (e) => {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        deferredPrompt.userChoice.then((choiceResult) => {
+                            if (choiceResult.outcome === 'accepted') {
+                                console.log('El usuario aceptó instalar la PWA');
+                            } else {
+                                console.log('El usuario rechazó instalar la PWA');
+                            }
+                            deferredPrompt = null;
+                            hideInstallBanner();
+                        });
+                    }
+                });
+
+                btnDismissInstall.addEventListener('click', () => {
+                    localStorage.setItem('installBannerDismissed', 'true');
+                    hideInstallBanner();
+                });
+
+                function hideInstallBanner() {
+                    installBanner.classList.add('-translate-y-full');
+                    document.body.classList.remove('install-banner-visible');
+                    document.documentElement.style.setProperty('--install-banner-height', `0px`);
+                    setTimeout(() => {
+                        installBanner.classList.add('hidden');
+                    }, 300); // Esperar a que la transición termine
+                }
+
+                // --- LÓGICA DEL INDICADOR OFFLINE ---
+                const offlineIndicator = document.getElementById('offline-indicator');
+
+                function updateOnlineStatus() {
+                    if (navigator.onLine) {
+                        offlineIndicator.classList.add('hidden');
+                    } else {
+                        offlineIndicator.classList.remove('hidden');
+                        lucide.createIcons(); // Asegurarse de que el ícono se renderice
+                    }
+                }
+
+                window.addEventListener('online', updateOnlineStatus);
+                window.addEventListener('offline', updateOnlineStatus);
+                updateOnlineStatus(); // Comprobar el estado al cargar
+
+
                 // --- NUEVO: Listener para el logo editable ---
                 const headerLogo = document.getElementById('header-logo');
                 const logoFileInput = document.getElementById('logo-file-input');
@@ -5471,7 +5586,26 @@ async function handleAdminBannerUpload(event) {
                 hidePreloader();
             });
         });
+
+    // --- REGISTRO DEL SERVICE WORKER ---
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('Service Worker registrado con éxito:', registration.scope);
+                })
+                .catch(error => {
+                    console.error('Error en el registro del Service Worker:', error);
+                });
+        });
+    }
     </script>
+
+    <!-- Indicador de Estado Offline -->
+    <div id="offline-indicator" class="hidden fixed bottom-4 right-4 z-[100] bg-gray-800 text-white text-sm font-medium py-2 px-4 rounded-lg shadow-lg flex items-center">
+        <i data-lucide="wifi-off" class="w-4 h-4 mr-2"></i>
+        <span>Estás sin conexión</span>
+    </div>
 
 </body>
 </html>
