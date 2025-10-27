@@ -605,7 +605,7 @@
                 </div>
 
                 <div id="canjes-content" class="">
-                    <h2 class="mb-6 text-2xl font-semibold text-gray-900">Mis Canjes</h2>
+                    <h2 class="mb-6 text-3xl font-bold text-gray-900 sm:text-4xl">Mis Canjes</h2>
                     <div class="border-b border-gray-200">
                         <nav class="flex -mb-px space-x-6" aria-label="Tabs">
                             <button class="px-1 py-3 text-sm font-medium text-brand border-b-2 border-brand whitespace-nowrap canje-tab-btn" data-tab="tab-ofertas">
@@ -903,9 +903,24 @@
                             <p id="chat-with-name" class="text-sm text-gray-700 truncate">Hablando con: Cargando...</p>
                         </div>
                     </div>
-                    <button class="p-2 text-gray-800 rounded-full hover:bg-black/10 flex-shrink-0" aria-label="Más opciones">
-                        <i data-lucide="more-vertical" class="w-5 h-5"></i>
-                    </button>
+                    <div class="relative">
+                        <button id="chat-options-btn" class="p-2 text-gray-800 rounded-full hover:bg-black/10 flex-shrink-0" aria-label="Más opciones">
+                            <i data-lucide="more-vertical" class="w-5 h-5"></i>
+                        </button>
+                        <!-- Dropdown Menu -->
+                        <div id="chat-options-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border border-gray-200">
+                            <div class="py-1">
+                                <a href="#" class="nav-link flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-page="page-canjes">
+                                    <i data-lucide="arrow-left" class="w-4 h-4 mr-3"></i>
+                                    Cerrar Chat
+                                </a>
+                                <button id="btn-delete-chat" class="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                    <i data-lucide="trash-2" class="w-4 h-4 mr-3"></i>
+                                    Eliminar Canje
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Área de Mensajes con Scroll -->
@@ -4643,6 +4658,63 @@ async function handleAdminBannerUpload(event) {
                         }
                     }
                 });
+
+                // Listener para el menú de opciones del chat
+                const chatOptionsBtn = document.getElementById('chat-options-btn');
+                const chatOptionsMenu = document.getElementById('chat-options-menu');
+                const btnDeleteChat = document.getElementById('btn-delete-chat');
+
+                if (chatOptionsBtn && chatOptionsMenu) {
+                    chatOptionsBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        chatOptionsMenu.classList.toggle('hidden');
+                    });
+
+                    btnDeleteChat.addEventListener('click', () => {
+                        handleDeleteChat(state.activeChatId);
+                        chatOptionsMenu.classList.add('hidden');
+                    });
+
+                    // Ocultar menú si se hace clic fuera
+                    document.addEventListener('click', (e) => {
+                        if (!chatOptionsBtn.contains(e.target) && !chatOptionsMenu.contains(e.target)) {
+                            chatOptionsMenu.classList.add('hidden');
+                        }
+                    });
+                }
+            }
+            async function handleDeleteChat(chatId) {
+                if (!chatId || !state.isLoggedIn) {
+                    alert("No se puede eliminar el chat.");
+                    return;
+                }
+
+                if (confirm("¿Estás seguro de que quieres eliminar este canje? Esta acción es irreversible y borrará toda la conversación.")) {
+                    try {
+                        // 1. Borrar todos los mensajes de la subcolección
+                        const messagesRef = collection(db, 'chats', chatId, 'messages');
+                        const messagesSnap = await getDocs(messagesRef);
+                        const deletePromises = messagesSnap.docs.map(docSnap => deleteDoc(docSnap.ref));
+                        await Promise.all(deletePromises);
+
+                        // 2. Borrar el documento principal del chat
+                        await deleteDoc(doc(db, 'chats', chatId));
+
+                        // 3. Actualizar la UI
+                        state.activeChatId = null;
+                        if (state.unsubscribeFromMessages) {
+                            state.unsubscribeFromMessages();
+                            state.unsubscribeFromMessages = null;
+                        }
+
+                        showPage('page-canjes');
+                        await loadAndRenderActiveChats(state.currentUser.uid);
+
+                    } catch (error) {
+                        console.error("Error al eliminar el chat:", error);
+                        alert("Ocurrió un error al intentar eliminar el chat. Por favor, inténtalo de nuevo.");
+                    }
+                }
             }
 
 
@@ -4742,11 +4814,11 @@ async function handleAdminBannerUpload(event) {
                         const userAvatar = buildOptimizedImage({
                             src: otherUserInfo.profilePic || DEFAULT_PROFILE_PIC,
                             alt: otherUserInfo.name || 'Usuario',
-                            classes: 'w-12 h-12 rounded-full object-cover',
+                            classes: 'w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg',
                         });
 
                         return `
-                            <div class="chat-card flex items-center p-3 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer hover:bg-gray-50"
+                            <div class="chat-card flex flex-col sm:flex-row items-start p-4 bg-white border border-gray-200 rounded-xl shadow-sm cursor-pointer hover:bg-gray-50 transition-colors duration-200"
                                 data-chat-id="${escapeHtml(chatId)}"
                                 data-other-user-id="${escapeHtml(otherUserId)}"
                                 data-other-user-name="${escapeHtml(otherUserInfo.name || 'Usuario')}"
@@ -4754,14 +4826,20 @@ async function handleAdminBannerUpload(event) {
                                 data-item-id="${escapeHtml(itemInfo.id || '')}"
                                 data-item-name="${escapeHtml(itemInfo.name || 'Artículo')}"
                                 data-item-image="${escapeHtml(itemInfo.imageUrl || DEFAULT_PRODUCT_IMAGE)}">
-                                ${userAvatar}
-                                <div class="ml-4 flex-1 min-w-0">
-                                    <div class="flex justify-between items-start">
-                                        <h4 class="font-semibold text-gray-900 truncate">${escapeHtml(otherUserInfo.name || 'Usuario')}</h4>
+
+                                <div class="flex-shrink-0 mb-3 sm:mb-0 sm:mr-4">
+                                    ${userAvatar}
+                                </div>
+
+                                <div class="flex-1 min-w-0 w-full">
+                                    <div class="flex justify-between items-baseline mb-1">
+                                        <h4 class="text-lg font-semibold text-gray-900">${escapeHtml(otherUserInfo.name || 'Usuario')}</h4>
                                         <span class="text-xs text-gray-500 flex-shrink-0">${lastMessageTime}</span>
                                     </div>
-                                    <p class="text-sm text-gray-600 truncate">Artículo: ${escapeHtml(itemInfo.name || 'No especificado')}</p>
-                                    <p class="text-sm text-gray-500 truncate">${lastMessage}</p>
+                                    <p class="text-sm text-gray-600 mb-2 pb-2 border-b border-gray-100">
+                                        <span class="font-medium">Artículo:</span> ${escapeHtml(itemInfo.name || 'No especificado')}
+                                    </p>
+                                    <p class="text-sm text-gray-500 leading-relaxed">${lastMessage}</p>
                                 </div>
                             </div>
                         `;
