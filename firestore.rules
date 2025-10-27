@@ -47,6 +47,9 @@ service cloud.firestore {
       // Un usuario puede LEER o ACTUALIZAR (para el último mensaje) la información del chat si es un participante.
       allow read, update: if request.auth != null && request.auth.uid in resource.data.participants;
 
+      // Un participante puede ELIMINAR el chat (y sus mensajes, según la regla anidada).
+      allow delete: if request.auth != null && request.auth.uid in resource.data.participants;
+
       // REGLA CORREGIDA Y REFORZADA: Separar permisos de lectura y escritura para mayor claridad.
       match /messages/{messageId} {
         // Cualquiera de los participantes puede leer todos los mensajes del chat.
@@ -58,6 +61,10 @@ service cloud.firestore {
         allow write: if request.auth != null
                      && request.auth.uid == request.resource.data.senderId
                      && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+
+        // Un participante puede ELIMINAR mensajes dentro del chat.
+        allow delete: if request.auth != null
+                      && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
       }
     }
   }
