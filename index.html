@@ -4812,7 +4812,7 @@ async function handleAdminBannerUpload(event) {
                             new Date(chat.lastMessageTimestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
 
                         const userAvatar = buildOptimizedImage({
-                            src: otherUserInfo.profilePic || DEFAULT_PROFILE_PIC,
+                            src: otherUserInfo.profilePic ? otherUserInfo.profilePic : DEFAULT_PROFILE_PIC,
                             alt: otherUserInfo.name || 'Usuario',
                             classes: 'w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg',
                         });
