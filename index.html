@@ -5028,12 +5028,24 @@ async function handleAdminBannerUpload(event) {
                 }
 
                 if (confirm("¿Estás seguro de que quieres eliminar este canje? Esta acción es irreversible y borrará toda la conversación.")) {
+                    const btnDelete = document.getElementById('btn-delete-chat');
+                    if(btnDelete) {
+                        btnDelete.disabled = true;
+                        btnDelete.innerHTML = '<i data-lucide="loader" class="w-4 h-4 mr-3 animate-spin"></i>Borrando...';
+                        lucide.createIcons();
+                    }
+
                     try {
-                        // 1. Borrar todos los mensajes de la subcolección
+                        // Solución más robusta: Borrar mensajes en lotes para evitar problemas de memoria
                         const messagesRef = collection(db, 'chats', chatId, 'messages');
-                        const messagesSnap = await getDocs(messagesRef);
-                        const deletePromises = messagesSnap.docs.map(docSnap => deleteDoc(docSnap.ref));
-                        await Promise.all(deletePromises);
+                        let messagesSnap;
+                        do {
+                            messagesSnap = await getDocs(query(messagesRef, limit(100)));
+                            const deletePromises = messagesSnap.docs.map(docSnap => deleteDoc(docSnap.ref));
+                            if (deletePromises.length > 0) {
+                                await Promise.all(deletePromises);
+                            }
+                        } while (!messagesSnap.empty);
 
                         // 2. Borrar el documento principal del chat
                         await deleteDoc(doc(db, 'chats', chatId));
@@ -5051,6 +5063,12 @@ async function handleAdminBannerUpload(event) {
                     } catch (error) {
                         console.error("Error al eliminar el chat:", error);
                         alert("Ocurrió un error al intentar eliminar el chat. Por favor, inténtalo de nuevo.");
+                    } finally {
+                         if(btnDelete) {
+                            btnDelete.disabled = false;
+                            btnDelete.innerHTML = '<i data-lucide="trash-2" class="w-4 h-4 mr-3"></i>Eliminar Canje';
+                            lucide.createIcons();
+                        }
                     }
                 }
             }
