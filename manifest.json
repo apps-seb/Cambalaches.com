@@ -7,6 +7,7 @@
   "background_color": "#7d31d2",
   "theme_color": "#7d31d2",
   "description": "Marketplace de Canjes e Intercambios.",
+  "gcm_sender_id": "103953800507",
   "icons": [
     {
       "src": "./icons/icon-192x192.png",

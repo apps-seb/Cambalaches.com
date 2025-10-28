@@ -1,0 +1,106 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - paragraph [ref=e4]: Cargando experiencia...
+  - complementary [ref=e5]:
+    - generic [ref=e7]: CanjeApp
+    - navigation [ref=e8]:
+      - link "Explorar" [ref=e9] [cursor=pointer]:
+        - /url: "#"
+        - generic [ref=e11]: Explorar
+      - link "Vender" [ref=e12] [cursor=pointer]:
+        - /url: "#"
+        - generic [ref=e14]: Vender
+      - link "Mis Canjes" [ref=e15] [cursor=pointer]:
+        - /url: "#"
+        - generic [ref=e17]: Mis Canjes
+      - link "Carrito" [ref=e18] [cursor=pointer]:
+        - /url: "#"
+        - generic [ref=e20]: Carrito
+      - link "Perfil" [ref=e21] [cursor=pointer]:
+        - /url: "#"
+        - generic [ref=e23]: Perfil
+    - generic [ref=e24]:
+      - generic [ref=e25]:
+        - generic [ref=e26]:
+          - paragraph [ref=e27]: Mi carrito
+          - paragraph [ref=e28]: Tus selecciones para canjear
+        - generic [ref=e29]: "0"
+      - paragraph [ref=e31]: Tu carrito está vacío.
+      - generic [ref=e32]:
+        - generic [ref=e33]:
+          - generic [ref=e34]: Total estimado
+          - generic [ref=e35]: $0 COP
+        - button "Vaciar carrito" [ref=e36] [cursor=pointer]
+  - generic [ref=e37]:
+    - banner [ref=e38]:
+      - img "Logo" [ref=e40] [cursor=pointer]
+      - textbox "Buscar artículos..." [ref=e44]
+      - button [ref=e46] [cursor=pointer]
+      - generic [ref=e47]:
+        - button [ref=e48] [cursor=pointer]
+        - button "Perfil" [ref=e49] [cursor=pointer]:
+          - img "Perfil" [ref=e50]
+    - main [ref=e51]:
+      - generic [ref=e52]:
+        - generic [ref=e53]:
+          - button [ref=e55] [cursor=pointer]
+          - button [ref=e56] [cursor=pointer]
+        - heading "Categorías" [level=3] [ref=e57]
+        - generic [ref=e59]: Cargando categorías...
+        - heading "Populares" [level=3] [ref=e60]
+        - generic [ref=e62]: Cargando productos...
+        - heading "Artículos Recientes" [level=3] [ref=e63]
+        - generic [ref=e65]: Cargando productos...
+    - contentinfo [ref=e66]:
+      - generic [ref=e67]:
+        - generic [ref=e68]:
+          - generic [ref=e70]: CanjeApp
+          - paragraph [ref=e71]: © 2025 CanjeApp Inc.
+        - generic [ref=e72]:
+          - heading "Explorar" [level=5] [ref=e73]
+          - list [ref=e74]:
+            - listitem [ref=e75]:
+              - link "Categorías" [ref=e76] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e77]:
+              - link "Novedades" [ref=e78] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e79]:
+              - link "Populares" [ref=e80] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=e81]:
+          - heading "Nosotros" [level=5] [ref=e82]
+          - list [ref=e83]:
+            - listitem [ref=e84]:
+              - link "Acerca de" [ref=e85] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e86]:
+              - link "Carreras" [ref=e87] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e88]:
+              - link "Prensa" [ref=e89] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=e90]:
+          - heading "Soporte" [level=5] [ref=e91]
+          - list [ref=e92]:
+            - listitem [ref=e93]:
+              - link "Ayuda" [ref=e94] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e95]:
+              - link "Términos" [ref=e96] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e97]:
+              - link "Privacidad" [ref=e98] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=e99]:
+          - heading "Síguenos" [level=5] [ref=e100]
+          - generic:
+            - link:
+              - /url: "#"
+            - link:
+              - /url: "#"
+            - link:
+              - /url: "#"
+```
