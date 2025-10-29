@@ -7,23 +7,31 @@ importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-com
 // NO se debe llamar a initializeApp aquí. El Service Worker hereda la configuración
 // de la aplicación principal que lo registra.
 
-// Manejador para los clics en las notificaciones.
-// Abre la URL asociada a la notificación o enfoca la pestaña si ya está abierta.
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
 
-    // Obtener la URL del campo 'data' de la notificación, con un fallback a la raíz.
-    const targetUrl = event.notification.data.url || '/';
+    const targetUrl = new URL(event.notification.data.url, self.location.origin).href;
 
     event.waitUntil(
-        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
-            // Si hay una ventana abierta con la URL de destino, la enfoca.
+        clients.matchAll({
+            type: 'window',
+            includeUncontrolled: true
+        }).then(clientList => {
+            // Revisa si una ventana con la misma URL (sin query params) ya está abierta
+            const baseUrl = targetUrl.split('?')[0];
             for (const client of clientList) {
-                if (client.url === targetUrl && 'focus' in client) {
+                if (client.url.startsWith(baseUrl)) {
+                    // Si la encontramos, envía un mensaje para que la app navegue internamente
+                    // en lugar de recargar la página completa.
+                    client.postMessage({
+                        type: 'navigate',
+                        page: new URL(targetUrl).searchParams.get('page'),
+                        chatId: new URL(targetUrl).searchParams.get('chatId')
+                    });
                     return client.focus();
                 }
             }
-            // Si no hay una ventana abierta, la crea.
+            // Si no hay ventana abierta, crea una nueva.
             if (clients.openWindow) {
                 return clients.openWindow(targetUrl);
             }

@@ -1407,6 +1407,7 @@
         import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, query, where, serverTimestamp, deleteDoc, increment, orderBy, onSnapshot, updateDoc, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
         import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
+        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBG035jZHTgsqZKIYCHGAUshwRukSccrjU",
@@ -1423,6 +1424,7 @@
         const db = getFirestore(app);
         const storage = getStorage(app);
         const messaging = getMessaging(app);
+        const functions = getFunctions(app);
         let analytics;
 
         // --- GESTIÓN DE NOTIFICACIONES PUSH ---
@@ -1500,7 +1502,13 @@
                 if (currentToken) {
                     const userDocRef = doc(db, 'users', userId);
                     await setDoc(userDocRef, { fcmToken: currentToken }, { merge: true });
-                    alert("¡Notificaciones activadas con éxito!");
+
+                    // ¡NUEVO! Llamar a la Cloud Function para la notificación de bienvenida
+                    const sendWelcomeNotification = httpsCallable(functions, 'sendWelcomeNotification');
+                    await sendWelcomeNotification();
+
+                    alert("¡Notificaciones activadas con éxito! Recibirás una de bienvenida en breve.");
+
                 } else {
                      alert("No se pudo activar. Asegúrate de haber concedido los permisos necesarios.");
                 }
@@ -2894,7 +2902,10 @@
             /**
              * Carga las ofertas de canje recibidas por el usuario actual.
              */
-            async function loadReceivedOffers(uid) {
+            function loadReceivedOffers(uid) {
+                if (state.unsubscribeOffersListener) {
+                    state.unsubscribeOffersListener();
+                }
                 if (!uid) {
                     state.receivedOffers = [];
                     ofertasCount.textContent = 0;
@@ -2905,29 +2916,23 @@
                 state.receivedOffers = null;
                 renderReceivedOffers();
 
-                try {
-                    const offersQuery = query(
-                        collection(db, 'offers'), 
-                        where('targetOwnerId', '==', uid),
-                        where('status', '==', 'pending')
-                    );
+                const offersQuery = query(
+                    collection(db, 'offers'),
+                    where('targetOwnerId', '==', uid),
+                    where('status', '==', 'pending'),
+                    orderBy('createdAt', 'desc')
+                );
 
-                    const snapshot = await getDocs(offersQuery);
+                state.unsubscribeOffersListener = onSnapshot(offersQuery, (snapshot) => {
                     const offers = [];
-
                     snapshot.forEach(docSnap => {
                         const data = docSnap.data();
-                        
-                        // Calculamos los valores para renderizar fácilmente
                         const totalOfferedValue = data.offeredItems.reduce((sum, item) => sum + item.value, 0) + data.additionalCop;
                         const yourValue = data.targetItem.value;
 
                         offers.push({
                             id: docSnap.id,
-                            fromUser: {
-                                name: data.proposerName,
-                                profilePic: data.proposerProfilePic,
-                            },
+                            fromUser: { name: data.proposerName, profilePic: data.proposerProfilePic },
                             forYourItem: data.targetItem,
                             theirItems: data.offeredItems,
                             additionalCop: data.additionalCop,
@@ -2935,18 +2940,17 @@
                             difference: totalOfferedValue - yourValue
                         });
                     });
-                    
-                    offers.sort((a, b) => b.createdAt - a.createdAt); // Ordenar por fecha si es necesario
+
                     state.receivedOffers = offers;
                     ofertasCount.textContent = offers.length;
                     renderReceivedOffers();
-                    
-                } catch (error) {
-                    console.error("Error al cargar ofertas recibidas:", error);
+
+                }, (error) => {
+                    console.error("Error al escuchar ofertas en tiempo real:", error);
                     state.receivedOffers = [];
                     ofertasCount.textContent = 0;
                     renderReceivedOffers();
-                }
+                });
             }
             
             /**
@@ -4238,6 +4242,8 @@
                         },
                     };
                     state.profilePicFile = null;
+                    if (state.unsubscribeOffersListener) state.unsubscribeOffersListener();
+                    if (state.unsubscribeChatsListener) state.unsubscribeChatsListener();
                     updateAuthUI();
                     showPage(DEFAULT_PAGE_ID);
                 }
@@ -5147,17 +5153,20 @@ async function handleAdminBannerUpload(event) {
                 }
             }
 
-            async function loadAndRenderActiveChats(uid) {
+            function loadAndRenderActiveChats(uid) {
                 const chatsContainer = document.getElementById('chats-activos-container');
+                if (state.unsubscribeChatsListener) {
+                    state.unsubscribeChatsListener();
+                }
                 if (!uid || !chatsContainer) return;
 
-                try {
-                    const chatsQuery = query(
-                        collection(db, 'chats'),
-                        where('participants', 'array-contains', uid)
-                    );
-                    const snapshot = await getDocs(chatsQuery);
+                const chatsQuery = query(
+                    collection(db, 'chats'),
+                    where('participants', 'array-contains', uid),
+                    orderBy('lastMessageTimestamp', 'desc')
+                );
 
+                state.unsubscribeChatsListener = onSnapshot(chatsQuery, async (snapshot) => {
                     if (snapshot.empty) {
                         chatsContainer.innerHTML = '<p class="text-gray-500">No tienes chats activos.</p>';
                         return;
@@ -5171,11 +5180,10 @@ async function handleAdminBannerUpload(event) {
                         const itemInfo = chat.itemInfo || {};
 
                         const lastMessage = chat.lastMessage ? escapeHtml(chat.lastMessage) : 'Inicia la conversación...';
-                        const lastMessageTime = chat.lastMessageTimestamp ?
-                            new Date(chat.lastMessageTimestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+                        const lastMessageTime = chat.lastMessageTimestamp ? new Date(chat.lastMessageTimestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
 
                         const userAvatar = createImageLoaderHTML({
-                            src: otherUserInfo.profilePic ? otherUserInfo.profilePic : DEFAULT_PROFILE_PIC,
+                            src: otherUserInfo.profilePic || DEFAULT_PROFILE_PIC,
                             alt: otherUserInfo.name || 'Usuario',
                             wrapperClass: 'w-16 h-16 rounded-full border-4 border-white shadow-lg',
                         });
@@ -5189,11 +5197,7 @@ async function handleAdminBannerUpload(event) {
                                 data-item-id="${escapeHtml(itemInfo.id || '')}"
                                 data-item-name="${escapeHtml(itemInfo.name || 'Artículo')}"
                                 data-item-image="${escapeHtml(itemInfo.imageUrl || DEFAULT_PRODUCT_IMAGE)}">
-
-                                <div class="flex-shrink-0 mb-3 sm:mb-0 sm:mr-4">
-                                    ${userAvatar}
-                                </div>
-
+                                <div class="flex-shrink-0 mb-3 sm:mb-0 sm:mr-4">${userAvatar}</div>
                                 <div class="flex-1 min-w-0 w-full">
                                     <div class="flex justify-between items-baseline mb-1">
                                         <h4 class="text-lg font-semibold text-gray-900">${escapeHtml(otherUserInfo.name || 'Usuario')}</h4>
@@ -5204,17 +5208,17 @@ async function handleAdminBannerUpload(event) {
                                     </p>
                                     <p class="text-sm text-gray-500 leading-relaxed">${lastMessage}</p>
                                 </div>
-                            </div>
-                        `;
+                            </div>`;
                     });
 
                     const chatHtmls = await Promise.all(chatPromises);
                     chatsContainer.innerHTML = chatHtmls.join('');
-
-                } catch (error) {
-                    console.error("Error al cargar chats activos:", error);
+                    registerLazyImages(chatsContainer);
+                    lucide.createIcons();
+                }, (error) => {
+                    console.error("Error al escuchar chats activos:", error);
                     chatsContainer.innerHTML = '<p class="text-red-500">Error al cargar los chats.</p>';
-                }
+                });
             }
 
             function openChat(chatId, otherUserId, otherUserInfo, itemInfo) {
