@@ -3980,8 +3980,15 @@
                 }
             });
 
-            if (btnActivarNotificaciones) {
-                btnActivarNotificaciones.addEventListener('click', solicitarPermisoNotificaciones);
+            // Use event delegation on a static parent to ensure the listener works
+            // even if the button is rendered dynamically or replaced.
+            const perfilPage = document.getElementById('page-perfil');
+            if (perfilPage) {
+                perfilPage.addEventListener('click', (e) => {
+                    if (e.target.id === 'btn-activar-notificaciones' || e.target.closest('#btn-activar-notificaciones')) {
+                        solicitarPermisoNotificaciones();
+                    }
+                });
             }
             navLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
