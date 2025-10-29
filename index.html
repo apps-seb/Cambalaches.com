@@ -4848,7 +4848,7 @@ async function handleAdminBannerUpload(event) {
                     console.error("No se proporcionó ID de oferta para rechazar.");
                     return;
                 }
-                
+
                 btnConfirmarRechazo.disabled = true;
                 btnConfirmarRechazo.textContent = 'Rechazando...';
 
@@ -4895,15 +4895,15 @@ async function handleAdminBannerUpload(event) {
                         proposerId: originalOffer.targetOwnerId, // Ahora el proponente eres tú
                         proposerName: state.currentUser.name,
                         proposerProfilePic: state.currentUser.profilePic,
-                        
+
                         targetOwnerId: originalOffer.proposerId, // El objetivo es el proponente original
-                        
+
                         // El artículo que querían se convierte en lo que ahora pides
                         targetItem: originalOffer.offeredItems[0], // Asumimos que la contraoferta es sobre el primer item que ofrecieron
-                        
+
                         // Lo que tú tenías es lo que ahora ofreces
                         offeredItems: [originalOffer.targetItem],
-                        
+
                         // La nueva diferencia de dinero que pides
                         additionalCop: newCop,
 
@@ -4996,7 +4996,7 @@ async function handleAdminBannerUpload(event) {
                         const form = negociarBtn.closest('.p-4').querySelector('.negotiation-form');
                         if (form) form.classList.toggle('hidden');
                     }
-                    
+
                     const contraofertaBtn = e.target.closest('.btn-enviar-contraoferta');
                     if (contraofertaBtn) {
                         const offerId = contraofertaBtn.dataset.offerId;
