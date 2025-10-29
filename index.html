@@ -5067,8 +5067,7 @@ async function handleAdminBannerUpload(event) {
 
                 const chatsQuery = query(
                     collection(db, 'chats'),
-                    where('participants', 'array-contains', uid),
-                    orderBy('lastMessageTimestamp', 'desc')
+                    where('participants', 'array-contains', uid)
                 );
 
                 state.unsubscribeChatsListener = onSnapshot(chatsQuery, async (snapshot) => {
@@ -5077,7 +5076,13 @@ async function handleAdminBannerUpload(event) {
                         return;
                     }
 
-                    const chatPromises = snapshot.docs.map(async (docSnap) => {
+                    const sortedDocs = snapshot.docs.sort((a, b) => {
+                        const timeA = a.data().lastMessageTimestamp?.toDate() || 0;
+                        const timeB = b.data().lastMessageTimestamp?.toDate() || 0;
+                        return timeB - timeA;
+                    });
+
+                    const chatPromises = sortedDocs.map(async (docSnap) => {
                         const chat = docSnap.data();
                         const chatId = docSnap.id;
                         const otherUserId = chat.participants.find(p => p !== uid);
