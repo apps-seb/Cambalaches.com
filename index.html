@@ -1009,14 +1009,6 @@
                     </div>
 
                     <div class="space-y-3">
-                        <!-- Nueva sección de notificaciones -->
-                        <div id="datos-perfil-container" class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
-                            <h3 class="font-medium">Notificaciones Push</h3>
-                            <p id="notification-status-text" class="mt-2 text-sm text-gray-600"></p>
-                            <button id="btn-activar-notificaciones" class="w-full px-4 py-2 mt-3 font-medium text-white bg-brand rounded-lg hover:bg-brand-dark">
-                                Activar Notificaciones
-                            </button>
-                        </div>
                         <a href="#" class="flex items-center justify-between w-full p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50">
                             <span class="font-medium">Ayuda y Soporte</span>
                             <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400"></i>
@@ -1406,7 +1398,6 @@
         import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, query, where, serverTimestamp, deleteDoc, increment, orderBy, onSnapshot, updateDoc, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-        import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
         import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
 
         const firebaseConfig = {
@@ -1423,123 +1414,8 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const storage = getStorage(app);
-        const messaging = getMessaging(app);
         const functions = getFunctions(app);
         let analytics;
-
-        // --- GESTIÓN DE NOTIFICACIONES PUSH ---
-
-        /**
-         * Revisa el estado del permiso y actualiza la UI en la página de perfil.
-         */
-        function checkNotificationPermission() {
-            const statusText = document.getElementById('notification-status-text');
-            const activateButton = document.getElementById('btn-activar-notificaciones');
-            if (!statusText || !activateButton) return;
-
-            if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
-                statusText.textContent = 'Este navegador no es compatible con las notificaciones push.';
-                statusText.classList.remove('hidden');
-                activateButton.classList.add('hidden');
-                return;
-            }
-
-            switch (Notification.permission) {
-                case 'granted':
-                    statusText.textContent = 'Ya tienes las notificaciones activadas en este dispositivo.';
-                    statusText.classList.remove('hidden');
-                    activateButton.classList.add('hidden');
-                    break;
-                case 'denied':
-                    statusText.textContent = 'Las notificaciones están bloqueadas. Debes activarlas en la configuración de tu navegador.';
-                    statusText.classList.remove('hidden');
-                    activateButton.classList.add('hidden');
-                    break;
-                default: // 'default'
-                    statusText.textContent = 'Recibe alertas sobre tus canjes y ofertas importantes.';
-                    statusText.classList.remove('hidden');
-                    activateButton.classList.remove('hidden');
-                    break;
-            }
-        }
-
-        /**
-         * Inicia el proceso para solicitar permiso de notificaciones y guardar el token.
-         */
-        async function solicitarPermisoNotificaciones() {
-            const userId = state.currentUser?.uid;
-            if (!userId) {
-                alert("Debes iniciar sesión para activar las notificaciones.");
-                return;
-            }
-
-            const activateButton = document.getElementById('btn-activar-notificaciones');
-            activateButton.disabled = true;
-            activateButton.textContent = 'Procesando...';
-
-            let permissionGranted = false;
-
-            try {
-                const permission = await Notification.requestPermission();
-                if (permission === 'granted') {
-                    permissionGranted = true;
-                    await saveMessagingDeviceToken(userId);
-                } else {
-                     alert("No has concedido los permisos. No recibirás notificaciones.");
-                }
-                checkNotificationPermission();
-            } catch (err) {
-                console.error('No se pudo obtener el permiso para notificar.', err);
-                alert("Ocurrió un error al solicitar el permiso de notificaciones.");
-                checkNotificationPermission();
-            } finally {
-                // Solo restaurar el botón si el permiso no fue concedido
-                if (!permissionGranted) {
-                    activateButton.disabled = false;
-                    activateButton.textContent = 'Activar Notificaciones';
-                }
-            }
-        }
-
-        /**
-         * Obtiene el token de FCM y lo guarda en el perfil del usuario en Firestore.
-         */
-        async function saveMessagingDeviceToken(userId) {
-            try {
-                // The VAPID key provided by the user.
-                const VAPID_KEY = 'BLBxM7CE6zgBH7XxaLlSOJdB0dRz4ZOV3PLyE7iDUmQDo2496Y8qT8OUtj3QUlxjxhtkHajiHfSXeqSI2xQSsFY';
-
-                // Wait for the service worker to be ready.
-                const registration = await navigator.serviceWorker.ready;
-                const currentToken = await getToken(messaging, {
-                    vapidKey: VAPID_KEY,
-                    serviceWorkerRegistration: registration
-                });
-
-                if (currentToken) {
-                    const userDocRef = doc(db, 'users', userId);
-                    // Use setDoc with merge:true to avoid overwriting the whole document
-                    await setDoc(userDocRef, { fcmToken: currentToken }, { merge: true });
-
-                    // Call the new Cloud Function to send a welcome notification
-                    const sendWelcomeNotification = httpsCallable(functions, 'sendWelcomeNotification');
-                    await sendWelcomeNotification();
-
-                    alert("¡Notificaciones activadas con éxito! Recibirás una de bienvenida en breve.");
-
-                } else {
-                    alert("No se pudo obtener el token de notificación. Asegúrate de haber concedido los permisos necesarios en tu navegador.");
-                }
-            } catch (err) {
-                console.error('Error al obtener/guardar el token de FCM:', err);
-                // Provide more specific error messages based on common Firebase errors.
-                if (err.code === 'messaging/notifications-blocked' || err.code === 'messaging/permission-blocked') {
-                    alert("Las notificaciones están bloqueadas en tu navegador. Por favor, habilítalas en la configuración del sitio para continuar.");
-                } else {
-                    alert("Ocurrió un error técnico al activar las notificaciones. Revisa la consola para más detalles.");
-                }
-            }
-        }
 
         document.addEventListener('DOMContentLoaded', async () => {
             try {
@@ -2474,7 +2350,6 @@
             const modalTerminos = document.getElementById('modal-terminos');
             const checkboxTerminos = document.getElementById('checkbox-terminos');
             const btnContinuarChat = document.getElementById('btn-continuar-chat');
-            const btnActivarNotificaciones = document.getElementById('btn-activar-notificaciones');
             const chatWithName = document.getElementById('chat-with-name');
             const chatItemName = document.getElementById('chat-item-name');
             const chatItemImage = document.getElementById('chat-item-image'); // Nuevo
@@ -2515,10 +2390,6 @@
                     window.scrollTo(0, 0);
                 }
                 updateActiveNav(targetPageId);
-
-                if (targetPageId === 'page-perfil' && state.isLoggedIn) {
-                    checkNotificationPermission();
-                }
 
                 if (targetPageId === 'page-chat') {
                     document.body.classList.add('chat-abierto');
@@ -2941,8 +2812,7 @@
                 const offersQuery = query(
                     collection(db, 'offers'),
                     where('targetOwnerId', '==', uid),
-                    where('status', '==', 'pending'),
-                    orderBy('createdAt', 'desc')
+                    where('status', '==', 'pending')
                 );
 
                 state.unsubscribeOffersListener = onSnapshot(offersQuery, (snapshot) => {
@@ -2963,6 +2833,7 @@
                         });
                     });
 
+                    offers.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
                     state.receivedOffers = offers;
                     ofertasCount.textContent = offers.length;
                     renderReceivedOffers();
@@ -3988,13 +3859,6 @@
             // Use event delegation on a static parent to ensure the listener works
             // even if the button is rendered dynamically or replaced.
             const perfilPage = document.getElementById('page-perfil');
-            if (perfilPage) {
-                perfilPage.addEventListener('click', (e) => {
-                    if (e.target.id === 'btn-activar-notificaciones' || e.target.closest('#btn-activar-notificaciones')) {
-                        solicitarPermisoNotificaciones();
-                    }
-                });
-            }
             navLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -4238,7 +4102,6 @@
                     ]);
                     listenForUnreadMessages(user.uid);
                     updateAuthUI();
-                    checkNotificationPermission();
 
                     const urlParams = new URLSearchParams(window.location.search);
                     const pageFromUrl = urlParams.get('page');
@@ -4943,10 +4806,9 @@ async function handleAdminBannerUpload(event) {
                     const retryBtn = e.target.closest('.btn-retry-message');
                     if (retryBtn) {
                         e.preventDefault();
-                        const { tempId, text } = retryBtn.dataset;
-                        if (!tempId || !text) return;
+                        const { tempId, text, retryType } = retryBtn.dataset;
+                        if (!tempId) return;
 
-                        // Actualizar la UI del mensaje a 'sending' de nuevo
                         const failedMessage = chatMessages.querySelector(`[data-message-id="${tempId}"]`);
                         if (failedMessage) {
                             const statusEl = failedMessage.querySelector('.text-right');
@@ -4955,8 +4817,22 @@ async function handleAdminBannerUpload(event) {
                             }
                         }
 
-                        // Reintentar el envío
-                        handleSendMessage(state.activeChatId, text, tempId);
+                        if (retryType === 'image') {
+                            const fileToRetry = window.retryFiles ? window.retryFiles[tempId] : null;
+                            if (fileToRetry) {
+                                uploadChatImageAndSend(fileToRetry);
+                            } else {
+                                console.error("No se encontró el archivo de imagen para reintentar.");
+                                if (failedMessage) {
+                                    const statusEl = failedMessage.querySelector('.text-right');
+                                    if(statusEl) statusEl.innerHTML = `<span class="text-xs text-red-300">Reintento fallido</span>`;
+                                }
+                            }
+                        } else {
+                            if (!text) return;
+                            const payload = { type: 'text', text: text };
+                            handleSendMessage(state.activeChatId, payload, tempId);
+                        }
                     }
                 });
 
@@ -5457,22 +5333,24 @@ async function handleAdminBannerUpload(event) {
             async function uploadChatImageAndSend(file) {
                 if (!file || !state.activeChatId) return;
 
-                const tempId = `temp_${Date.now()}`;
+                const tempId = `temp_${Date.now()}_${Math.random()}`;
                 const reader = new FileReader();
 
-                reader.onload = (e) => {
-                    renderSingleMessage({
-                        id: tempId,
-                        imageUrl: e.target.result,
-                        type: 'image',
-                        isUser: true,
-                        status: 'sending'
-                    });
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                };
-                reader.readAsDataURL(file);
+                // Don't re-render if the optimistic message already exists (from a failed attempt)
+                if (!document.querySelector(`[data-message-id="${tempId}"]`)) {
+                    reader.onload = (e) => {
+                        renderSingleMessage({
+                            id: tempId,
+                            imageUrl: e.target.result,
+                            type: 'image',
+                            isUser: true,
+                            status: 'sending'
+                        });
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    };
+                    reader.readAsDataURL(file);
+                }
 
-                // Store the file reference for retries
                 if (!window.retryFiles) window.retryFiles = {};
                 window.retryFiles[tempId] = file;
 
@@ -5489,6 +5367,9 @@ async function handleAdminBannerUpload(event) {
                     };
                     await handleSendMessage(state.activeChatId, payload, tempId);
 
+                    // Clean up successful upload
+                    delete window.retryFiles[tempId];
+
                 } catch (error) {
                     console.error("Error al subir imagen:", error);
                     const failedMessage = chatMessages.querySelector(`[data-message-id="${tempId}"]`);
@@ -5498,9 +5379,7 @@ async function handleAdminBannerUpload(event) {
                             statusEl.innerHTML = `<button class="text-xs text-red-200 hover:underline btn-retry-message" data-retry-type="image" data-temp-id="${tempId}">Error, reintentar</button>`;
                         }
                     }
-                } finally {
-                    // Clean up the stored file after processing
-                    delete window.retryFiles[tempId];
+                    // Do NOT clean up on failure, so user can retry
                 }
             }
 
@@ -5778,19 +5657,6 @@ async function handleAdminBannerUpload(event) {
                     }
                 }
 
-                // Listener para mensajes del Service Worker (navegación por notificación)
-                navigator.serviceWorker.addEventListener('message', event => {
-                    if (event.data && event.data.type === 'navigate') {
-                        const { page, chatId } = event.data;
-                        if (page === 'page-chat' && chatId) {
-                           openChatFromId(chatId);
-                        } else if (page) {
-                            showPage(page);
-                        }
-                    }
-                });
-
-
                 // Inicializar iconos (MOVIDO AL FINAL)
                 lucide.createIcons();
                 registerLazyImages(document);
@@ -5812,19 +5678,6 @@ async function handleAdminBannerUpload(event) {
             });
         });
 
-    // --- REGISTRO DEL SERVICE WORKER ---
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            // Ajusta la ruta para que sea relativa a la ubicación del index.html
-            navigator.serviceWorker.register('./sw.js')
-                .then(registration => {
-                    console.log('Service Worker registrado con éxito:', registration.scope);
-                })
-                .catch(error => {
-                    console.error('Error en el registro del Service Worker:', error);
-                });
-        });
-    }
     </script>
 
     <!-- Indicador de Estado Offline -->
