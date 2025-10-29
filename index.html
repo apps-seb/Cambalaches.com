@@ -1141,6 +1141,7 @@
             <a href="#" class="nav-link nav-link-mobile mobile-nav-item mobile-nav-item--primary text-gray-600" data-page="page-canjes" aria-label="Mis canjes">
                 <span class="mobile-nav-icon">
                     <i data-lucide="repeat" class="w-5 h-5"></i>
+                    <span id="canjes-notification-bubble" class="absolute top-0 right-0 min-w-4 h-4 px-1 text-xs font-semibold text-white bg-red-600 rounded-full hidden flex items-center justify-center"></span>
                 </span>
                 <span class="mobile-nav-label">Canjes</span>
             </a>
@@ -2837,12 +2838,14 @@
                     state.receivedOffers = offers;
                     ofertasCount.textContent = offers.length;
                     renderReceivedOffers();
+                    updateCanjesBubble();
 
                 }, (error) => {
                     console.error("Error al escuchar ofertas en tiempo real:", error);
                     state.receivedOffers = [];
                     ofertasCount.textContent = 0;
                     renderReceivedOffers();
+                    updateCanjesBubble();
                 });
             }
             
@@ -4136,6 +4139,8 @@
                     state.profilePicFile = null;
                     if (state.unsubscribeOffersListener) state.unsubscribeOffersListener();
                     if (state.unsubscribeChatsListener) state.unsubscribeChatsListener();
+                    state.receivedOffers = []; // Limpiar ofertas al salir
+                    updateCanjesBubble(); // Actualizar (ocultar) burbuja de canjes
                     updateAuthUI();
                     showPage(DEFAULT_PAGE_ID);
                 }
@@ -5430,6 +5435,18 @@ async function handleAdminBannerUpload(event) {
                     chatNotificationBubble.classList.remove('hidden');
                 } else {
                     chatNotificationBubble.classList.add('hidden');
+                }
+            }
+
+            function updateCanjesBubble() {
+                const canjesNotificationBubble = document.getElementById('canjes-notification-bubble');
+                if (!canjesNotificationBubble) return;
+                const count = state.receivedOffers ? state.receivedOffers.length : 0;
+                if (count > 0) {
+                    canjesNotificationBubble.textContent = count > 9 ? '9+' : count.toString();
+                    canjesNotificationBubble.classList.remove('hidden');
+                } else {
+                    canjesNotificationBubble.classList.add('hidden');
                 }
             }
 
