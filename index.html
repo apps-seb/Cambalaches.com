@@ -537,6 +537,27 @@
             </div>
         </div>
     </div>
+    <div id="modal-rechazar-oferta" class="modal hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="modal-backdrop fixed inset-0 bg-black bg-opacity-50"></div>
+        <div class="modal-content relative w-full max-w-sm p-6 bg-white rounded-lg shadow-xl">
+            <button class="modal-close-btn absolute top-4 right-4 p-1 text-gray-500 rounded-full hover:bg-gray-100">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div class="text-center">
+                <i data-lucide="alert-triangle" class="w-12 h-12 mx-auto text-red-500"></i>
+                <h3 class="mt-4 text-xl font-semibold text-gray-900">Rechazar Oferta</h3>
+                <p class="mt-2 text-sm text-gray-600">¿Estás seguro de que quieres rechazar esta oferta? Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mt-6">
+                <button id="btn-cancelar-rechazo" class="px-4 py-2 font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+                    Cancelar
+                </button>
+                <button id="btn-confirmar-rechazo" class="px-4 py-2 font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">
+                    Sí, Rechazar
+                </button>
+            </div>
+        </div>
+    </div>
 
     <div id="app-preloader" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm">
         <div class="preloader-spinner"></div>
@@ -2376,6 +2397,9 @@
             const cartPageClearBtn = document.getElementById('cart-page-clear');
             const cartPageFeedbackEl = document.getElementById('cart-page-feedback');
             const chatNotificationBubble = document.getElementById('chat-notification-bubble');
+            const modalRechazarOferta = document.getElementById('modal-rechazar-oferta');
+            const btnConfirmarRechazo = document.getElementById('btn-confirmar-rechazo');
+            const btnCancelarRechazo = document.getElementById('btn-cancelar-rechazo');
 
             // --- FUNCIONES ---
 
@@ -3453,7 +3477,7 @@
                                     Aceptar Canje
                                 </button>
                                 <button class="flex-1 btn-negociar px-4 py-2 text-sm font-medium text-white transition-colors bg-brand rounded-lg hover:bg-brand-dark">Negociar</button>
-                                <button class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 transition-colors bg-gray-100 rounded-lg hover:bg-gray-200">Rechazar</button>
+                                <button class="btn-rechazar flex-1 px-4 py-2 text-sm font-medium text-gray-700 transition-colors bg-gray-100 rounded-lg hover:bg-gray-200" data-offer-id="${offer.id}">Rechazar</button>
                             </div>
 
                             <div class="hidden p-4 mt-4 bg-gray-50 border border-gray-200 rounded-lg negotiation-form">
@@ -3464,7 +3488,7 @@
                                     <input type="number" id="contra-oferta-cop-${offer.id}" class="w-full mt-1 border-gray-300 rounded-lg shadow-sm focus:border-brand focus:ring-brand" placeholder="Ej: 50000">
                                 </div>
                                 <div class="mt-3">
-                                    <button class="px-4 py-2 text-sm font-medium text-white bg-brand rounded-lg hover:bg-brand-dark">Enviar Contraoferta</button>
+                                    <button class="btn-enviar-contraoferta px-4 py-2 text-sm font-medium text-white bg-brand rounded-lg hover:bg-brand-dark" data-offer-id="${offer.id}">Enviar Contraoferta</button>
                                 </div>
                             </div>
                         </div>
@@ -4805,6 +4829,120 @@ async function handleAdminBannerUpload(event) {
             /**
              * NUEVO: Listeners delegados para contenido dinámico
              */
+            function openRejectModal(offerId) {
+                if (!modalRechazarOferta) return;
+                // Guardar el ID de la oferta en el botón de confirmación
+                btnConfirmarRechazo.dataset.offerId = offerId;
+                modalRechazarOferta.classList.remove('hidden');
+                modalRechazarOferta.classList.add('open');
+            }
+
+            function closeRejectModal() {
+                if (!modalRechazarOferta) return;
+                modalRechazarOferta.classList.add('hidden');
+                modalRechazarOferta.classList.remove('open');
+            }
+
+            async function handleRejectOffer(offerId) {
+                if (!offerId) {
+                    console.error("No se proporcionó ID de oferta para rechazar.");
+                    return;
+                }
+
+                btnConfirmarRechazo.disabled = true;
+                btnConfirmarRechazo.textContent = 'Rechazando...';
+
+                try {
+                    const offerRef = doc(db, 'offers', offerId);
+                    await updateDoc(offerRef, {
+                        status: 'rejected'
+                    });
+                    // El listener onSnapshot se encargará de remover la tarjeta de la UI
+                    closeRejectModal();
+                } catch (error) {
+                    console.error("Error al rechazar la oferta:", error);
+                    alert("No se pudo rechazar la oferta. Inténtalo de nuevo.");
+                } finally {
+                    btnConfirmarRechazo.disabled = false;
+                    btnConfirmarRechazo.textContent = 'Sí, Rechazar';
+                }
+            }
+
+            async function handleCounterOffer(offerId, buttonEl) {
+                if (!offerId || !state.isLoggedIn) {
+                    alert("Error: No se pudo identificar la oferta o no has iniciado sesión.");
+                    return;
+                }
+
+                const form = buttonEl.closest('.negotiation-form');
+                const input = form.querySelector('input[type="number"]');
+                const newCop = Number(input.value) || 0;
+
+                buttonEl.disabled = true;
+                buttonEl.textContent = 'Enviando...';
+
+                try {
+                    const offerRef = doc(db, 'offers', offerId);
+                    const offerSnap = await getDoc(offerRef);
+                    if (!offerSnap.exists()) {
+                        throw new Error("La oferta original ya no existe.");
+                    }
+                    const originalOffer = offerSnap.data();
+
+                    // Lógica de la contraoferta: Invertir los roles y actualizar valores.
+                    const counterOfferPayload = {
+                        // Se invierten los participantes
+                        proposerId: originalOffer.targetOwnerId, // Ahora el proponente eres tú
+                        proposerName: state.currentUser.name,
+                        proposerProfilePic: state.currentUser.profilePic,
+
+                        targetOwnerId: originalOffer.proposerId, // El objetivo es el proponente original
+
+                        // El artículo que querían se convierte en lo que ahora pides
+                        targetItem: originalOffer.offeredItems[0], // Asumimos que la contraoferta es sobre el primer item que ofrecieron
+
+                        // Lo que tú tenías es lo que ahora ofreces
+                        offeredItems: [originalOffer.targetItem],
+
+                        // La nueva diferencia de dinero que pides
+                        additionalCop: newCop,
+
+                        status: 'pending', // Se mantiene pendiente para que el otro usuario la vea
+                        isCounterOffer: true, // ¡Marcar como contraoferta!
+                        negotiationHistory: [
+                            ...(originalOffer.negotiationHistory || []),
+                            {
+                                from: originalOffer.proposerId,
+                                to: originalOffer.targetOwnerId,
+                                offered: originalOffer.offeredItems,
+                                requested: originalOffer.targetItem,
+                                cop: originalOffer.additionalCop,
+                                timestamp: originalOffer.createdAt
+                            }
+                        ],
+                        updatedAt: serverTimestamp()
+                    };
+
+                    await updateDoc(offerRef, counterOfferPayload);
+
+                    buttonEl.textContent = 'Contraoferta Enviada';
+                    buttonEl.classList.add('bg-green-600');
+                    setTimeout(() => {
+                        form.classList.add('hidden');
+                        buttonEl.disabled = false;
+                        buttonEl.textContent = 'Enviar Contraoferta';
+                        buttonEl.classList.remove('bg-green-600');
+                        input.value = '';
+                    }, 2500);
+
+                } catch (error) {
+                    console.error("Error al enviar la contraoferta:", error);
+                    alert(`Error: ${error.message}`);
+                    buttonEl.disabled = false;
+                    buttonEl.textContent = 'Enviar Contraoferta';
+                }
+            }
+
             function setupDelegatedListeners() {
                 // Listener para el botón "Reintentar" en mensajes fallidos
                 chatMessages.addEventListener('click', (e) => {
@@ -4847,11 +4985,22 @@ async function handleAdminBannerUpload(event) {
                         const { userName, itemName, itemImage, offerId } = aceptarBtn.dataset;
                         openTerminosModal(userName, itemName, itemImage, offerId);
                     }
+                    const rechazarBtn = e.target.closest('.btn-rechazar');
+                    if (rechazarBtn) {
+                        const offerId = rechazarBtn.dataset.offerId;
+                        openRejectModal(offerId);
+                    }
 
                     const negociarBtn = e.target.closest('.btn-negociar');
                     if (negociarBtn) {
                         const form = negociarBtn.closest('.p-4').querySelector('.negotiation-form');
                         if (form) form.classList.toggle('hidden');
+                    }
+
+                    const contraofertaBtn = e.target.closest('.btn-enviar-contraoferta');
+                    if (contraofertaBtn) {
+                        const offerId = contraofertaBtn.dataset.offerId;
+                        handleCounterOffer(offerId, contraofertaBtn);
                     }
                 });
 
@@ -5629,6 +5778,15 @@ async function handleAdminBannerUpload(event) {
                 // --- NUEVAS LLAMADAS DE INICIALIZACIÓN ---
                 populateCategoryList();
                 populateCategorySelect();
+
+                // Listeners para el modal de rechazo
+                btnCancelarRechazo.addEventListener('click', closeRejectModal);
+                modalRechazarOferta.querySelector('.modal-backdrop').addEventListener('click', closeRejectModal);
+                modalRechazarOferta.querySelector('.modal-close-btn').addEventListener('click', closeRejectModal);
+                btnConfirmarRechazo.addEventListener('click', () => {
+                    const offerId = btnConfirmarRechazo.dataset.offerId;
+                    handleRejectOffer(offerId);
+                });
                 
                 // Renderizar contenido dinámico
                 renderProducts(); // Renderiza los productos iniciales
