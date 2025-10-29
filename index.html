@@ -772,6 +772,9 @@
                             <button class="px-1 py-3 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 whitespace-nowrap canje-tab-btn" data-tab="tab-mis-articulos">
                                 Mis Artículos (<span id="mis-articulos-count">0</span>)
                             </button>
+                            <button class="px-1 py-3 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 whitespace-nowrap canje-tab-btn" data-tab="tab-ofertas-enviadas">
+                                Ofertas Enviadas (<span id="ofertas-enviadas-count">0</span>)
+                            </button>
                         </nav>
                     </div>
                     
@@ -782,6 +785,10 @@
                         
                         <div id="tab-mis-articulos" class="canje-tab-content hidden space-y-4">
                             <p class="text-gray-500">No has publicado ningún artículo.</p>
+                        </div>
+
+                        <div id="tab-ofertas-enviadas" class="canje-tab-content hidden space-y-4">
+                            <p class="text-gray-500">No has enviado ninguna oferta.</p>
                         </div>
                     </div>
                 </div>
@@ -1493,6 +1500,7 @@
                 allProducts: [],
                 banners: [],
                 receivedOffers: [],
+                sentOffers: [],
                 itemToSwap: null,
                 editingTimerSlide: null,
                 productFiles: [],
@@ -2365,8 +2373,10 @@
             const explorarProductGrid = document.getElementById('explorar-product-grid');
             const tabOfertas = document.getElementById('tab-ofertas');
             const tabMisArticulos = document.getElementById('tab-mis-articulos');
+            const tabOfertasEnviadas = document.getElementById('tab-ofertas-enviadas');
             const ofertasCount = document.getElementById('ofertas-count');
             const misArticulosCount = document.getElementById('mis-articulos-count');
+            const ofertasEnviadasCount = document.getElementById('ofertas-enviadas-count');
             const mostViewedContainer = document.getElementById('most-viewed-container');
             const sidebarCartItemsEl = document.getElementById('sidebar-cart-items');
             const modalTerminos = document.getElementById('modal-terminos');
@@ -2487,9 +2497,11 @@
                     // Actualizar contadores
                     ofertasCount.textContent = state.receivedOffers.length;
                     misArticulosCount.textContent = (state.currentUser.items || []).length;
+                    ofertasEnviadasCount.textContent = (state.sentOffers || []).length;
                     // Renderizar contenido dinámico del usuario
                     renderReceivedOffers();
                     renderMyItems();
+                    renderSentOffers();
 
                 } else {
                     // Vista Perfil
@@ -2870,6 +2882,53 @@
                     ofertasCount.textContent = 0;
                     renderReceivedOffers();
                     updateCanjesBubble();
+                });
+            }
+
+            function loadSentOffers(uid) {
+                if (state.unsubscribeSentOffersListener) {
+                    state.unsubscribeSentOffersListener();
+                }
+                if (!uid) {
+                    state.sentOffers = [];
+                    if (ofertasEnviadasCount) ofertasEnviadasCount.textContent = 0;
+                    renderSentOffers();
+                    return;
+                }
+
+                state.sentOffers = null;
+                renderSentOffers();
+
+                const offersQuery = query(
+                    collection(db, 'offers'),
+                    where('proposerId', '==', uid)
+                );
+
+                state.unsubscribeSentOffersListener = onSnapshot(offersQuery, (snapshot) => {
+                    const offers = [];
+                    snapshot.forEach(docSnap => {
+                        const data = docSnap.data();
+                        offers.push({
+                            id: docSnap.id,
+                            toUser: data.targetOwnerName || 'Usuario', // Necesitarás el nombre del dueño del item
+                            forItem: data.targetItem,
+                            offeredItems: data.offeredItems,
+                            additionalCop: data.additionalCop,
+                            status: data.status, // pending, accepted, rejected
+                            createdAt: data.createdAt,
+                        });
+                    });
+
+                    offers.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+                    state.sentOffers = offers;
+                    if (ofertasEnviadasCount) ofertasEnviadasCount.textContent = offers.length;
+                    renderSentOffers();
+
+                }, (error) => {
+                    console.error("Error al escuchar ofertas enviadas en tiempo real:", error);
+                    state.sentOffers = [];
+                    if (ofertasEnviadasCount) ofertasEnviadasCount.textContent = 0;
+                    renderSentOffers();
                 });
             }
             
@@ -4124,6 +4183,7 @@
                     await Promise.all([
                         loadUserItems(user.uid),
                         loadReceivedOffers(user.uid),
+                        loadSentOffers(user.uid),
                         loadAndRenderActiveChats(user.uid),
                         loadAllProducts()
                     ]);
@@ -4162,8 +4222,10 @@
                     };
                     state.profilePicFile = null;
                     if (state.unsubscribeOffersListener) state.unsubscribeOffersListener();
+                    if (state.unsubscribeSentOffersListener) state.unsubscribeSentOffersListener();
                     if (state.unsubscribeChatsListener) state.unsubscribeChatsListener();
                     state.receivedOffers = []; // Limpiar ofertas al salir
+                    state.sentOffers = [];
                     updateCanjesBubble(); // Actualizar (ocultar) burbuja de canjes
                     updateAuthUI();
                     showPage(DEFAULT_PAGE_ID);
@@ -4742,6 +4804,66 @@
             /**
              * Maneja la subida de un nuevo banner por parte del admin.
              */
+
+            function renderSentOffers() {
+                if (!tabOfertasEnviadas) return;
+                tabOfertasEnviadas.innerHTML = ''; // Limpiar
+
+                if (state.sentOffers === null) {
+                    const skeletonHtml = `
+                        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm space-y-3">
+                            <div class="w-3/4 h-4 skeleton rounded"></div>
+                            <div class="w-1/2 h-3 skeleton rounded"></div>
+                            <div class="flex justify-end">
+                                <div class="w-24 h-8 skeleton rounded-full"></div>
+                            </div>
+                        </div>
+                    `;
+                    tabOfertasEnviadas.innerHTML = skeletonHtml;
+                    return;
+                }
+
+                if (!state.sentOffers || state.sentOffers.length === 0) {
+                    tabOfertasEnviadas.innerHTML = '<p class="text-gray-500">No has enviado ninguna oferta.</p>';
+                    return;
+                }
+
+                state.sentOffers.forEach(offer => {
+                    const statusClasses = {
+                        pending: 'bg-yellow-100 text-yellow-800',
+                        accepted: 'bg-green-100 text-green-800',
+                        rejected: 'bg-red-100 text-red-800',
+                    };
+                    const statusText = {
+                        pending: 'Pendiente',
+                        accepted: 'Aceptada',
+                        rejected: 'Rechazada',
+                    };
+
+                    const offerHtml = `
+                        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+                            <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+                                <div>
+                                    <p class="text-sm text-gray-500">Enviada a: <span class="font-medium text-gray-900">${escapeHtml(offer.toUser)}</span></p>
+                                    <p class="text-sm text-gray-500">Por el artículo: <span class="font-medium text-brand-dark">${escapeHtml(offer.forItem.name)}</span></p>
+                                </div>
+                                <span class="text-xs font-semibold px-2 py-1 rounded-full ${statusClasses[offer.status] || 'bg-gray-100 text-gray-800'}">
+                                    ${statusText[offer.status] || 'Desconocido'}
+                                </span>
+                            </div>
+                            <div class="mt-3">
+                                <p class="text-sm font-medium">Ofreciste:</p>
+                                <ul class="list-disc list-inside text-sm text-gray-600 mt-1">
+                                    ${offer.offeredItems.map(item => `<li>${escapeHtml(item.name)} (${formatCOP(item.value)})</li>`).join('')}
+                                    ${offer.additionalCop > 0 ? `<li>Dinero adicional: ${formatCOP(offer.additionalCop)}</li>` : ''}
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                    tabOfertasEnviadas.insertAdjacentHTML('beforeend', offerHtml);
+                });
+            }
+
 
 async function handleAdminBannerUpload(event) {
     console.log('Verificando UID del usuario actual:', auth.currentUser.uid); // <-- AÑADE ESTA LÍNEA
