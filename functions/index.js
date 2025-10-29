@@ -16,7 +16,7 @@ exports.sendOfferNotification = functions.firestore
 
         // 1. Obtener los datos necesarios de la oferta
         const proposerName = offerData.proposerName;
-        const targetOwnerId = offerData.targetItem.targetOwnerId;
+        const targetOwnerId = offerData.targetOwnerId;
 
         if (!targetOwnerId) {
             console.log("No se encontró el ID del dueño del artículo. No se puede enviar notificación.");
@@ -46,7 +46,7 @@ exports.sendOfferNotification = functions.firestore
                 icon: '/icons/icon-192x192.png'
             },
             data: {
-                click_action: 'page-canjes' // Acción para que el frontend abra la página correcta
+                url: '/?page=page-canjes' // URL completa para que el SW la abra
             }
         };
 
@@ -117,8 +117,7 @@ exports.sendMessageNotification = functions.firestore
                 icon: '/icons/icon-192x192.png'
             },
             data: {
-                click_action: 'page-chat',
-                chatId: chatId // Enviar el ID del chat para abrirlo directamente
+                url: `/?page=page-chat&chatId=${chatId}` // URL completa para deep linking
             }
         };
 
@@ -133,3 +132,54 @@ exports.sendMessageNotification = functions.firestore
 
         return null;
     });
+
+/**
+ * Cloud Function invocable desde el cliente para enviar una notificación de bienvenida.
+ * Se utiliza para confirmar que las notificaciones están configuradas correctamente.
+ */
+exports.sendWelcomeNotification = functions.https.onCall(async (data, context) => {
+    // 1. Verificar que el usuario esté autenticado
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'La función solo puede ser llamada por un usuario autenticado.');
+    }
+
+    const userId = context.auth.uid;
+    console.log(`Iniciando notificación de bienvenida para el usuario: ${userId}`);
+
+    // 2. Obtener el token FCM del documento del usuario
+    const userDocRef = admin.firestore().collection('users').doc(userId);
+    const userDoc = await userDocRef.get();
+
+    if (!userDoc.exists) {
+        throw new functions.https.HttpsError('not-found', 'No se encontró el documento del usuario.');
+    }
+
+    const fcmToken = userDoc.data().fcmToken;
+    if (!fcmToken) {
+        throw new functions.https.HttpsError('failed-precondition', 'El usuario no tiene un token de FCM registrado.');
+    }
+
+    // 3. Construir la notificación de bienvenida
+    const payload = {
+        notification: {
+            title: '¡Bienvenido a Mercado Canje!',
+            body: 'Tus notificaciones están activadas. ¡Ya estás listo para recibir ofertas!',
+            icon: '/icons/icon-192x192.png'
+        },
+        data: {
+            // Se puede usar 'url' para que el Service Worker lo abra directamente
+            url: '/'
+        }
+    };
+
+    // 4. Enviar la notificación
+    try {
+        console.log(`Enviando notificación de bienvenida a ${userId} con token ${fcmToken}`);
+        await admin.messaging().sendToDevice(fcmToken, payload);
+        console.log('Notificación de bienvenida enviada con éxito.');
+        return { success: true, message: 'Notificación enviada.' };
+    } catch (error) {
+        console.error('Error al enviar la notificación de bienvenida:', error);
+        throw new functions.https.HttpsError('internal', 'No se pudo enviar la notificación.', error);
+    }
+});
