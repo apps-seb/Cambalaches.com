@@ -541,6 +541,28 @@
             </div>
         </div>
     </div>
+
+    <div id="modal-eliminar-oferta-enviada" class="modal hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="modal-backdrop fixed inset-0 bg-black bg-opacity-50"></div>
+        <div class="modal-content relative w-full max-w-sm p-6 bg-white rounded-lg shadow-xl">
+            <button class="modal-close-btn absolute top-4 right-4 p-1 text-gray-500 rounded-full hover:bg-gray-100">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div class="text-center">
+                <i data-lucide="trash-2" class="w-12 h-12 mx-auto text-red-500"></i>
+                <h3 class="mt-4 text-xl font-semibold text-gray-900">Eliminar Oferta Enviada</h3>
+                <p class="mt-2 text-sm text-gray-600">¿Estás seguro de que quieres eliminar esta oferta? Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mt-6">
+                <button id="btn-cancelar-eliminar-oferta" class="px-4 py-2 font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+                    Cancelar
+                </button>
+                <button id="btn-confirmar-eliminar-oferta" class="px-4 py-2 font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">
+                    Sí, Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
     <div id="modal-rechazar-oferta" class="modal hidden fixed inset-0 z-50 flex items-center justify-center p-4">
         <div class="modal-backdrop fixed inset-0 bg-black bg-opacity-50"></div>
         <div class="modal-content relative w-full max-w-sm p-6 bg-white rounded-lg shadow-xl">
@@ -679,9 +701,8 @@
         <header class="sticky top-0 z-10 flex items-center justify-between px-4 bg-brand shadow-sm md:px-6 pb-3">
             <!-- Logo a la izquierda -->
             <div class="flex items-center">
-                 <img id="header-logo" src="https://placehold.co/120x40/7d31d2/FFFFFF?text=CanjeApp" alt="Logo" class="h-8 cursor-pointer admin-logo-editable">
+                 <img id="header-logo" src="https://placehold.co/120x40/7d31d2/FFFFFF" alt="Logo" class="h-8 w-24 object-contain cursor-pointer admin-logo-editable">
                  <input type="file" id="logo-file-input" class="hidden" accept="image/*">
-                 <span id="admin-badge" class="hidden ml-2 px-3 py-1 text-xs font-semibold text-white bg-red-600 rounded-full">ADMIN</span>
             </div>
 
             <!-- Buscador en el centro (visible en móvil) -->
@@ -767,22 +788,47 @@
                 </div>
 
                 <div id="canjes-content" class="">
-                    <h2 class="mb-6 text-3xl font-bold text-gray-900 sm:text-4xl">Mis Canjes</h2>
-                    <div class="border-b border-gray-200">
-                        <nav class="flex -mb-px space-x-6" aria-label="Tabs">
-                            <button class="px-1 py-3 text-sm font-medium text-brand border-b-2 border-brand whitespace-nowrap canje-tab-btn" data-tab="tab-ofertas">
-                                Ofertas Recibidas (<span id="ofertas-count">0</span>)
-                            </button>
-                            <button class="px-1 py-3 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 whitespace-nowrap canje-tab-btn" data-tab="tab-mis-articulos">
-                                Mis Artículos (<span id="mis-articulos-count">0</span>)
-                            </button>
-                            <button class="px-1 py-3 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 whitespace-nowrap canje-tab-btn" data-tab="tab-ofertas-enviadas">
-                                Ofertas Enviadas (<span id="ofertas-enviadas-count">0</span>)
-                            </button>
-                        </nav>
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl">Mis Canjes</h2>
+                        <button id="btn-back-to-cards" class="hidden items-center gap-2 text-sm font-semibold text-brand hover:text-brand-dark">
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                            Volver
+                        </button>
+                    </div>
+
+                    <div id="canjes-cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Card 1: Ofertas Recibidas -->
+                        <div class="canje-card group relative flex flex-col items-start p-5 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-shadow cursor-pointer" data-tab="tab-ofertas">
+                            <div class="absolute top-4 right-4 h-10 w-10 flex items-center justify-center bg-blue-100 rounded-lg text-blue-600">
+                                <i data-lucide="inbox" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900">Ofertas Recibidas</h3>
+                            <p class="mt-1 text-sm text-gray-500">Propuestas de otros usuarios por tus artículos.</p>
+                            <span class="mt-4 text-2xl font-bold text-blue-600"><span id="ofertas-count">0</span></span>
+                        </div>
+
+                        <!-- Card 2: Ofertas Enviadas -->
+                        <div class="canje-card group relative flex flex-col items-start p-5 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-shadow cursor-pointer" data-tab="tab-ofertas-enviadas">
+                            <div class="absolute top-4 right-4 h-10 w-10 flex items-center justify-center bg-green-100 rounded-lg text-green-600">
+                                <i data-lucide="send" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900">Ofertas Enviadas</h3>
+                            <p class="mt-1 text-sm text-gray-500">Tus propuestas por artículos de otros.</p>
+                            <span class="mt-4 text-2xl font-bold text-green-600"><span id="ofertas-enviadas-count">0</span></span>
+                        </div>
+
+                        <!-- Card 3: Mis Artículos -->
+                        <div class="canje-card group relative flex flex-col items-start p-5 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-shadow cursor-pointer" data-tab="tab-mis-articulos">
+                            <div class="absolute top-4 right-4 h-10 w-10 flex items-center justify-center bg-purple-100 rounded-lg text-purple-600">
+                                <i data-lucide="package" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900">Mis Artículos</h3>
+                            <p class="mt-1 text-sm text-gray-500">Los artículos que has publicado para canjear.</p>
+                            <span class="mt-4 text-2xl font-bold text-purple-600"><span id="mis-articulos-count">0</span></span>
+                        </div>
                     </div>
                     
-                    <div class="mt-6">
+                    <div id="canjes-details-container" class="mt-6 hidden">
                         <div id="tab-ofertas" class="canje-tab-content space-y-4">
                             <p class="text-gray-500">No tienes ofertas recibidas.</p>
                         </div>
@@ -2264,8 +2310,11 @@
             const navLinks = document.querySelectorAll('.nav-link');
             const authTabs = document.querySelectorAll('.auth-tab-btn');
             const authTabContents = document.querySelectorAll('.auth-tab-content');
-            const canjeTabs = document.querySelectorAll('.canje-tab-btn');
+            const canjeCards = document.querySelectorAll('.canje-card');
             const canjeTabContents = document.querySelectorAll('.canje-tab-content');
+            const canjesCardsContainer = document.getElementById('canjes-cards-container');
+            const canjesDetailsContainer = document.getElementById('canjes-details-container');
+            const btnBackToCards = document.getElementById('btn-back-to-cards');
             const bodyEl = document.body;
             
             // Elementos de autenticación
@@ -2349,7 +2398,6 @@
             const mobileMenuPanel = document.getElementById('mobile-menu-panel');
             const mobileMenuBackdrop = document.getElementById('mobile-menu-backdrop');
             const mobileMenuLinks = document.querySelectorAll('.nav-link-mobile-menu');
-            const adminBadge = document.getElementById('admin-badge');
             
             const uploadCoverBtn = document.getElementById('upload-cover-btn');
             const coverFileInput = document.getElementById('cover-file-input');
@@ -2412,7 +2460,9 @@
             const modalRechazarOferta = document.getElementById('modal-rechazar-oferta');
             const btnConfirmarRechazo = document.getElementById('btn-confirmar-rechazo');
             const btnCancelarRechazo = document.getElementById('btn-cancelar-rechazo');
-
+            const modalEliminarOfertaEnviada = document.getElementById('modal-eliminar-oferta-enviada');
+            const btnConfirmarEliminarOferta = document.getElementById('btn-confirmar-eliminar-oferta');
+            const btnCancelarEliminarOferta = document.getElementById('btn-cancelar-eliminar-oferta');
             // --- FUNCIONES ---
 
             /**
@@ -2487,11 +2537,9 @@
                     // Lógica de Admin
                     const headerLogo = document.getElementById('header-logo');
                     if (state.isAdmin) {
-                        adminBadge.classList.remove('hidden');
                         document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
                         if (headerLogo) headerLogo.classList.add('is-admin');
                     } else {
-                        adminBadge.classList.add('hidden');
                         document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
                         if (headerLogo) headerLogo.classList.remove('is-admin');
                     }
@@ -2906,20 +2954,40 @@
                     where('proposerId', '==', uid)
                 );
 
-                state.unsubscribeSentOffersListener = onSnapshot(offersQuery, (snapshot) => {
-                    const offers = [];
-                    snapshot.forEach(docSnap => {
+                state.unsubscribeSentOffersListener = onSnapshot(offersQuery, async (snapshot) => {
+                    const offerPromises = snapshot.docs.map(async (docSnap) => {
                         const data = docSnap.data();
-                        offers.push({
+                        let toUser = {
+                            name: data.targetOwnerName || 'Usuario',
+                            profilePic: DEFAULT_PROFILE_PIC
+                        };
+
+                        // Cargar datos del destinatario para obtener el avatar
+                        if (data.targetOwnerId) {
+                            try {
+                                const userDoc = await getDoc(doc(db, 'users', data.targetOwnerId));
+                                if (userDoc.exists()) {
+                                    const userData = userDoc.data();
+                                    toUser.name = userData.name || toUser.name;
+                                    toUser.profilePic = userData.profilePic || toUser.profilePic;
+                                }
+                            } catch (e) {
+                                console.warn(`No se pudo cargar el perfil para el usuario ${data.targetOwnerId}`, e);
+                            }
+                        }
+
+                        return {
                             id: docSnap.id,
-                            toUser: data.targetOwnerName || 'Usuario', // Necesitarás el nombre del dueño del item
+                            toUser: toUser,
                             forItem: data.targetItem,
                             offeredItems: data.offeredItems,
                             additionalCop: data.additionalCop,
-                            status: data.status, // pending, accepted, rejected
+                            status: data.status,
                             createdAt: data.createdAt,
-                        });
+                        };
                     });
+
+                    const offers = await Promise.all(offerPromises);
 
                     offers.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
                     state.sentOffers = offers;
@@ -4103,19 +4171,29 @@
                 });
             });
 
-            // Tabs de "Mis Canjes"
-            canjeTabs.forEach(tab => {
-                tab.addEventListener('click', (e) => {
+            // Nueva lógica para las tarjetas de "Mis Canjes"
+            canjeCards.forEach(card => {
+                card.addEventListener('click', (e) => {
                     const targetId = e.currentTarget.dataset.tab;
+
+                    // Ocultar las tarjetas y mostrar el contenedor de detalles
+                    canjesCardsContainer.classList.add('hidden');
+                    canjesDetailsContainer.classList.remove('hidden');
+                    btnBackToCards.classList.remove('hidden');
+
+                    // Ocultar todos los contenidos de tabs y mostrar el correcto
                     canjeTabContents.forEach(content => content.classList.add('hidden'));
-                    canjeTabs.forEach(t => {
-                        t.classList.remove('text-brand', 'border-brand');
-                        t.classList.add('text-gray-500', 'border-transparent');
-                    });
-                    document.getElementById(targetId).classList.remove('hidden');
-                    e.currentTarget.classList.add('text-brand', 'border-brand');
-                    e.currentTarget.classList.remove('text-gray-500', 'border-transparent');
+                    const targetContent = document.getElementById(targetId);
+                    if (targetContent) {
+                        targetContent.classList.remove('hidden');
+                    }
                 });
+            });
+
+            btnBackToCards.addEventListener('click', () => {
+                canjesDetailsContainer.classList.add('hidden');
+                canjesCardsContainer.classList.remove('hidden');
+                btnBackToCards.classList.add('hidden');
             });
 
             // Barra lateral
@@ -4809,19 +4887,10 @@
 
             function renderSentOffers() {
                 if (!tabOfertasEnviadas) return;
-                tabOfertasEnviadas.innerHTML = ''; // Limpiar
+                tabOfertasEnviadas.innerHTML = '';
 
                 if (state.sentOffers === null) {
-                    const skeletonHtml = `
-                        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm space-y-3">
-                            <div class="w-3/4 h-4 skeleton rounded"></div>
-                            <div class="w-1/2 h-3 skeleton rounded"></div>
-                            <div class="flex justify-end">
-                                <div class="w-24 h-8 skeleton rounded-full"></div>
-                            </div>
-                        </div>
-                    `;
-                    tabOfertasEnviadas.innerHTML = skeletonHtml;
+                    // ... (skeleton loader)
                     return;
                 }
 
@@ -4831,6 +4900,12 @@
                 }
 
                 state.sentOffers.forEach(offer => {
+                    const toUserAvatar = createLazyImage({
+                        src: offer.toUser.profilePic,
+                        alt: offer.toUser.name,
+                        wrapperClass: 'w-10 h-10 rounded-full',
+                    });
+
                     const statusClasses = {
                         pending: 'bg-yellow-100 text-yellow-800',
                         accepted: 'bg-green-100 text-green-800',
@@ -4843,27 +4918,38 @@
                     };
 
                     const offerHtml = `
-                        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
-                            <div class="flex items-center justify-between pb-3 border-b border-gray-200">
-                                <div>
-                                    <p class="text-sm text-gray-500">Enviada a: <span class="font-medium text-gray-900">${escapeHtml(offer.toUser)}</span></p>
-                                    <p class="text-sm text-gray-500">Por el artículo: <span class="font-medium text-brand-dark">${escapeHtml(offer.forItem.name)}</span></p>
-                                </div>
-                                <span class="text-xs font-semibold px-2 py-1 rounded-full ${statusClasses[offer.status] || 'bg-gray-100 text-gray-800'}">
-                                    ${statusText[offer.status] || 'Desconocido'}
-                                </span>
-                            </div>
-                            <div class="mt-3">
-                                <p class="text-sm font-medium">Ofreciste:</p>
-                                <ul class="list-disc list-inside text-sm text-gray-600 mt-1">
-                                    ${offer.offeredItems.map(item => `<li>${escapeHtml(item.name)} (${formatCOP(item.value)})</li>`).join('')}
-                                    ${offer.additionalCop > 0 ? `<li>Dinero adicional: ${formatCOP(offer.additionalCop)}</li>` : ''}
-                                </ul>
+                <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+                    <div class="flex items-start justify-between pb-3 border-b border-gray-200">
+                        <div class="flex items-center gap-3">
+                            ${toUserAvatar}
+                            <div>
+                                <p class="text-sm text-gray-500">Enviada a: <span class="font-medium text-gray-900">${escapeHtml(offer.toUser.name)}</span></p>
+                                <p class="text-sm text-gray-500">Por: <span class="font-medium text-brand-dark">${escapeHtml(offer.forItem.name)}</span></p>
                             </div>
                         </div>
-                    `;
+                        <div class="flex flex-col items-end gap-2">
+                            <span class="text-xs font-semibold px-2 py-1 rounded-full ${statusClasses[offer.status] || 'bg-gray-100 text-gray-800'}">
+                                ${statusText[offer.status] || 'Desconocido'}
+                            </span>
+                            <button class="btn-eliminar-oferta-enviada p-1.5 text-gray-500 rounded-full hover:bg-red-100 hover:text-red-600" data-offer-id="${offer.id}" title="Eliminar oferta">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <p class="text-sm font-medium">Ofreciste:</p>
+                        <ul class="list-disc list-inside text-sm text-gray-600 mt-1">
+                            ${offer.offeredItems.map(item => `<li>${escapeHtml(item.name)} (${formatCOP(item.value)})</li>`).join('')}
+                            ${offer.additionalCop > 0 ? `<li>Dinero adicional: ${formatCOP(offer.additionalCop)}</li>` : ''}
+                        </ul>
+                    </div>
+                </div>
+            `;
                     tabOfertasEnviadas.insertAdjacentHTML('beforeend', offerHtml);
                 });
+
+                lucide.createIcons();
+                registerLazyImages(tabOfertasEnviadas);
             }
 
 
@@ -4989,6 +5075,42 @@ async function handleAdminBannerUpload(event) {
                 } finally {
                     btnConfirmarRechazo.disabled = false;
                     btnConfirmarRechazo.textContent = 'Sí, Rechazar';
+                }
+            }
+
+            function openDeleteSentOfferModal(offerId) {
+                if (!modalEliminarOfertaEnviada) return;
+                btnConfirmarEliminarOferta.dataset.offerId = offerId;
+                modalEliminarOfertaEnviada.classList.remove('hidden');
+                modalEliminarOfertaEnviada.classList.add('open');
+            }
+
+            function closeDeleteSentOfferModal() {
+                if (!modalEliminarOfertaEnviada) return;
+                modalEliminarOfertaEnviada.classList.add('hidden');
+                modalEliminarOfertaEnviada.classList.remove('open');
+            }
+
+            async function handleDeleteSentOffer(offerId) {
+                if (!offerId) {
+                    console.error("No se proporcionó ID de oferta para eliminar.");
+                    return;
+                }
+
+                btnConfirmarEliminarOferta.disabled = true;
+                btnConfirmarEliminarOferta.textContent = 'Eliminando...';
+
+                try {
+                    const offerRef = doc(db, 'offers', offerId);
+                    await deleteDoc(offerRef);
+                    // The onSnapshot listener for sent offers will automatically update the UI.
+                    closeDeleteSentOfferModal();
+                } catch (error) {
+                    console.error("Error al eliminar la oferta enviada:", error);
+                    alert("No se pudo eliminar la oferta. Inténtalo de nuevo.");
+                } finally {
+                    btnConfirmarEliminarOferta.disabled = false;
+                    btnConfirmarEliminarOferta.textContent = 'Sí, Eliminar';
                 }
             }
 
@@ -5125,6 +5247,14 @@ async function handleAdminBannerUpload(event) {
                     if (contraofertaBtn) {
                         const offerId = contraofertaBtn.dataset.offerId;
                         handleCounterOffer(offerId, contraofertaBtn);
+                    }
+                });
+
+                tabOfertasEnviadas.addEventListener('click', (e) => {
+                    const eliminarBtn = e.target.closest('.btn-eliminar-oferta-enviada');
+                    if (eliminarBtn) {
+                        const offerId = eliminarBtn.dataset.offerId;
+                        openDeleteSentOfferModal(offerId);
                     }
                 });
 
@@ -5910,6 +6040,14 @@ async function handleAdminBannerUpload(event) {
                 btnConfirmarRechazo.addEventListener('click', () => {
                     const offerId = btnConfirmarRechazo.dataset.offerId;
                     handleRejectOffer(offerId);
+                });
+
+                btnCancelarEliminarOferta.addEventListener('click', closeDeleteSentOfferModal);
+                modalEliminarOfertaEnviada.querySelector('.modal-backdrop').addEventListener('click', closeDeleteSentOfferModal);
+                modalEliminarOfertaEnviada.querySelector('.modal-close-btn').addEventListener('click', closeDeleteSentOfferModal);
+                btnConfirmarEliminarOferta.addEventListener('click', () => {
+                    const offerId = btnConfirmarEliminarOferta.dataset.offerId;
+                    handleDeleteSentOffer(offerId);
                 });
                 
                 // Renderizar contenido dinámico
