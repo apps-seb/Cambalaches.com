@@ -3232,65 +3232,30 @@
             /**
              * Carga la lista de categorías en la sección Explorar. (MODIFICADO)
              */
-            async function populateCategoryList() {
+            function populateCategoryList() {
                 if (!categoryListContainer) return;
-                categoryListContainer.innerHTML = '<p class="text-sm text-gray-500">Cargando categorías...</p>';
-
-                let finalCategories = [];
-
-                try {
-                    const categoriesRef = collection(db, 'categories');
-                    const querySnapshot = await getDocs(query(categoriesRef, orderBy('name')));
-
-                    if (!querySnapshot.empty) {
-                        querySnapshot.forEach(doc => {
-                            finalCategories.push({ id: doc.id, ...doc.data() });
-                        });
-                    } else {
-                        // Fallback to local const if firestore collection is empty or doesn't exist
-                        console.log("Categorías no encontradas en Firestore, usando fallback local.");
-                        finalCategories = [...categories];
-                    }
-                } catch (error) {
-                    console.warn("No se pudieron cargar las categorías desde Firestore, usando fallback local.", error);
-                    finalCategories = [...categories];
-                }
-                
-                categoryListContainer.innerHTML = ''; // Limpiar mensaje de carga
-
-                finalCategories.forEach(cat => {
-                    // Renderizado condicional para imagen o ícono
-                    const iconOrImg = cat.imageUrl 
-                        ? `<img src="${escapeHtml(cat.imageUrl)}" alt="${escapeHtml(cat.name)}" class="w-full h-full object-cover rounded-full">`
-                        : `<i data-lucide="${escapeHtml(cat.icon)}" class="w-8 h-8 text-gray-600 group-hover:text-brand-dark"></i>`;
-
+                categoryListContainer.innerHTML = '';
+                categories.forEach(cat => {
                     const catHtml = `
-                        <a href="#" class="flex flex-col items-center flex-shrink-0 w-24 space-y-2 group category-link" data-category-id="${cat.id}" data-category-name="${escapeHtml(cat.name)}">
-                            <div class="flex items-center justify-center w-16 h-16 bg-white border border-gray-200 rounded-full shadow-sm group-hover:bg-brand-light group-hover:border-brand category-item-icon overflow-hidden">
-                                ${iconOrImg}
+                        <a href="#" class="flex flex-col items-center flex-shrink-0 w-24 space-y-2 group category-link" data-category-id="${cat.id}">
+                            <div class="flex items-center justify-center w-16 h-16 bg-white border border-gray-200 rounded-full shadow-sm group-hover:bg-brand-light group-hover:border-brand category-item-icon">
+                                <i data-lucide="${cat.icon}" class="w-8 h-8 text-gray-600 group-hover:text-brand-dark"></i>
                             </div>
-                            <span class="text-sm font-medium text-gray-700">${escapeHtml(cat.name)}</span>
+                            <span class="text-sm font-medium text-gray-700">${cat.name}</span>
                         </a>
                     `;
                     categoryListContainer.insertAdjacentHTML('beforeend', catHtml);
                 });
 
-                // Añadir listeners para rastrear vistas y para subidas de admin
+                // Añadir listeners para rastrear vistas
                 categoryListContainer.querySelectorAll('.category-link').forEach(link => {
                     link.addEventListener('click', (e) => {
                         e.preventDefault();
-                        const categoryId = e.currentTarget.dataset.categoryId;
-                        const categoryName = e.currentTarget.dataset.categoryName;
-                        
-                        if (state.isAdmin) {
-                            handleCategoryClick(categoryId, categoryName, e.currentTarget);
-                        }
-                        
-                        logCategoryView(categoryId);
+                        logCategoryView(e.currentTarget.dataset.categoryId);
                     });
                 });
 
-                lucide.createIcons();
+                lucide.createIcons(); // Renderizar nuevos iconos
             }
 
             /**
@@ -4497,74 +4462,6 @@
                 }
             });
 
-            // --- LÓGICA DE SUBIDA DE IMAGEN DE CATEGORÍA (ADMIN) ---
-            
-            // Input de archivo oculto para la subida.
-            const categoryFileInput = document.createElement('input');
-            categoryFileInput.type = 'file';
-            categoryFileInput.accept = 'image/*';
-            categoryFileInput.style.display = 'none';
-            document.body.appendChild(categoryFileInput);
-            
-            let currentCategoryTarget = { id: null, element: null };
-
-            // 1. Se llama cuando un admin hace click en una categoría.
-            function handleCategoryClick(categoryId, categoryName, element) {
-                if (!state.isAdmin) return;
-                currentCategoryTarget = { id: categoryId, name: categoryName, element };
-                categoryFileInput.click(); // Abre el selector de archivos.
-            }
-
-            // 2. Se dispara cuando el admin selecciona un archivo.
-            categoryFileInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file && currentCategoryTarget.id) {
-                    uploadCategoryImage(file, currentCategoryTarget.id, currentCategoryTarget.name, currentCategoryTarget.element);
-                }
-                // Resetear para poder subir el mismo archivo otra vez.
-                e.target.value = null; 
-            });
-
-            // 3. Lógica principal de subida y guardado.
-            async function uploadCategoryImage(file, categoryId, categoryName, categoryElement) {
-                const iconContainer = categoryElement.querySelector('.category-item-icon');
-                if (!iconContainer) return;
-                
-                // Feedback visual de carga
-                const originalContent = iconContainer.innerHTML;
-                iconContainer.innerHTML = `<div class="w-8 h-8 border-4 border-gray-200 border-t-brand rounded-full animate-spin"></div>`;
-
-                try {
-                    const uniquePath = `category_images/${categoryId}/${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
-                    const fileRef = storageRef(storage, uniquePath);
-                    
-                    const uploadResult = await uploadBytes(fileRef, file);
-                    const downloadURL = await getDownloadURL(uploadResult.ref);
-
-                    const categoryRef = doc(db, 'categories', categoryId);
-                    
-                    // Asegurarnos de que el nombre se guarda/actualiza.
-                    const payload = {
-                        name: categoryName,
-                        imageUrl: downloadURL,
-                        imagePath: uploadResult.ref.fullPath,
-                        updatedAt: serverTimestamp()
-                    };
-
-                    await setDoc(categoryRef, payload, { merge: true });
-
-                    // Refrescar la lista de categorías para mostrar la nueva imagen.
-                    await populateCategoryList();
-
-                } catch (error) {
-                    console.error(`Error al subir imagen para la categoría ${categoryId}:`, error);
-                    alert("Error al subir la imagen. Inténtalo de nuevo.");
-                    // Restaurar contenido original en caso de error
-                    iconContainer.innerHTML = originalContent;
-                }
-            }
-
-
             // --- LÓGICA DE PUBLICAR (Firebase Storage + Firestore) ---
 
             formVender.addEventListener('submit', async (e) => {
@@ -5060,14 +4957,21 @@
 
 
 async function handleAdminBannerUpload(event) {
+    console.log('Verificando UID del usuario actual:', auth.currentUser.uid); // <-- AÑADE ESTA LÍNEA
     const file = event.target.files[0];
     if (!file || !state.isAdmin) return;
 
+    // 1. Obtiene el nombre del ícono desde el ATRIBUTO del botón, no buscando la etiqueta <i>.
+    //    Esta es la parte clave que evita el error.
     const originalIconName = uploadCoverBtn.dataset.iconName;
+
+    // 2. Inicia el feedback visual: deshabilita el botón y lo VACÍA por completo,
+    //    reemplazando su contenido con el código del spinner.
     uploadCoverBtn.disabled = true;
     uploadCoverBtn.innerHTML = `<svg class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
 
     try {
+        // --- El resto de esta sección (try/catch) es tu lógica original, que ya era correcta ---
         const uniquePath = `banners/${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
         const fileRef = storageRef(storage, uniquePath);
         const uploadResult = await uploadBytes(fileRef, file);
@@ -5077,6 +4981,8 @@ async function handleAdminBannerUpload(event) {
         oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
 
         const newBanner = {
+            title: "Nuevo Banner (Editar)",
+            subtitle: "Haz clic en el lápiz para cambiar la fecha",
             imageUrl: downloadURL,
             imagePath: uploadResult.ref.fullPath,
             endTime: oneWeekFromNow,
@@ -5090,10 +4996,17 @@ async function handleAdminBannerUpload(event) {
         console.error("Error al subir el nuevo banner:", error);
         alert(`❌ Error al subir la portada:\n\n${error.message}`);
     } finally {
+        // 3. Este bloque 'finally' se ejecuta SIEMPRE, tanto si la subida fue exitosa como si falló.
+        //    Es perfecto para restaurar el estado del botón.
         uploadCoverBtn.disabled = false;
+        
+        // 4. Reconstruimos el contenido del botón desde cero usando el nombre del ícono que guardamos.
         uploadCoverBtn.innerHTML = `<i data-lucide="${originalIconName}" class="w-5 h-5 md:w-6 md:h-6"></i>`;
-        lucide.createIcons();
-        coverFileInput.value = null;
+        
+        // 5. ¡CRÍTICO! Le decimos a la librería Lucide que busque nuevas etiquetas <i> para convertirlas en íconos.
+        lucide.createIcons(); 
+        
+        coverFileInput.value = null; // Resetea el input para poder subir el mismo archivo otra vez
     }
 }
 
